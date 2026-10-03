@@ -1,4 +1,4 @@
-"""Evidence-first triage; optional local generation with a safe failure path."""
+"""Combine routing and retrieval, with source text as the generation fallback."""
 
 import json
 import os
@@ -30,7 +30,7 @@ class TriageService:
         warning = None
         citations: list[str] = []
         if sources:
-            # Extract exact source text instead of pretending a template is an LLM answer.
+            # Omit the section heading; retain the passage body and its source ID.
             mode = 'extractive'
             best = sources[0]
             answer = best['text'].split('\n', 1)[-1].strip()

@@ -2,16 +2,16 @@
 
 ## Keep the baseline inspectable
 
-Use TF-IDF plus logistic regression for incident routing. A small synthetic dataset
-does not justify fine-tuning a large model. Inspectable feature contributions and
-honest error analysis are more useful here than an expensive black box.
+TF-IDF plus logistic regression trains locally on the small synthetic dataset and
+exposes the terms contributing to each route. This gives the project a baseline
+to compare with other models. No comparative model study has been run yet.
 
 ## Separate routing from retrieval
 
 The classifier suggests a service area. It does not restrict retrieval; an incorrect
 label must not hide a relevant runbook. Retrieval combines BM25 lexical matching
-with TF-IDF cosine similarity using a fixed weighted score. These are sparse text
-retrieval methods, not neural embeddings or a vector database.
+with TF-IDF cosine similarity using a fixed weighted score. This favors vocabulary
+overlap; paraphrases with different terminology may fail to retrieve useful evidence.
 
 ## Keep suggestions separate from execution
 

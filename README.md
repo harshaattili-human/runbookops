@@ -11,22 +11,8 @@ local LLM synthesis is optional. The application never executes remediation.
 Evaluation uses 90 synthetic descriptions across 30 scenarios and 10 synthetic
 runbooks. Operational usefulness has not been measured on real incidents.
 
-## Review in three minutes
-
-| Question | Evidence |
-| --- | --- |
-| What is implemented, and where? | [Technical review guide](docs/review-guide.md) |
-| Why this architecture? | [Design decisions](docs/decisions.md) |
-| How was it evaluated? | [Model card](docs/model-card.md) and [results with individual errors](reports/evaluation.json) |
-| Does it build and pass checks? | [GitHub Actions](https://github.com/harshaattili-human/runbookops/actions) |
-| How can I try it? | [Local setup](#run-locally) and [two-minute walkthrough](docs/demo-script.md) |
-
-## Scope
-
-- Python API for classification, retrieval, and evidence-linked triage.
-- A compact React/TypeScript workbench for investigating incidents.
-- Reproducible evaluation with scenario-grouped classifier splits.
-- Optional local-model synthesis; the default works without an LLM or API key.
+For a code walkthrough, start with the [implementation map](docs/review-guide.md).
+The [model card](docs/model-card.md) describes the evaluation protocol and its limits.
 
 ## Run locally
 
@@ -85,8 +71,8 @@ flowchart TD
 
 The classifier uses TF-IDF and logistic regression. Retrieval combines BM25 and
 TF-IDF cosine similarity. Sparse retrieval was chosen to make the first baseline
-fast, reproducible, and easy to inspect. Neither LangChain nor a vector database
-is required by this implementation.
+fast, reproducible, and easy to inspect. Both indexes are built in memory from the
+local Markdown files when the application starts.
 
 ## Evaluation and checks
 

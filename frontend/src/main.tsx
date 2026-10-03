@@ -168,7 +168,7 @@ function App() {
           </span>
           Runbook<span>Ops</span>
         </a>
-        <div className="workspace-label">ENGINEERING WORKSPACE</div>
+        <div className="workspace-label">INCIDENT TOOLS</div>
         <nav aria-label="Main navigation">
           <button
             className={page === 'workbench' ? 'active' : ''}
@@ -190,14 +190,10 @@ function App() {
           </button>
         </nav>
         <div className="sidebar-note">
-          <span className="tiny-label">THE APPROACH</span>
-          <h3>Evidence before action.</h3>
+          <span className="tiny-label">USING THE DEMO</span>
+          <h3>Check the source lines</h3>
           <p>
-            Inspect the source.
-            <br />
-            Understand the signal.
-            <br />
-            Keep the engineer in control.
+            Choose a sample incident, then open a result to read the matching runbook passage.
           </p>
           <ShieldCheck size={23} />
         </div>
@@ -234,20 +230,20 @@ function App() {
             <div>
               <h1>
                 {page === 'workbench'
-                  ? 'From alert to understanding.'
+                  ? 'Incident workbench'
                   : page === 'library'
-                    ? 'A source for every suggestion.'
-                    : 'Measure what actually works.'}
+                    ? 'Runbook library'
+                    : 'Evaluation results'}
               </h1>
               <p>
                 {page === 'workbench'
-                  ? 'A calmer starting point for the next incident.'
+                  ? 'Describe the failure to find a suggested service area and relevant runbook passages.'
                   : page === 'library'
-                    ? 'Original, fictional runbooks. Read the evidence in full.'
-                    : 'Reproducible results, with the limitations kept in view.'}
+                    ? 'Read or filter the synthetic runbooks used by the retriever.'
+                    : 'Grouped classifier results and retrieval checks on the synthetic dataset.'}
               </p>
             </div>
-            <span className="version">v0.1 / LOCAL FIRST</span>
+            <span className="version">v0.1</span>
           </div>
           {error && (
             <div role="alert" className="alert">
@@ -285,7 +281,7 @@ function App() {
                 </div>
                 <div>
                   <ShieldCheck size={18} />
-                  <span>Human review built in</span>
+                  <span>Read-only suggestions</span>
                 </div>
               </div>
               <div className="work-grid">
@@ -301,7 +297,7 @@ function App() {
                       <h2>
                         <span className="step">01</span>Describe the incident
                       </h2>
-                      <span className="subtle">No raw secrets or customer data</span>
+                      <span className="subtle">Use synthetic incident details</span>
                     </div>
                     <label className="sr-only" htmlFor="incident">
                       Incident description
@@ -367,17 +363,17 @@ function App() {
                     {busy ? (
                       <div className="empty-state">
                         <Activity className="pulse" size={30} />
-                        <h3>Following the signals…</h3>
+                        <h3>Searching runbooks…</h3>
                         <p>Classifying the incident and finding supporting passages.</p>
                       </div>
                     ) : !result ? (
                       <div className="empty-state">
                         <Search size={32} />
-                        <h3>Start with what you know.</h3>
+                        <h3>No analysis yet</h3>
                         <p>
                           Describe an incident or choose a scenario above.
                           <br />
-                          Every result comes with the source behind it.
+                          Matching passages will appear here with their source lines.
                         </p>
                       </div>
                     ) : (
@@ -388,7 +384,7 @@ function App() {
                           />
                           <h3>
                             {result.sources.length
-                              ? 'A useful place to start'
+                              ? 'Suggested investigation'
                               : 'More context needed'}
                           </h3>
                           <span>
@@ -485,8 +481,8 @@ function App() {
                   <div className="method-note">
                     <Check size={17} />
                     <div>
-                      <strong>No keys needed to start</strong>
-                      <p>Default answers quote runbook text. Local LLM synthesis is optional.</p>
+                      <strong>Source text by default</strong>
+                      <p>Enable the local LLM option only after configuring a model.</p>
                     </div>
                   </div>
                 </aside>
@@ -546,7 +542,7 @@ function App() {
                     />
                   </div>
                   <section className="panel eval-panel">
-                    <h2>Read these numbers in context.</h2>
+                    <h2>Evaluation method and limits</h2>
                     <p>
                       {evaluation.classifier.split}. Paraphrases stay together; preprocessing is
                       fitted only on each training fold.
@@ -559,7 +555,7 @@ function App() {
                     <code>python -m runbookops.evaluate</code>
                   </section>
                   <section className="panel eval-panel">
-                    <h2>Where the classifier struggled</h2>
+                    <h2>Misclassified incidents</h2>
                     {evaluation.classifier.errors.length ? (
                       evaluation.classifier.errors.map((e) => (
                         <div className="error-row" key={e.id}>
@@ -585,8 +581,8 @@ function App() {
             </>
           )}
           <footer className="page-footer">
-            <span>Built for understanding, with room to question.</span>
-            <span>Python · scikit-learn · React · TypeScript</span>
+            <span>Synthetic incidents and runbooks</span>
+            <span>RunbookOps · local prototype</span>
           </footer>
         </div>
       </main>
