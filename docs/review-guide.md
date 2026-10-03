@@ -1,0 +1,66 @@
+# Technical review guide
+
+RunbookOps explores one workflow: given an incident description, show a suggested
+service area and the runbook evidence worth inspecting. The current implementation
+is a local prototype. It has not been used to resolve production incidents.
+
+## Implementation map
+
+| Concern | Implementation | Evidence or boundary |
+| --- | --- | --- |
+| Incident routing | [Classifier](../backend/runbookops/classifier.py): TF-IDF plus logistic regression, term contributions, and heuristic abstention | [Grouped evaluation](../backend/runbookops/evaluate.py); model scores are not calibrated confidence |
+| Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
+| HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
+| Answer construction | [Service](../backend/runbookops/service.py): exact source extraction, optional Ollama synthesis, citation-ID validation | Mocked adapter tests cover valid/invalid citations and missing configuration; live generation quality is unmeasured |
+| Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | TypeScript and production build pass; keyboard interaction and end-to-end browser coverage are still planned |
+| Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | CI runs tests, evaluation, and frontend build; the Dockerfile has not yet been built in CI |
+
+## Decisions worth examining
+
+**A small, inspectable classifier.** TF-IDF and logistic regression establish a
+baseline that can train locally and expose influential terms. The current results
+do not show superiority to a dummy classifier, an embedding model, or another
+retriever: those comparisons have not been run.
+
+**Retrieval independent of routing.** The classifier label does not filter runbooks.
+This avoids hiding relevant evidence solely because the router chose the wrong
+service area. The service can return useful evidence while requesting review of
+the classification.
+
+**Grouping by incident scenario.** Each of the 30 scenarios has three paraphrases.
+The evaluation keeps a scenario's paraphrases in one fold and fits preprocessing
+only on training data. This addresses that leakage route; it does not establish
+generalization beyond the authored synthetic dataset.
+
+**An explicit fallback.** Source extraction is the default. Optional generated
+answers require valid retrieved citation IDs and fall back when the provider or
+validation fails. An answer can cite a valid passage and still misrepresent it;
+entailment and live-model evaluation remain open work.
+
+## What the measurements establish
+
+The checked-in report records approximately 0.945 macro F1 under three-fold grouped
+cross-validation on 90 synthetic descriptions. This is a **forced-label classifier
+metric**; it does not evaluate the service's abstention policy end to end.
+
+Retrieval smoke checks find the expected document within four returned chunks for
+10 positive queries and return no passage for four unrelated queries. The questions
+are visible to the developer. They are not an independent holdout, and the perfect
+smoke result should not be read as evidence of robust open-world retrieval.
+
+Reproduction, split membership, individual errors, environment versions, and the
+dataset hash are available in the [evaluation report](../reports/evaluation.json).
+The [model card](model-card.md) describes thresholds and limitations.
+
+## What needs evidence next
+
+1. Separate validation and holdout cases, including near-topic unsupported queries;
+   compare simple baselines and report failures as well as headline metrics.
+2. Browser interaction tests, keyboard focus handling, and a reproducible visual demo.
+3. Container-build checks and measured latency/concurrency behavior with a stated
+   environment; individual request timing is not a load test.
+4. Live LLM evaluation before making generation-quality claims. Authentication,
+   abuse controls, and tenant boundaries before exposing a live public API.
+
+See the [development backlog](roadmap.md) for planned work. Planned items are not
+part of the current implementation.

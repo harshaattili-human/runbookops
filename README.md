@@ -1,12 +1,25 @@
 # RunbookOps
 
-An incident-triage workbench that combines a trained text classifier with hybrid
-runbook retrieval. Designed around a practical engineering question: **what should
-I inspect next, and which document supports that recommendation?**
+Route an incident description to a service area, retrieve relevant runbook passages,
+and inspect the source lines behind each suggested investigation step.
 
-Independent portfolio project by Harsha Attili, developed with AI coding assistance.
-All incidents and runbooks are original synthetic examples. This repository does
-not contain employer code, internal documentation, or production performance claims.
+RunbookOps is a local prototype built with Python, scikit-learn, FastAPI, and
+React/TypeScript. Its default path uses a trained classifier and sparse retrieval;
+local LLM synthesis is optional. The application never executes remediation.
+
+**Status:** working baseline with passing Python tests and frontend build.
+Evaluation uses 90 synthetic descriptions across 30 scenarios and 10 synthetic
+runbooks. Operational usefulness has not been measured on real incidents.
+
+## Review in three minutes
+
+| Question | Evidence |
+| --- | --- |
+| What is implemented, and where? | [Technical review guide](docs/review-guide.md) |
+| Why this architecture? | [Design decisions](docs/decisions.md) |
+| How was it evaluated? | [Model card](docs/model-card.md) and [results with individual errors](reports/evaluation.json) |
+| Does it build and pass checks? | [GitHub Actions](https://github.com/harshaattili-human/runbookops/actions) |
+| How can I try it? | [Local setup](#run-locally) and [two-minute walkthrough](docs/demo-script.md) |
 
 ## Scope
 
@@ -20,6 +33,8 @@ not contain employer code, internal documentation, or production performance cla
 Requires Python 3.12 and Node.js 24 (the versions targeted by CI).
 
 ```sh
+git clone https://github.com/harshaattili-human/runbookops.git
+cd runbookops
 python -m venv .venv
 source .venv/bin/activate
 # Windows PowerShell: .venv\Scripts\Activate.ps1
@@ -123,9 +138,11 @@ authentication, rate limiting, and multi-tenant isolation are not implemented.
 - [Next improvements](docs/roadmap.md)
 - [Contribution workflow](CONTRIBUTING.md)
 
-This project connects backend/API engineering, workflow troubleshooting, and
-applied AI. AI assistance is documented; commit messages describe the actual
-changes and timestamps are not backdated.
+## Provenance
+
+Independent portfolio project by Harsha Attili, developed with AI coding assistance.
+The code, incidents, and runbooks were created for this project; no employer code,
+internal documents, or production logs are included. See [data provenance](data/README.md).
 
 Implementation references: [scikit-learn pipelines](https://scikit-learn.org/stable/modules/compose.html),
 [grouped splits](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedGroupKFold.html),

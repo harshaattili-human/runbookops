@@ -1,9 +1,9 @@
 # Contributing
 
 Make one meaningful change, test the behavior it affects, and explain the reason in
-the commit. Avoid unrelated formatting churn and synthetic contribution activity.
+the commit. Keep unrelated formatting changes separate.
 
-Use current timestamps. Keep data provenance clear. Do not upload private incidents,
+Keep data provenance clear. Do not upload private incidents,
 customer information, employer material, credentials, or screenshots of internal tools.
 
 Before pushing:
@@ -18,3 +18,18 @@ npm run build
 
 Update the model card when a dataset, threshold, model, or evaluation protocol changes.
 Keep validation and held-out evaluation sets separate as the benchmark grows.
+
+## Evidence for a change
+
+- State the concrete problem and the behavior that changes.
+- Describe the alternative considered and why the chosen approach fits the constraints.
+- Add a focused regression check for a behavior fix; documentation-only changes need
+  content and link review, not new tests that merely repeat the implementation.
+- For reported metrics, identify the dataset, split, configuration, and command.
+  Compare against a baseline when claiming an improvement; preserve unfavorable results.
+- Update the review guide if a capability moves from planned to implemented or verified.
+- Explain residual limitations. A passing build does not establish model quality,
+  security, performance at scale, or a successful deployment.
+
+Use issue or pull-request discussion when it helps explain a substantial change.
+Keep exploratory work on a branch until it is ready to reproduce from the default branch.
