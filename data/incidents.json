@@ -1,0 +1,542 @@
+[
+  {
+    "id": "database-pool-1",
+    "scenario": "database-pool",
+    "category": "database",
+    "text": "HikariPool timeout waiting for a database connection; pending connections are rising."
+  },
+  {
+    "id": "database-pool-2",
+    "scenario": "database-pool",
+    "category": "database",
+    "text": "The SQL connection pool is full and requests wait for a connection."
+  },
+  {
+    "id": "database-pool-3",
+    "scenario": "database-pool",
+    "category": "database",
+    "text": "Active database connections hit the limit while new queries cannot acquire a session."
+  },
+  {
+    "id": "database-locks-1",
+    "scenario": "database-locks",
+    "category": "database",
+    "text": "Database updates are blocked by a long transaction holding row locks."
+  },
+  {
+    "id": "database-locks-2",
+    "scenario": "database-locks",
+    "category": "database",
+    "text": "Reconciliation SQL queries wait on a blocking session."
+  },
+  {
+    "id": "database-locks-3",
+    "scenario": "database-locks",
+    "category": "database",
+    "text": "Row lock contention prevents the nightly database updates from finishing."
+  },
+  {
+    "id": "database-slow-query-1",
+    "scenario": "database-slow-query",
+    "category": "database",
+    "text": "A SQL query scans the whole table and database response time increased."
+  },
+  {
+    "id": "database-slow-query-2",
+    "scenario": "database-slow-query",
+    "category": "database",
+    "text": "The database execution plan changed and a select query is slow."
+  },
+  {
+    "id": "database-slow-query-3",
+    "scenario": "database-slow-query",
+    "category": "database",
+    "text": "Oracle queries take much longer after losing an index access path."
+  },
+  {
+    "id": "database-deadlock-1",
+    "scenario": "database-deadlock",
+    "category": "database",
+    "text": "Concurrent database updates raise deadlock errors."
+  },
+  {
+    "id": "database-deadlock-2",
+    "scenario": "database-deadlock",
+    "category": "database",
+    "text": "Two SQL transactions update rows in opposite order and deadlock."
+  },
+  {
+    "id": "database-deadlock-3",
+    "scenario": "database-deadlock",
+    "category": "database",
+    "text": "The database reports a cycle of locks between batch transactions."
+  },
+  {
+    "id": "database-leak-1",
+    "scenario": "database-leak",
+    "category": "database",
+    "text": "Database connections are not returned after cancelled requests."
+  },
+  {
+    "id": "database-leak-2",
+    "scenario": "database-leak",
+    "category": "database",
+    "text": "The SQL pool retains connections after application exceptions."
+  },
+  {
+    "id": "database-leak-3",
+    "scenario": "database-leak",
+    "category": "database",
+    "text": "Idle traffic still leaves every database connection borrowed."
+  },
+  {
+    "id": "database-transaction-1",
+    "scenario": "database-transaction",
+    "category": "database",
+    "text": "A database transaction stays open while waiting on a remote service."
+  },
+  {
+    "id": "database-transaction-2",
+    "scenario": "database-transaction",
+    "category": "database",
+    "text": "SQL sessions remain in transaction for minutes and block writes."
+  },
+  {
+    "id": "database-transaction-3",
+    "scenario": "database-transaction",
+    "category": "database",
+    "text": "The reconciliation batch holds database locks across network calls."
+  },
+  {
+    "id": "messaging-lag-1",
+    "scenario": "messaging-lag",
+    "category": "messaging",
+    "text": "Kafka consumer lag grows while producers keep sending events."
+  },
+  {
+    "id": "messaging-lag-2",
+    "scenario": "messaging-lag",
+    "category": "messaging",
+    "text": "The consumer group is falling behind on Kafka partitions."
+  },
+  {
+    "id": "messaging-lag-3",
+    "scenario": "messaging-lag",
+    "category": "messaging",
+    "text": "Event age rises because Kafka consumption is slower than production."
+  },
+  {
+    "id": "messaging-poison-1",
+    "scenario": "messaging-poison",
+    "category": "messaging",
+    "text": "One invalid event repeatedly fails and fills the dead-letter queue."
+  },
+  {
+    "id": "messaging-poison-2",
+    "scenario": "messaging-poison",
+    "category": "messaging",
+    "text": "A poison message keeps retrying instead of reaching a dead-letter topic."
+  },
+  {
+    "id": "messaging-poison-3",
+    "scenario": "messaging-poison",
+    "category": "messaging",
+    "text": "Deserialization of one message fails on every consumer retry."
+  },
+  {
+    "id": "messaging-rebalance-1",
+    "scenario": "messaging-rebalance",
+    "category": "messaging",
+    "text": "Kafka consumers repeatedly rebalance and stop processing."
+  },
+  {
+    "id": "messaging-rebalance-2",
+    "scenario": "messaging-rebalance",
+    "category": "messaging",
+    "text": "The message consumer group constantly loses partition assignments."
+  },
+  {
+    "id": "messaging-rebalance-3",
+    "scenario": "messaging-rebalance",
+    "category": "messaging",
+    "text": "Kafka partition ownership changes every few seconds and throughput drops."
+  },
+  {
+    "id": "messaging-duplicate-1",
+    "scenario": "messaging-duplicate",
+    "category": "messaging",
+    "text": "Replayed events cause duplicate downstream side effects."
+  },
+  {
+    "id": "messaging-duplicate-2",
+    "scenario": "messaging-duplicate",
+    "category": "messaging",
+    "text": "The consumer processes the same message twice without deduplication."
+  },
+  {
+    "id": "messaging-duplicate-3",
+    "scenario": "messaging-duplicate",
+    "category": "messaging",
+    "text": "Repeated message delivery creates duplicate business records."
+  },
+  {
+    "id": "messaging-schema-1",
+    "scenario": "messaging-schema",
+    "category": "messaging",
+    "text": "A producer changed the event schema and consumers reject messages."
+  },
+  {
+    "id": "messaging-schema-2",
+    "scenario": "messaging-schema",
+    "category": "messaging",
+    "text": "Kafka payload serialization no longer matches the consumer contract."
+  },
+  {
+    "id": "messaging-schema-3",
+    "scenario": "messaging-schema",
+    "category": "messaging",
+    "text": "Message schema version mismatch causes deserialization errors."
+  },
+  {
+    "id": "messaging-retry-1",
+    "scenario": "messaging-retry",
+    "category": "messaging",
+    "text": "Message retry traffic surges after a downstream outage."
+  },
+  {
+    "id": "messaging-retry-2",
+    "scenario": "messaging-retry",
+    "category": "messaging",
+    "text": "The event queue retries without backoff and overwhelms consumers."
+  },
+  {
+    "id": "messaging-retry-3",
+    "scenario": "messaging-retry",
+    "category": "messaging",
+    "text": "Unbounded retries make the dead-letter message backlog grow."
+  },
+  {
+    "id": "deployment-crash-1",
+    "scenario": "deployment-crash",
+    "category": "deployment",
+    "text": "A new container image enters CrashLoopBackOff after rollout."
+  },
+  {
+    "id": "deployment-crash-2",
+    "scenario": "deployment-crash",
+    "category": "deployment",
+    "text": "OpenShift pods restart repeatedly when the new deployment starts."
+  },
+  {
+    "id": "deployment-crash-3",
+    "scenario": "deployment-crash",
+    "category": "deployment",
+    "text": "Kubernetes container startup fails and replicas stay unavailable."
+  },
+  {
+    "id": "deployment-probe-1",
+    "scenario": "deployment-probe",
+    "category": "deployment",
+    "text": "The container runs but readiness probes fail after deployment."
+  },
+  {
+    "id": "deployment-probe-2",
+    "scenario": "deployment-probe",
+    "category": "deployment",
+    "text": "Kubernetes health probes use the wrong port and pods never become ready."
+  },
+  {
+    "id": "deployment-probe-3",
+    "scenario": "deployment-probe",
+    "category": "deployment",
+    "text": "A rollout stalls because the new pod fails its readiness endpoint."
+  },
+  {
+    "id": "deployment-oom-1",
+    "scenario": "deployment-oom",
+    "category": "deployment",
+    "text": "The container is OOMKilled when memory reaches its limit."
+  },
+  {
+    "id": "deployment-oom-2",
+    "scenario": "deployment-oom",
+    "category": "deployment",
+    "text": "Pod memory usage climbs until Kubernetes restarts the process."
+  },
+  {
+    "id": "deployment-oom-3",
+    "scenario": "deployment-oom",
+    "category": "deployment",
+    "text": "The JVM heap and container memory limit cause out of memory restarts."
+  },
+  {
+    "id": "deployment-image-1",
+    "scenario": "deployment-image",
+    "category": "deployment",
+    "text": "Kubernetes cannot pull the deployment image from the registry."
+  },
+  {
+    "id": "deployment-image-2",
+    "scenario": "deployment-image",
+    "category": "deployment",
+    "text": "Pods show ImagePullBackOff after a new release."
+  },
+  {
+    "id": "deployment-image-3",
+    "scenario": "deployment-image",
+    "category": "deployment",
+    "text": "Container image retrieval fails because the registry reference is wrong."
+  },
+  {
+    "id": "deployment-config-1",
+    "scenario": "deployment-config",
+    "category": "deployment",
+    "text": "A deployment is missing a required configuration reference."
+  },
+  {
+    "id": "deployment-config-2",
+    "scenario": "deployment-config",
+    "category": "deployment",
+    "text": "New pods fail startup because environment configuration is absent."
+  },
+  {
+    "id": "deployment-config-3",
+    "scenario": "deployment-config",
+    "category": "deployment",
+    "text": "The container crashes after a rollout changes its configuration keys."
+  },
+  {
+    "id": "deployment-resources-1",
+    "scenario": "deployment-resources",
+    "category": "deployment",
+    "text": "Kubernetes cannot schedule replicas due to insufficient cluster memory."
+  },
+  {
+    "id": "deployment-resources-2",
+    "scenario": "deployment-resources",
+    "category": "deployment",
+    "text": "New deployment pods remain pending because requested CPU is unavailable."
+  },
+  {
+    "id": "deployment-resources-3",
+    "scenario": "deployment-resources",
+    "category": "deployment",
+    "text": "The container workload requests more resources than the cluster has."
+  },
+  {
+    "id": "workflow-jobs-1",
+    "scenario": "workflow-jobs",
+    "category": "workflow",
+    "text": "A Camunda job exhausted retries and the process is stuck."
+  },
+  {
+    "id": "workflow-jobs-2",
+    "scenario": "workflow-jobs",
+    "category": "workflow",
+    "text": "Workflow incidents show zero retries on a failed service task."
+  },
+  {
+    "id": "workflow-jobs-3",
+    "scenario": "workflow-jobs",
+    "category": "workflow",
+    "text": "The process instance cannot advance after a job exception."
+  },
+  {
+    "id": "workflow-worker-1",
+    "scenario": "workflow-worker",
+    "category": "workflow",
+    "text": "The workflow external task worker has stopped polling."
+  },
+  {
+    "id": "workflow-worker-2",
+    "scenario": "workflow-worker",
+    "category": "workflow",
+    "text": "Process tasks wait because no external worker acquires them."
+  },
+  {
+    "id": "workflow-worker-3",
+    "scenario": "workflow-worker",
+    "category": "workflow",
+    "text": "Camunda external tasks remain locked after a worker outage."
+  },
+  {
+    "id": "workflow-gateway-1",
+    "scenario": "workflow-gateway",
+    "category": "workflow",
+    "text": "An approval process waits at a gateway with missing variables."
+  },
+  {
+    "id": "workflow-gateway-2",
+    "scenario": "workflow-gateway",
+    "category": "workflow",
+    "text": "The workflow takes the wrong branch after a gateway condition change."
+  },
+  {
+    "id": "workflow-gateway-3",
+    "scenario": "workflow-gateway",
+    "category": "workflow",
+    "text": "A process variable type prevents the approval route from matching."
+  },
+  {
+    "id": "workflow-correlation-1",
+    "scenario": "workflow-correlation",
+    "category": "workflow",
+    "text": "A workflow message cannot correlate with the waiting instance."
+  },
+  {
+    "id": "workflow-correlation-2",
+    "scenario": "workflow-correlation",
+    "category": "workflow",
+    "text": "The process subscription expects a different correlation key."
+  },
+  {
+    "id": "workflow-correlation-3",
+    "scenario": "workflow-correlation",
+    "category": "workflow",
+    "text": "Camunda cannot find the message subscription for an approval."
+  },
+  {
+    "id": "workflow-timer-1",
+    "scenario": "workflow-timer",
+    "category": "workflow",
+    "text": "A workflow timer is overdue and the process does not advance."
+  },
+  {
+    "id": "workflow-timer-2",
+    "scenario": "workflow-timer",
+    "category": "workflow",
+    "text": "The scheduled process job never fires its timer activity."
+  },
+  {
+    "id": "workflow-timer-3",
+    "scenario": "workflow-timer",
+    "category": "workflow",
+    "text": "Approval instances are stuck waiting for a timer event."
+  },
+  {
+    "id": "workflow-version-1",
+    "scenario": "workflow-version",
+    "category": "workflow",
+    "text": "Running workflow instances still use the old process definition."
+  },
+  {
+    "id": "workflow-version-2",
+    "scenario": "workflow-version",
+    "category": "workflow",
+    "text": "A process deployment changed its activities and instance migration fails."
+  },
+  {
+    "id": "workflow-version-3",
+    "scenario": "workflow-version",
+    "category": "workflow",
+    "text": "Approval routing differs between process definition versions."
+  },
+  {
+    "id": "api-security-expiry-1",
+    "scenario": "api-security-expiry",
+    "category": "api-security",
+    "text": "REST requests return HTTP 401 because JWT tokens expired."
+  },
+  {
+    "id": "api-security-expiry-2",
+    "scenario": "api-security-expiry",
+    "category": "api-security",
+    "text": "API authentication fails after the bearer token expiry time."
+  },
+  {
+    "id": "api-security-expiry-3",
+    "scenario": "api-security-expiry",
+    "category": "api-security",
+    "text": "Valid users are rejected by token validation with expired credentials."
+  },
+  {
+    "id": "api-security-audience-1",
+    "scenario": "api-security-audience",
+    "category": "api-security",
+    "text": "JWT audience validation rejects calls to the REST endpoint."
+  },
+  {
+    "id": "api-security-audience-2",
+    "scenario": "api-security-audience",
+    "category": "api-security",
+    "text": "The API expects a different token issuer and returns 401."
+  },
+  {
+    "id": "api-security-audience-3",
+    "scenario": "api-security-audience",
+    "category": "api-security",
+    "text": "Authentication configuration does not match the token audience."
+  },
+  {
+    "id": "api-security-permissions-1",
+    "scenario": "api-security-permissions",
+    "category": "api-security",
+    "text": "The API returns 403 to authenticated callers missing a permission."
+  },
+  {
+    "id": "api-security-permissions-2",
+    "scenario": "api-security-permissions",
+    "category": "api-security",
+    "text": "A valid token is rejected by endpoint authorization rules."
+  },
+  {
+    "id": "api-security-permissions-3",
+    "scenario": "api-security-permissions",
+    "category": "api-security",
+    "text": "REST access is forbidden because the caller lacks the required scope."
+  },
+  {
+    "id": "api-security-rotation-1",
+    "scenario": "api-security-rotation",
+    "category": "api-security",
+    "text": "JWT signature verification fails after signing-key rotation."
+  },
+  {
+    "id": "api-security-rotation-2",
+    "scenario": "api-security-rotation",
+    "category": "api-security",
+    "text": "API authentication uses an old cached signing key."
+  },
+  {
+    "id": "api-security-rotation-3",
+    "scenario": "api-security-rotation",
+    "category": "api-security",
+    "text": "The token verifier cannot refresh its signing-key discovery document."
+  },
+  {
+    "id": "api-security-timeouts-1",
+    "scenario": "api-security-timeouts",
+    "category": "api-security",
+    "text": "REST downstream calls return 504 after a read timeout."
+  },
+  {
+    "id": "api-security-timeouts-2",
+    "scenario": "api-security-timeouts",
+    "category": "api-security",
+    "text": "The API gateway times out waiting for the remote service."
+  },
+  {
+    "id": "api-security-timeouts-3",
+    "scenario": "api-security-timeouts",
+    "category": "api-security",
+    "text": "HTTP request latency exceeds the client time budget."
+  },
+  {
+    "id": "api-security-circuit-1",
+    "scenario": "api-security-circuit",
+    "category": "api-security",
+    "text": "The API circuit breaker remains open after downstream failures."
+  },
+  {
+    "id": "api-security-circuit-2",
+    "scenario": "api-security-circuit",
+    "category": "api-security",
+    "text": "REST retries amplify requests to a failing dependency."
+  },
+  {
+    "id": "api-security-circuit-3",
+    "scenario": "api-security-circuit",
+    "category": "api-security",
+    "text": "HTTP fallback reports failure while the circuit is open."
+  }
+]

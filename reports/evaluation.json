@@ -1,0 +1,387 @@
+{
+  "dataset": {
+    "kind": "synthetic, AI-assisted, illustrative only",
+    "samples": 90,
+    "scenarios": 30,
+    "sha256": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "scikit_learn": "1.8.0"
+  },
+  "classifier": {
+    "split": "3-fold stratified scenario-grouped cross-validation",
+    "macro_f1": 0.9450364650364651,
+    "labels": [
+      "api-security",
+      "database",
+      "deployment",
+      "messaging",
+      "workflow"
+    ],
+    "confusion_matrix": [
+      [
+        16,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        16,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        18,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        17,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        18
+      ]
+    ],
+    "per_class": {
+      "api-security": {
+        "precision": 0.8421052631578947,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8648648648648649,
+        "support": 18.0
+      },
+      "database": {
+        "precision": 0.8888888888888888,
+        "recall": 0.8888888888888888,
+        "f1-score": 0.8888888888888888,
+        "support": 18.0
+      },
+      "deployment": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 18.0
+      },
+      "messaging": {
+        "precision": 1.0,
+        "recall": 0.9444444444444444,
+        "f1-score": 0.9714285714285714,
+        "support": 18.0
+      },
+      "workflow": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 18.0
+      },
+      "accuracy": 0.9444444444444444,
+      "macro avg": {
+        "precision": 0.9461988304093566,
+        "recall": 0.9444444444444444,
+        "f1-score": 0.9450364650364651,
+        "support": 90.0
+      },
+      "weighted avg": {
+        "precision": 0.9461988304093568,
+        "recall": 0.9444444444444444,
+        "f1-score": 0.945036465036465,
+        "support": 90.0
+      }
+    },
+    "folds": [
+      {
+        "train_scenarios": [
+          "api-security-audience",
+          "api-security-expiry",
+          "api-security-permissions",
+          "api-security-timeouts",
+          "database-deadlock",
+          "database-pool",
+          "database-slow-query",
+          "database-transaction",
+          "deployment-config",
+          "deployment-crash",
+          "deployment-image",
+          "deployment-oom",
+          "messaging-lag",
+          "messaging-poison",
+          "messaging-rebalance",
+          "messaging-schema",
+          "workflow-correlation",
+          "workflow-gateway",
+          "workflow-jobs",
+          "workflow-version"
+        ],
+        "test_scenarios": [
+          "api-security-circuit",
+          "api-security-rotation",
+          "database-leak",
+          "database-locks",
+          "deployment-probe",
+          "deployment-resources",
+          "messaging-duplicate",
+          "messaging-retry",
+          "workflow-timer",
+          "workflow-worker"
+        ],
+        "train_samples": 60,
+        "test_samples": 30
+      },
+      {
+        "train_scenarios": [
+          "api-security-audience",
+          "api-security-circuit",
+          "api-security-permissions",
+          "api-security-rotation",
+          "database-deadlock",
+          "database-leak",
+          "database-locks",
+          "database-transaction",
+          "deployment-config",
+          "deployment-image",
+          "deployment-probe",
+          "deployment-resources",
+          "messaging-duplicate",
+          "messaging-poison",
+          "messaging-retry",
+          "messaging-schema",
+          "workflow-correlation",
+          "workflow-jobs",
+          "workflow-timer",
+          "workflow-worker"
+        ],
+        "test_scenarios": [
+          "api-security-expiry",
+          "api-security-timeouts",
+          "database-pool",
+          "database-slow-query",
+          "deployment-crash",
+          "deployment-oom",
+          "messaging-lag",
+          "messaging-rebalance",
+          "workflow-gateway",
+          "workflow-version"
+        ],
+        "train_samples": 60,
+        "test_samples": 30
+      },
+      {
+        "train_scenarios": [
+          "api-security-circuit",
+          "api-security-expiry",
+          "api-security-rotation",
+          "api-security-timeouts",
+          "database-leak",
+          "database-locks",
+          "database-pool",
+          "database-slow-query",
+          "deployment-crash",
+          "deployment-oom",
+          "deployment-probe",
+          "deployment-resources",
+          "messaging-duplicate",
+          "messaging-lag",
+          "messaging-rebalance",
+          "messaging-retry",
+          "workflow-gateway",
+          "workflow-timer",
+          "workflow-version",
+          "workflow-worker"
+        ],
+        "test_scenarios": [
+          "api-security-audience",
+          "api-security-permissions",
+          "database-deadlock",
+          "database-transaction",
+          "deployment-config",
+          "deployment-image",
+          "messaging-poison",
+          "messaging-schema",
+          "workflow-correlation",
+          "workflow-jobs"
+        ],
+        "train_samples": 60,
+        "test_samples": 30
+      }
+    ],
+    "errors": [
+      {
+        "id": "database-slow-query-3",
+        "text": "Oracle queries take much longer after losing an index access path.",
+        "expected": "database",
+        "predicted": "api-security"
+      },
+      {
+        "id": "database-transaction-1",
+        "text": "A database transaction stays open while waiting on a remote service.",
+        "expected": "database",
+        "predicted": "api-security"
+      },
+      {
+        "id": "messaging-duplicate-1",
+        "text": "Replayed events cause duplicate downstream side effects.",
+        "expected": "messaging",
+        "predicted": "api-security"
+      },
+      {
+        "id": "api-security-timeouts-2",
+        "text": "The API gateway times out waiting for the remote service.",
+        "expected": "api-security",
+        "predicted": "database"
+      },
+      {
+        "id": "api-security-circuit-3",
+        "text": "HTTP fallback reports failure while the circuit is open.",
+        "expected": "api-security",
+        "predicted": "database"
+      }
+    ]
+  },
+  "retrieval": {
+    "positive_cases": 10,
+    "negative_cases": 4,
+    "hit_rate_at_4_chunks": 1.0,
+    "mean_reciprocal_document_rank": 1.0,
+    "negative_abstention_rate": 1.0,
+    "cases": [
+      {
+        "query": "Requests time out acquiring a HikariPool database connection. What should I inspect?",
+        "expected_document": "database-pool",
+        "retrieved_documents": [
+          "database-pool"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "Reconciliation updates wait on row locks held by another transaction.",
+        "expected_document": "database-locks",
+        "retrieved_documents": [
+          "database-locks"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "Kafka lag is increasing and consumer rebalances happen repeatedly.",
+        "expected_document": "kafka-lag",
+        "retrieved_documents": [
+          "kafka-lag"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "Poison messages fail deserialization and the dead-letter queue is growing.",
+        "expected_document": "message-retries",
+        "retrieved_documents": [
+          "message-retries"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "OpenShift rollout stuck with CrashLoopBackOff and failing readiness probes.",
+        "expected_document": "pod-startup",
+        "retrieved_documents": [
+          "pod-startup"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "Container memory reaches its limit and pods are OOMKilled.",
+        "expected_document": "memory-pressure",
+        "retrieved_documents": [
+          "memory-pressure"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "Camunda service task has exhausted retries and the process instance is stuck.",
+        "expected_document": "workflow-jobs",
+        "retrieved_documents": [
+          "workflow-jobs",
+          "workflow-routing"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "An approval message cannot correlate with the waiting process subscription.",
+        "expected_document": "workflow-routing",
+        "retrieved_documents": [
+          "workflow-routing"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "API returns 401 after JWT signing-key rotation.",
+        "expected_document": "auth-tokens",
+        "retrieved_documents": [
+          "auth-tokens"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "HTTP 504 responses and an open circuit breaker after slow REST calls.",
+        "expected_document": "api-timeouts",
+        "retrieved_documents": [
+          "api-timeouts"
+        ],
+        "rank": 1,
+        "abstained": false
+      },
+      {
+        "query": "How do I bake chocolate brownies?",
+        "expected_document": null,
+        "retrieved_documents": [],
+        "rank": null,
+        "abstained": true
+      },
+      {
+        "query": "What is the weather in Charlotte tomorrow?",
+        "expected_document": null,
+        "retrieved_documents": [],
+        "rank": null,
+        "abstained": true
+      },
+      {
+        "query": "Which vacation destination has the best beaches?",
+        "expected_document": null,
+        "retrieved_documents": [],
+        "rank": null,
+        "abstained": true
+      },
+      {
+        "query": "Tell me the quarterly earnings of a public company.",
+        "expected_document": null,
+        "retrieved_documents": [],
+        "rank": null,
+        "abstained": true
+      }
+    ]
+  },
+  "limitations": [
+    "Small synthetic corpus; no estimate of real incident performance.",
+    "Retrieval questions are a hand-authored smoke set, not an external holdout.",
+    "Classification scores are not calibrated probabilities.",
+    "Live LLM generation is not evaluated by this benchmark."
+  ]
+}

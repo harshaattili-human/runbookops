@@ -1,0 +1,58 @@
+[
+  {
+    "query": "Requests time out acquiring a HikariPool database connection. What should I inspect?",
+    "expected_document": "database-pool"
+  },
+  {
+    "query": "Reconciliation updates wait on row locks held by another transaction.",
+    "expected_document": "database-locks"
+  },
+  {
+    "query": "Kafka lag is increasing and consumer rebalances happen repeatedly.",
+    "expected_document": "kafka-lag"
+  },
+  {
+    "query": "Poison messages fail deserialization and the dead-letter queue is growing.",
+    "expected_document": "message-retries"
+  },
+  {
+    "query": "OpenShift rollout stuck with CrashLoopBackOff and failing readiness probes.",
+    "expected_document": "pod-startup"
+  },
+  {
+    "query": "Container memory reaches its limit and pods are OOMKilled.",
+    "expected_document": "memory-pressure"
+  },
+  {
+    "query": "Camunda service task has exhausted retries and the process instance is stuck.",
+    "expected_document": "workflow-jobs"
+  },
+  {
+    "query": "An approval message cannot correlate with the waiting process subscription.",
+    "expected_document": "workflow-routing"
+  },
+  {
+    "query": "API returns 401 after JWT signing-key rotation.",
+    "expected_document": "auth-tokens"
+  },
+  {
+    "query": "HTTP 504 responses and an open circuit breaker after slow REST calls.",
+    "expected_document": "api-timeouts"
+  },
+  {
+    "query": "How do I bake chocolate brownies?",
+    "expected_document": null
+  },
+  {
+    "query": "What is the weather in Charlotte tomorrow?",
+    "expected_document": null
+  },
+  {
+    "query": "Which vacation destination has the best beaches?",
+    "expected_document": null
+  },
+  {
+    "query": "Tell me the quarterly earnings of a public company.",
+    "expected_document": null
+  }
+]
