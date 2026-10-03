@@ -87,7 +87,9 @@ unrelated smoke cases. This is a tiny synthetic benchmark, **not production accu
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split
-membership. The hosted CI workflow is configured but has not yet run on GitHub.
+membership. [The first GitHub Actions run](https://github.com/harshaattili-human/runbookops/actions/runs/37152016110)
+passed on October 3, 2026, including the Python tests, evaluation, and frontend
+production build on Python 3.12 and Node.js 24.
 
 ## Optional local LLM
 
