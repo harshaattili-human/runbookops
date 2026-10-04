@@ -1,0 +1,182 @@
+[
+  {
+    "scenario": "pool-replica-budget",
+    "query": "After increasing application replicas, requests wait for database connections even though each HikariPool is within its own maximum.",
+    "expected_document": "database-pool",
+    "expected_category": "database",
+    "kind": "supported",
+    "rationale": "Cross-replica database connection budget is covered.",
+    "id": "holdout-01"
+  },
+  {
+    "scenario": "lock-external-call",
+    "query": "A reconciliation transaction holds row locks while calling a slow external service, blocking other updates.",
+    "expected_document": "database-locks",
+    "expected_category": "database",
+    "kind": "supported",
+    "rationale": "External calls inside transactions and blocking evidence are covered.",
+    "id": "holdout-02"
+  },
+  {
+    "scenario": "lag-offset-evidence",
+    "query": "Kafka consumer offsets advance but downstream processing evidence is missing for some events. What should we compare before replay?",
+    "expected_document": "kafka-lag",
+    "expected_category": "messaging",
+    "kind": "supported",
+    "rationale": "Committed offset versus processing evidence and replay review are covered.",
+    "id": "holdout-03"
+  },
+  {
+    "scenario": "dlq-repeat-effect",
+    "query": "Replaying messages from a dead-letter queue creates the same side effect twice; where should we check the deduplication boundary?",
+    "expected_document": "message-retries",
+    "expected_category": "messaging",
+    "kind": "supported",
+    "rationale": "Deduplication around side effects is covered.",
+    "id": "holdout-04"
+  },
+  {
+    "scenario": "startup-registry-permission",
+    "query": "A rollout has unavailable replicas because image pull permissions changed; the container never starts.",
+    "expected_document": "pod-startup",
+    "expected_category": "deployment",
+    "kind": "supported",
+    "rationale": "Image pull permissions and configuration references are covered.",
+    "id": "holdout-05"
+  },
+  {
+    "scenario": "memory-release-retention",
+    "query": "After a release, garbage collection pauses lengthen and the container working set keeps growing even after its queue drains.",
+    "expected_document": "memory-pressure",
+    "expected_category": "deployment",
+    "kind": "supported",
+    "rationale": "Retained objects, releases and approved heap investigation are covered.",
+    "id": "holdout-06"
+  },
+  {
+    "scenario": "jobs-worker-unavailable",
+    "query": "Process instances stop advancing because no external workflow worker is available for the failed activity.",
+    "expected_document": "workflow-jobs",
+    "expected_category": "workflow",
+    "kind": "supported",
+    "rationale": "Worker availability and failed activity investigation are covered.",
+    "id": "holdout-07"
+  },
+  {
+    "scenario": "routing-definition-version",
+    "query": "Existing approval instances follow an earlier process definition after deployment; how should we investigate migration compatibility?",
+    "expected_document": "workflow-routing",
+    "expected_category": "workflow",
+    "kind": "supported",
+    "rationale": "Version inspection and migration compatibility are covered.",
+    "id": "holdout-08"
+  },
+  {
+    "scenario": "token-stale-key-cache",
+    "query": "JWT signature errors persist only on replicas whose signing-key discovery cache did not refresh after rotation.",
+    "expected_document": "auth-tokens",
+    "expected_category": "api-security",
+    "kind": "supported",
+    "rationale": "Signing-key discovery and cache refresh are covered.",
+    "id": "holdout-09"
+  },
+  {
+    "scenario": "timeouts-false-fallback",
+    "query": "A circuit-breaker fallback reports success although the downstream REST operation never completed. What should be verified?",
+    "expected_document": "api-timeouts",
+    "expected_category": "api-security",
+    "kind": "supported",
+    "rationale": "Fallback correctness is covered.",
+    "id": "holdout-10"
+  },
+  {
+    "scenario": "ntp-leap-config",
+    "query": "NTP leap-second handling broke timestamps across the cluster. Which chrony configuration option should we change?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "Token clock-skew mention does not provide chrony configuration.",
+    "id": "holdout-11"
+  },
+  {
+    "scenario": "storage-pvc-recovery",
+    "query": "A Kubernetes persistent volume is full and the database cannot write. Give the CSI volume expansion recovery steps.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No storage, CSI or volume expansion runbook.",
+    "id": "holdout-12"
+  },
+  {
+    "scenario": "database-backup-restore",
+    "query": "The primary database was deleted. Give the exact point-in-time restore command and backup identifier for last night.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No backup inventory or point-in-time recovery procedure.",
+    "id": "holdout-13"
+  },
+  {
+    "scenario": "kafka-acl-command",
+    "query": "A Kafka broker rejects producer authorization. Which exact ACL command grants the correct topic permission?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "API token guidance is not a Kafka ACL procedure.",
+    "id": "holdout-14"
+  },
+  {
+    "scenario": "heap-dump-password",
+    "query": "The container memory dump is encrypted. Tell me the password needed to open our production heap diagnostics.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No production data or decryption credentials.",
+    "id": "holdout-15"
+  },
+  {
+    "scenario": "workflow-business-rule",
+    "query": "An approval gateway rejected an invoice. Tell me the correct business approval threshold for this customer.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No customer policy values or business thresholds.",
+    "id": "holdout-16"
+  },
+  {
+    "scenario": "api-outage-cause",
+    "query": "Our API timed out once yesterday. Name the confirmed root cause and exact failing production request without any logs.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "Investigation guidance cannot establish an unobserved root cause.",
+    "id": "holdout-17"
+  },
+  {
+    "scenario": "jwt-issuer-url",
+    "query": "JWT issuer validation is failing. What is the exact issuer URL for our private identity tenant?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No private identity-tenant configuration values.",
+    "id": "holdout-18"
+  },
+  {
+    "scenario": "guitar-chord",
+    "query": "Which fingers should I use to play a D minor chord on a guitar?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "unrelated",
+    "rationale": "Outside incident triage.",
+    "id": "holdout-19"
+  },
+  {
+    "scenario": "garden-watering",
+    "query": "How often should I water basil growing on my balcony?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "unrelated",
+    "rationale": "Outside incident triage.",
+    "id": "holdout-20"
+  }
+]
