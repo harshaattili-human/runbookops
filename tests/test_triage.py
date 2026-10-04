@@ -19,6 +19,14 @@ def client():
         yield instance
 
 
+@pytest.fixture
+def local_model(monkeypatch):
+    monkeypatch.setenv('OLLAMA_MODEL', 'test-only-model')
+    # Mocked adapter tests must not initialize an operator's optional proxy transport.
+    for name in ('HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy'):
+        monkeypatch.delenv(name, raising=False)
+
+
 def test_incident_has_verifiable_source_lines(service):
     result = service.triage('HikariPool timeout waiting for a database connection; pending connections are rising.')
     assert result['routing']['category'] == 'database'
@@ -49,8 +57,7 @@ def test_missing_local_model_falls_back_to_source(service, monkeypatch):
     assert result['warning']
 
 
-def test_bad_llm_citation_is_not_published(service, monkeypatch):
-    monkeypatch.setenv('OLLAMA_MODEL', 'test-only-model')
+def test_bad_llm_citation_is_not_published(service, monkeypatch, local_model):
     def fake_post(self, url, **kwargs):
         return httpx.Response(200, request=httpx.Request('POST', url),
             json={'message': {'content': json.dumps({'answer': 'Unsupported claim', 'citations': ['invented:99']})}})
@@ -60,8 +67,7 @@ def test_bad_llm_citation_is_not_published(service, monkeypatch):
     assert result['answer'] != 'Unsupported claim'
 
 
-def test_valid_llm_adapter_contract(service, monkeypatch):
-    monkeypatch.setenv('OLLAMA_MODEL', 'test-only-model')
+def test_valid_llm_adapter_contract(service, monkeypatch, local_model):
     def fake_post(self, url, **kwargs):
         body = kwargs['json']
         assert body['stream'] is False

@@ -7,6 +7,7 @@ import platform
 
 import numpy as np
 import sklearn
+from sklearn.dummy import DummyClassifier
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from sklearn.model_selection import StratifiedGroupKFold
 
@@ -22,14 +23,18 @@ def evaluate(root: Path = ROOT) -> dict:
     y = np.array([r['category'] for r in rows])
     groups = np.array([r['scenario'] for r in rows])
     predictions = np.empty(len(y), dtype=object)
+    dummy_predictions = np.empty(len(y), dtype=object)
     folds = []
     for train, test in StratifiedGroupKFold(3, shuffle=True, random_state=42).split(x, y, groups):
         assert not set(groups[train]) & set(groups[test])
         model = make_pipeline().fit(x[train].tolist(), y[train])
         predictions[test] = model.predict(x[test].tolist())
+        dummy = DummyClassifier(strategy='most_frequent').fit(np.zeros((len(train), 1)), y[train])
+        dummy_predictions[test] = dummy.predict(np.zeros((len(test), 1)))
         folds.append({'train_scenarios': sorted(set(groups[train])),
                       'test_scenarios': sorted(set(groups[test])),
-                      'train_samples': len(train), 'test_samples': len(test)})
+                      'train_samples': len(train), 'test_samples': len(test),
+                      'dummy_prediction': str(dummy_predictions[test][0])})
     labels = sorted(set(y))
     retriever = Retriever(root / 'data/runbooks')
     cases = json.loads((root / 'data/evaluation/retrieval.json').read_text())
@@ -50,6 +55,11 @@ def evaluate(root: Path = ROOT) -> dict:
         'environment': {'python': platform.python_version(), 'scikit_learn': sklearn.__version__},
         'classifier': {'split': '3-fold stratified scenario-grouped cross-validation',
                        'macro_f1': float(f1_score(y, predictions, average='macro')),
+                       'baseline': {'strategy': 'most_frequent', 'same_folds': True,
+                                    'macro_f1': float(f1_score(y, dummy_predictions, average='macro')),
+                                    'confusion_matrix': confusion_matrix(y, dummy_predictions, labels=labels).tolist(),
+                                    'predictions': [{'id': r['id'], 'predicted': str(p)}
+                                                    for r, p in zip(rows, dummy_predictions)]},
                        'labels': labels, 'confusion_matrix': confusion_matrix(y, predictions, labels=labels).tolist(),
                        'per_class': classification_report(y, predictions, output_dict=True, zero_division=0),
                        'folds': folds,

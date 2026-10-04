@@ -12,6 +12,410 @@
   "classifier": {
     "split": "3-fold stratified scenario-grouped cross-validation",
     "macro_f1": 0.9450364650364651,
+    "baseline": {
+      "strategy": "most_frequent",
+      "same_folds": true,
+      "macro_f1": 0.06666666666666667,
+      "confusion_matrix": [
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          18,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "predictions": [
+        {
+          "id": "database-pool-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-pool-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-pool-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-locks-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-locks-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-locks-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-slow-query-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-slow-query-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-slow-query-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-deadlock-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-deadlock-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-deadlock-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-leak-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-leak-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-leak-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-transaction-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-transaction-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "database-transaction-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-lag-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-lag-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-lag-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-poison-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-poison-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-poison-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-rebalance-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-rebalance-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-rebalance-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-duplicate-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-duplicate-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-duplicate-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-schema-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-schema-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-schema-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-retry-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-retry-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "messaging-retry-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-crash-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-crash-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-crash-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-probe-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-probe-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-probe-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-oom-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-oom-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-oom-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-image-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-image-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-image-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-config-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-config-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-config-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-resources-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-resources-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "deployment-resources-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-jobs-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-jobs-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-jobs-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-worker-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-worker-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-worker-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-gateway-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-gateway-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-gateway-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-correlation-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-correlation-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-correlation-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-timer-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-timer-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-timer-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-version-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-version-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "workflow-version-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-expiry-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-expiry-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-expiry-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-audience-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-audience-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-audience-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-permissions-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-permissions-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-permissions-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-rotation-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-rotation-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-rotation-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-timeouts-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-timeouts-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-timeouts-3",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-circuit-1",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-circuit-2",
+          "predicted": "api-security"
+        },
+        {
+          "id": "api-security-circuit-3",
+          "predicted": "api-security"
+        }
+      ]
+    },
     "labels": [
       "api-security",
       "database",
@@ -138,7 +542,8 @@
           "workflow-worker"
         ],
         "train_samples": 60,
-        "test_samples": 30
+        "test_samples": 30,
+        "dummy_prediction": "api-security"
       },
       {
         "train_scenarios": [
@@ -176,7 +581,8 @@
           "workflow-version"
         ],
         "train_samples": 60,
-        "test_samples": 30
+        "test_samples": 30,
+        "dummy_prediction": "api-security"
       },
       {
         "train_scenarios": [
@@ -214,7 +620,8 @@
           "workflow-jobs"
         ],
         "train_samples": 60,
-        "test_samples": 30
+        "test_samples": 30,
+        "dummy_prediction": "api-security"
       }
     ],
     "errors": [
