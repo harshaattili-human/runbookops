@@ -1,0 +1,182 @@
+[
+  {
+    "scenario": "pool-cancellation",
+    "query": "Requests cancelled by the caller leave HikariPool connections checked out. Pending database requests grow while idle connections stay at zero.",
+    "expected_document": "database-pool",
+    "expected_category": "database",
+    "kind": "supported",
+    "rationale": "Connection return after cancellation is covered.",
+    "id": "validation-01"
+  },
+  {
+    "scenario": "lock-worker-order",
+    "query": "Two reconciliation workers update the same tables in opposite order and deadlock. What evidence should we collect?",
+    "expected_document": "database-locks",
+    "expected_category": "database",
+    "kind": "supported",
+    "rationale": "The runbook covers update ordering and blocking sessions.",
+    "id": "validation-02"
+  },
+  {
+    "scenario": "lag-hot-partition",
+    "query": "One Kafka partition falls behind while the others keep up; event age rises and message processing on that partition is slow.",
+    "expected_document": "kafka-lag",
+    "expected_category": "messaging",
+    "kind": "supported",
+    "rationale": "Per-partition processing and lag are covered.",
+    "id": "validation-03"
+  },
+  {
+    "scenario": "dlq-schema-release",
+    "query": "After a consumer release, messages with the older schema fail serialization and keep cycling through the dead-letter queue.",
+    "expected_document": "message-retries",
+    "expected_category": "messaging",
+    "kind": "supported",
+    "rationale": "Schema contract and poison-message investigation are covered.",
+    "id": "validation-04"
+  },
+  {
+    "scenario": "startup-probe-port",
+    "query": "New OpenShift replicas run without crashing but readiness probes use the old port after a rollout. How should we investigate?",
+    "expected_document": "pod-startup",
+    "expected_category": "deployment",
+    "kind": "supported",
+    "rationale": "Probe path, port and startup timing are covered.",
+    "id": "validation-05"
+  },
+  {
+    "scenario": "memory-batch-peak",
+    "query": "JVM memory peaks during large batch processing and the container is OOMKilled, although steady-state usage is low.",
+    "expected_document": "memory-pressure",
+    "expected_category": "deployment",
+    "kind": "supported",
+    "rationale": "Batch peaks and container/JVM memory comparison are covered.",
+    "id": "validation-06"
+  },
+  {
+    "scenario": "jobs-side-effect-ack",
+    "query": "A workflow worker completed a side effect but failed before acknowledging the task; the Camunda job now has exhausted retries.",
+    "expected_document": "workflow-jobs",
+    "expected_category": "workflow",
+    "kind": "supported",
+    "rationale": "Side-effect completion and idempotent retry review are covered.",
+    "id": "validation-07"
+  },
+  {
+    "scenario": "routing-subscription-name",
+    "query": "An approval message uses a different name than the waiting process subscription and fails correlation.",
+    "expected_document": "workflow-routing",
+    "expected_category": "workflow",
+    "kind": "supported",
+    "rationale": "Message-name and correlation-key comparisons are covered.",
+    "id": "validation-08"
+  },
+  {
+    "scenario": "token-clock-offset",
+    "query": "Valid callers get JWT token expiry errors after one application host clock drifts; issuer and audience did not change.",
+    "expected_document": "auth-tokens",
+    "expected_category": "api-security",
+    "kind": "supported",
+    "rationale": "Expiry and clock-skew checks are covered.",
+    "id": "validation-09"
+  },
+  {
+    "scenario": "timeouts-budget-chain",
+    "query": "A REST caller retries slow downstream HTTP requests until the total request budget is exceeded and a circuit breaker opens.",
+    "expected_document": "api-timeouts",
+    "expected_category": "api-security",
+    "kind": "supported",
+    "rationale": "Timeout chain, retry backoff and total budget are covered.",
+    "id": "validation-10"
+  },
+  {
+    "scenario": "dns-record-repair",
+    "query": "Our Kubernetes DNS returns NXDOMAIN for a service hostname. Which CoreDNS zone record should I repair?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No DNS or CoreDNS runbook.",
+    "id": "validation-11"
+  },
+  {
+    "scenario": "certificate-chain",
+    "query": "TLS certificate validation fails when the API connects to the database. Which missing intermediate certificate belongs in the trust store?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No TLS certificate-chain investigation or certificate inventory.",
+    "id": "validation-12"
+  },
+  {
+    "scenario": "redis-eviction",
+    "query": "Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "Container/JVM memory guidance does not cover Redis eviction.",
+    "id": "validation-13"
+  },
+  {
+    "scenario": "search-shard",
+    "query": "Elasticsearch query requests time out because a shard is unassigned. Which shard recovery procedure applies?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No Elasticsearch shard recovery procedure.",
+    "id": "validation-14"
+  },
+  {
+    "scenario": "kafka-billing",
+    "query": "Kafka producers send more messages this month. Calculate the dollar cost per partition on our vendor invoice.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No billing data or pricing rules.",
+    "id": "validation-15"
+  },
+  {
+    "scenario": "exact-pool-value",
+    "query": "Tell me the exact HikariPool maximumPoolSize required for our database. I have not provided traffic or connection-budget measurements.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No numerical capacity recommendation without measurements.",
+    "id": "validation-16"
+  },
+  {
+    "scenario": "workflow-license",
+    "query": "Our Camunda workflow subscription renewal failed. Which license SKU and renewal key should we buy?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No licensing or renewal-key information.",
+    "id": "validation-17"
+  },
+  {
+    "scenario": "jwt-token-value",
+    "query": "The API rejects my JWT token. Print the valid bearer token for the production service account.",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "near_unsupported",
+    "rationale": "No real credentials or token values.",
+    "id": "validation-18"
+  },
+  {
+    "scenario": "bread-recipe",
+    "query": "How much yeast should I add when baking a loaf of bread?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "unrelated",
+    "rationale": "Outside incident triage.",
+    "id": "validation-19"
+  },
+  {
+    "scenario": "museum-hours",
+    "query": "What time does the local art museum close on Sunday?",
+    "expected_document": null,
+    "expected_category": null,
+    "kind": "unrelated",
+    "rationale": "Outside incident triage.",
+    "id": "validation-20"
+  }
+]

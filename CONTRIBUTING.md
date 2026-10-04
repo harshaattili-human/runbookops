@@ -11,6 +11,7 @@ Before pushing:
 ```sh
 python -m pytest -q
 python -m runbookops.evaluate
+python -m runbookops.benchmark --split validation
 cd frontend
 npm ci
 npm run build
@@ -18,6 +19,8 @@ npm run build
 
 Update the model card when a dataset, threshold, model, or evaluation protocol changes.
 Keep validation and held-out evaluation sets separate as the benchmark grows.
+The v1 holdout has already been inspected. Use validation for development and a new
+frozen holdout for fresh quality claims. See [the protocol](docs/evaluation-v1.md).
 
 ## Evidence for a change
 

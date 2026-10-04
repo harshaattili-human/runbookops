@@ -34,8 +34,21 @@ The initial run produced macro F1 approximately 0.945. The 10 positive retrieval
 smoke cases found their expected document among four retrieved chunks; four
 negative smoke cases abstained. See `reports/evaluation.json` for exact results.
 These numbers come from a small authored dataset and must not be marketed as real
-incident accuracy. Benchmark questions are available to the developer. Near-topic
-negatives and naturally occurring incidents remain important gaps.
+incident accuracy. Benchmark questions are available to the developer.
+
+The October 4 comparison adds a most-frequent-label baseline on the same grouped
+folds (macro F1 approximately 0.0667) and separate 20-query validation/holdout suites.
+Each new suite has ten supported requests, eight near-topic unsupported requests and
+two unrelated questions. Fixed hybrid/BM25/TF-IDF rankings share the same eligibility
+gate and all find the expected top document on 10/10 supported cases, but each returns
+guidance on 6/10 unsupported cases. No settings were tuned on either new suite.
+The default service accepts 10/10 supported routes correctly in each split; on the
+unsupported cases it accepts 5/10 routes and returns guidance for 6/10. The route's
+`needs-review` flag does not by itself prevent an extractive answer.
+
+The [protocol and failure analysis](evaluation-v1.md) link every case and hash. The
+holdout is authored synthetic data and now exposed, not a fresh test set for future
+tuning. Naturally occurring incidents and passage-level answerability remain gaps.
 
 ## Retrieval and answer generation
 

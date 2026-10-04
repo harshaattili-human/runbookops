@@ -1,0 +1,1536 @@
+{
+  "suite": "validation-v1",
+  "provenance": "Synthetic cases authored with AI assistance; not an independent or external benchmark.",
+  "protocol": "Compare fixed ranking variants under the existing shared eligibility gate. No threshold/model/corpus tuning in this experiment. Holdout scores are inspected only after implementation and validation; afterward these cases are exposed regression data.",
+  "frozen_inputs_sha256": {
+    "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
+    "data/evaluation/validation-v1.json": "3fca27648f30903b646f7488dc85edb405ee6a47ee26aa82313b2df69bd08c60",
+    "data/evaluation/holdout-v1.json": "6c8f3f4b605722838be852a2f7bb3b61d2b24a2a0601b06c5257f28554e3769d",
+    "data/runbooks/api-timeouts.md": "65b015aa2b529e53ae5529755a66ee78f03b07d8f5d522b2a16d8f994898ddfa",
+    "data/runbooks/auth-tokens.md": "8b4c964005d2306d52f0e7136e4155d782968b2c6cf89f26ae5ed4134bff5868",
+    "data/runbooks/database-locks.md": "201704b074853662e5da8e7616351045de00360e1e54a549bb66ab54948a3d35",
+    "data/runbooks/database-pool.md": "66a3d966fb2e6713507a8dbc933a282bab5cca6cd5f1acb8ae3a86e0f3949e0c",
+    "data/runbooks/kafka-lag.md": "88488de264cafa7a98f5f345fc603d117d60e7ff8c08e07b675d8e7b0b339cdc",
+    "data/runbooks/memory-pressure.md": "e34f5c58a947a851b5efdf97cd9cb35e42c131dce6fbda718a7c015f4bb41c28",
+    "data/runbooks/message-retries.md": "f2ca8b9f6c0f4d87e35d231f516c471426c269995c9ff5d5a838f017603058c8",
+    "data/runbooks/pod-startup.md": "687dc1f36fa9e86fece9556602fc99d51acc14c43cdcf24d72d7b8dd8e317d7b",
+    "data/runbooks/workflow-jobs.md": "b4d9cb3c778b780f9975375a80d78aa63977f6aa5f0088e9613c4b84b1e004b9",
+    "data/runbooks/workflow-routing.md": "be1f623fa90e10b5832a4a145051c1a2b1ac1baeca324caf4bb99158d31dad72"
+  },
+  "code_sha256": {
+    "backend/runbookops/__init__.py": "efea901531adf82c7bbfdd7e3139779605d19d0c291c619f834954b016239be4",
+    "backend/runbookops/api.py": "507d149206a2fe97a3fdd977de802bc5f536acfc85e4ff20d5251cf87fc21ddb",
+    "backend/runbookops/benchmark.py": "a5e4359b72398b981d6b3ef627f9370063a3df748fef2acfd01d944c3a24ba40",
+    "backend/runbookops/classifier.py": "db0bb7f5a79888d65181cfc0603b5cb9f18bb49f6f1ed10dbd58b40f75a6f951",
+    "backend/runbookops/evaluate.py": "1bf041dac3b49c6e64fa88e06cf22d7a16dba7e23cbcefc211d330aca436d1aa",
+    "backend/runbookops/retrieval.py": "2dc55cea5776d906c8dded258738f83bd3f90ef695a1fc4288118c9d7dbbd507",
+    "backend/runbookops/service.py": "3419b3add64559ba3e2f109c5c962bc6f34b8b59dde7814dab8bab6b20fba496"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "scikit_learn": "1.8.0"
+  },
+  "configuration": {
+    "maximum_chunks": 4,
+    "minimum_cosine": 0.09,
+    "minimum_term_overlap": 2,
+    "hybrid_cosine_weight": 0.65,
+    "hybrid_bm25_weight": 0.35,
+    "classifier_score_threshold": 0.4,
+    "classifier_minimum_margin": 0.08,
+    "gate_shared_across_rankings": true
+  },
+  "rankings": {
+    "hybrid": {
+      "summary": {
+        "top1_document_hit": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "hit_within_4_chunks": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "mean_reciprocal_document_rank": 1.0,
+        "unsupported_false_match": {
+          "count": 6,
+          "total": 10,
+          "rate": 0.6
+        },
+        "near_unsupported_false_match": {
+          "count": 6,
+          "total": 8,
+          "rate": 0.75
+        },
+        "unrelated_false_match": {
+          "count": 0,
+          "total": 2,
+          "rate": 0.0
+        }
+      },
+      "cases": [
+        {
+          "scenario": "pool-cancellation",
+          "query": "Requests cancelled by the caller leave HikariPool connections checked out. Pending database requests grow while idle connections stay at zero.",
+          "expected_document": "database-pool",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "Connection return after cancellation is covered.",
+          "id": "validation-01",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:1",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lock-worker-order",
+          "query": "Two reconciliation workers update the same tables in opposite order and deadlock. What evidence should we collect?",
+          "expected_document": "database-locks",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "The runbook covers update ordering and blocking sessions.",
+          "id": "validation-02",
+          "retrieved_documents": [
+            "database-locks"
+          ],
+          "source_ids": [
+            "database-locks:2",
+            "database-locks:1",
+            "database-locks:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lag-hot-partition",
+          "query": "One Kafka partition falls behind while the others keep up; event age rises and message processing on that partition is slow.",
+          "expected_document": "kafka-lag",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Per-partition processing and lag are covered.",
+          "id": "validation-03",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:4",
+            "kafka-lag:2",
+            "kafka-lag:1",
+            "kafka-lag:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dlq-schema-release",
+          "query": "After a consumer release, messages with the older schema fail serialization and keep cycling through the dead-letter queue.",
+          "expected_document": "message-retries",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Schema contract and poison-message investigation are covered.",
+          "id": "validation-04",
+          "retrieved_documents": [
+            "message-retries",
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "message-retries:1",
+            "message-retries:2",
+            "message-retries:4",
+            "kafka-lag:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "startup-probe-port",
+          "query": "New OpenShift replicas run without crashing but readiness probes use the old port after a rollout. How should we investigate?",
+          "expected_document": "pod-startup",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Probe path, port and startup timing are covered.",
+          "id": "validation-05",
+          "retrieved_documents": [
+            "pod-startup"
+          ],
+          "source_ids": [
+            "pod-startup:1",
+            "pod-startup:4",
+            "pod-startup:3",
+            "pod-startup:2"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "memory-batch-peak",
+          "query": "JVM memory peaks during large batch processing and the container is OOMKilled, although steady-state usage is low.",
+          "expected_document": "memory-pressure",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Batch peaks and container/JVM memory comparison are covered.",
+          "id": "validation-06",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:2",
+            "memory-pressure:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "jobs-side-effect-ack",
+          "query": "A workflow worker completed a side effect but failed before acknowledging the task; the Camunda job now has exhausted retries.",
+          "expected_document": "workflow-jobs",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Side-effect completion and idempotent retry review are covered.",
+          "id": "validation-07",
+          "retrieved_documents": [
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-jobs:1",
+            "workflow-jobs:2",
+            "workflow-jobs:3",
+            "workflow-jobs:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "routing-subscription-name",
+          "query": "An approval message uses a different name than the waiting process subscription and fails correlation.",
+          "expected_document": "workflow-routing",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Message-name and correlation-key comparisons are covered.",
+          "id": "validation-08",
+          "retrieved_documents": [
+            "workflow-routing"
+          ],
+          "source_ids": [
+            "workflow-routing:4",
+            "workflow-routing:1",
+            "workflow-routing:2",
+            "workflow-routing:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "token-clock-offset",
+          "query": "Valid callers get JWT token expiry errors after one application host clock drifts; issuer and audience did not change.",
+          "expected_document": "auth-tokens",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Expiry and clock-skew checks are covered.",
+          "id": "validation-09",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:2",
+            "auth-tokens:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "timeouts-budget-chain",
+          "query": "A REST caller retries slow downstream HTTP requests until the total request budget is exceeded and a circuit breaker opens.",
+          "expected_document": "api-timeouts",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Timeout chain, retry backoff and total budget are covered.",
+          "id": "validation-10",
+          "retrieved_documents": [
+            "api-timeouts"
+          ],
+          "source_ids": [
+            "api-timeouts:1",
+            "api-timeouts:2",
+            "api-timeouts:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dns-record-repair",
+          "query": "Our Kubernetes DNS returns NXDOMAIN for a service hostname. Which CoreDNS zone record should I repair?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No DNS or CoreDNS runbook.",
+          "id": "validation-11",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "certificate-chain",
+          "query": "TLS certificate validation fails when the API connects to the database. Which missing intermediate certificate belongs in the trust store?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No TLS certificate-chain investigation or certificate inventory.",
+          "id": "validation-12",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:3",
+            "auth-tokens:1",
+            "auth-tokens:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "redis-eviction",
+          "query": "Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "Container/JVM memory guidance does not cover Redis eviction.",
+          "id": "validation-13",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:3",
+            "memory-pressure:4",
+            "memory-pressure:1",
+            "memory-pressure:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "search-shard",
+          "query": "Elasticsearch query requests time out because a shard is unassigned. Which shard recovery procedure applies?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No Elasticsearch shard recovery procedure.",
+          "id": "validation-14",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "kafka-billing",
+          "query": "Kafka producers send more messages this month. Calculate the dollar cost per partition on our vendor invoice.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No billing data or pricing rules.",
+          "id": "validation-15",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:1",
+            "kafka-lag:3",
+            "kafka-lag:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "exact-pool-value",
+          "query": "Tell me the exact HikariPool maximumPoolSize required for our database. I have not provided traffic or connection-budget measurements.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No numerical capacity recommendation without measurements.",
+          "id": "validation-16",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:3",
+            "database-pool:1",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "workflow-license",
+          "query": "Our Camunda workflow subscription renewal failed. Which license SKU and renewal key should we buy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No licensing or renewal-key information.",
+          "id": "validation-17",
+          "retrieved_documents": [
+            "workflow-routing",
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-routing:2",
+            "workflow-jobs:1",
+            "workflow-routing:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "jwt-token-value",
+          "query": "The API rejects my JWT token. Print the valid bearer token for the production service account.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No real credentials or token values.",
+          "id": "validation-18",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:4",
+            "auth-tokens:2",
+            "auth-tokens:3"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "bread-recipe",
+          "query": "How much yeast should I add when baking a loaf of bread?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-19",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "museum-hours",
+          "query": "What time does the local art museum close on Sunday?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-20",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        }
+      ]
+    },
+    "bm25": {
+      "summary": {
+        "top1_document_hit": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "hit_within_4_chunks": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "mean_reciprocal_document_rank": 1.0,
+        "unsupported_false_match": {
+          "count": 6,
+          "total": 10,
+          "rate": 0.6
+        },
+        "near_unsupported_false_match": {
+          "count": 6,
+          "total": 8,
+          "rate": 0.75
+        },
+        "unrelated_false_match": {
+          "count": 0,
+          "total": 2,
+          "rate": 0.0
+        }
+      },
+      "cases": [
+        {
+          "scenario": "pool-cancellation",
+          "query": "Requests cancelled by the caller leave HikariPool connections checked out. Pending database requests grow while idle connections stay at zero.",
+          "expected_document": "database-pool",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "Connection return after cancellation is covered.",
+          "id": "validation-01",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:1",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lock-worker-order",
+          "query": "Two reconciliation workers update the same tables in opposite order and deadlock. What evidence should we collect?",
+          "expected_document": "database-locks",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "The runbook covers update ordering and blocking sessions.",
+          "id": "validation-02",
+          "retrieved_documents": [
+            "database-locks"
+          ],
+          "source_ids": [
+            "database-locks:2",
+            "database-locks:1",
+            "database-locks:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lag-hot-partition",
+          "query": "One Kafka partition falls behind while the others keep up; event age rises and message processing on that partition is slow.",
+          "expected_document": "kafka-lag",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Per-partition processing and lag are covered.",
+          "id": "validation-03",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:2",
+            "kafka-lag:4",
+            "kafka-lag:1",
+            "kafka-lag:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dlq-schema-release",
+          "query": "After a consumer release, messages with the older schema fail serialization and keep cycling through the dead-letter queue.",
+          "expected_document": "message-retries",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Schema contract and poison-message investigation are covered.",
+          "id": "validation-04",
+          "retrieved_documents": [
+            "message-retries",
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "message-retries:1",
+            "message-retries:2",
+            "message-retries:4",
+            "kafka-lag:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "startup-probe-port",
+          "query": "New OpenShift replicas run without crashing but readiness probes use the old port after a rollout. How should we investigate?",
+          "expected_document": "pod-startup",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Probe path, port and startup timing are covered.",
+          "id": "validation-05",
+          "retrieved_documents": [
+            "pod-startup"
+          ],
+          "source_ids": [
+            "pod-startup:1",
+            "pod-startup:4",
+            "pod-startup:3",
+            "pod-startup:2"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "memory-batch-peak",
+          "query": "JVM memory peaks during large batch processing and the container is OOMKilled, although steady-state usage is low.",
+          "expected_document": "memory-pressure",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Batch peaks and container/JVM memory comparison are covered.",
+          "id": "validation-06",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:2",
+            "memory-pressure:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "jobs-side-effect-ack",
+          "query": "A workflow worker completed a side effect but failed before acknowledging the task; the Camunda job now has exhausted retries.",
+          "expected_document": "workflow-jobs",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Side-effect completion and idempotent retry review are covered.",
+          "id": "validation-07",
+          "retrieved_documents": [
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-jobs:1",
+            "workflow-jobs:2",
+            "workflow-jobs:3",
+            "workflow-jobs:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "routing-subscription-name",
+          "query": "An approval message uses a different name than the waiting process subscription and fails correlation.",
+          "expected_document": "workflow-routing",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Message-name and correlation-key comparisons are covered.",
+          "id": "validation-08",
+          "retrieved_documents": [
+            "workflow-routing"
+          ],
+          "source_ids": [
+            "workflow-routing:1",
+            "workflow-routing:4",
+            "workflow-routing:2",
+            "workflow-routing:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "token-clock-offset",
+          "query": "Valid callers get JWT token expiry errors after one application host clock drifts; issuer and audience did not change.",
+          "expected_document": "auth-tokens",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Expiry and clock-skew checks are covered.",
+          "id": "validation-09",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:2",
+            "auth-tokens:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "timeouts-budget-chain",
+          "query": "A REST caller retries slow downstream HTTP requests until the total request budget is exceeded and a circuit breaker opens.",
+          "expected_document": "api-timeouts",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Timeout chain, retry backoff and total budget are covered.",
+          "id": "validation-10",
+          "retrieved_documents": [
+            "api-timeouts"
+          ],
+          "source_ids": [
+            "api-timeouts:1",
+            "api-timeouts:2",
+            "api-timeouts:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dns-record-repair",
+          "query": "Our Kubernetes DNS returns NXDOMAIN for a service hostname. Which CoreDNS zone record should I repair?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No DNS or CoreDNS runbook.",
+          "id": "validation-11",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "certificate-chain",
+          "query": "TLS certificate validation fails when the API connects to the database. Which missing intermediate certificate belongs in the trust store?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No TLS certificate-chain investigation or certificate inventory.",
+          "id": "validation-12",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:3",
+            "auth-tokens:1",
+            "auth-tokens:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "redis-eviction",
+          "query": "Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "Container/JVM memory guidance does not cover Redis eviction.",
+          "id": "validation-13",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:3",
+            "memory-pressure:4",
+            "memory-pressure:2",
+            "memory-pressure:1"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "search-shard",
+          "query": "Elasticsearch query requests time out because a shard is unassigned. Which shard recovery procedure applies?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No Elasticsearch shard recovery procedure.",
+          "id": "validation-14",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "kafka-billing",
+          "query": "Kafka producers send more messages this month. Calculate the dollar cost per partition on our vendor invoice.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No billing data or pricing rules.",
+          "id": "validation-15",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:1",
+            "kafka-lag:3",
+            "kafka-lag:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "exact-pool-value",
+          "query": "Tell me the exact HikariPool maximumPoolSize required for our database. I have not provided traffic or connection-budget measurements.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No numerical capacity recommendation without measurements.",
+          "id": "validation-16",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:1",
+            "database-pool:3",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "workflow-license",
+          "query": "Our Camunda workflow subscription renewal failed. Which license SKU and renewal key should we buy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No licensing or renewal-key information.",
+          "id": "validation-17",
+          "retrieved_documents": [
+            "workflow-routing",
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-routing:2",
+            "workflow-jobs:1",
+            "workflow-routing:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "jwt-token-value",
+          "query": "The API rejects my JWT token. Print the valid bearer token for the production service account.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No real credentials or token values.",
+          "id": "validation-18",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:4",
+            "auth-tokens:2",
+            "auth-tokens:3"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "bread-recipe",
+          "query": "How much yeast should I add when baking a loaf of bread?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-19",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "museum-hours",
+          "query": "What time does the local art museum close on Sunday?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-20",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        }
+      ]
+    },
+    "tfidf": {
+      "summary": {
+        "top1_document_hit": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "hit_within_4_chunks": {
+          "count": 10,
+          "total": 10,
+          "rate": 1.0
+        },
+        "mean_reciprocal_document_rank": 1.0,
+        "unsupported_false_match": {
+          "count": 6,
+          "total": 10,
+          "rate": 0.6
+        },
+        "near_unsupported_false_match": {
+          "count": 6,
+          "total": 8,
+          "rate": 0.75
+        },
+        "unrelated_false_match": {
+          "count": 0,
+          "total": 2,
+          "rate": 0.0
+        }
+      },
+      "cases": [
+        {
+          "scenario": "pool-cancellation",
+          "query": "Requests cancelled by the caller leave HikariPool connections checked out. Pending database requests grow while idle connections stay at zero.",
+          "expected_document": "database-pool",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "Connection return after cancellation is covered.",
+          "id": "validation-01",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:1",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lock-worker-order",
+          "query": "Two reconciliation workers update the same tables in opposite order and deadlock. What evidence should we collect?",
+          "expected_document": "database-locks",
+          "expected_category": "database",
+          "kind": "supported",
+          "rationale": "The runbook covers update ordering and blocking sessions.",
+          "id": "validation-02",
+          "retrieved_documents": [
+            "database-locks"
+          ],
+          "source_ids": [
+            "database-locks:2",
+            "database-locks:1",
+            "database-locks:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "lag-hot-partition",
+          "query": "One Kafka partition falls behind while the others keep up; event age rises and message processing on that partition is slow.",
+          "expected_document": "kafka-lag",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Per-partition processing and lag are covered.",
+          "id": "validation-03",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:1",
+            "kafka-lag:4",
+            "kafka-lag:2",
+            "kafka-lag:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dlq-schema-release",
+          "query": "After a consumer release, messages with the older schema fail serialization and keep cycling through the dead-letter queue.",
+          "expected_document": "message-retries",
+          "expected_category": "messaging",
+          "kind": "supported",
+          "rationale": "Schema contract and poison-message investigation are covered.",
+          "id": "validation-04",
+          "retrieved_documents": [
+            "message-retries",
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "message-retries:1",
+            "message-retries:4",
+            "message-retries:2",
+            "kafka-lag:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "startup-probe-port",
+          "query": "New OpenShift replicas run without crashing but readiness probes use the old port after a rollout. How should we investigate?",
+          "expected_document": "pod-startup",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Probe path, port and startup timing are covered.",
+          "id": "validation-05",
+          "retrieved_documents": [
+            "pod-startup"
+          ],
+          "source_ids": [
+            "pod-startup:1",
+            "pod-startup:4",
+            "pod-startup:3",
+            "pod-startup:2"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "memory-batch-peak",
+          "query": "JVM memory peaks during large batch processing and the container is OOMKilled, although steady-state usage is low.",
+          "expected_document": "memory-pressure",
+          "expected_category": "deployment",
+          "kind": "supported",
+          "rationale": "Batch peaks and container/JVM memory comparison are covered.",
+          "id": "validation-06",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:2",
+            "memory-pressure:1"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "jobs-side-effect-ack",
+          "query": "A workflow worker completed a side effect but failed before acknowledging the task; the Camunda job now has exhausted retries.",
+          "expected_document": "workflow-jobs",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Side-effect completion and idempotent retry review are covered.",
+          "id": "validation-07",
+          "retrieved_documents": [
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-jobs:1",
+            "workflow-jobs:2",
+            "workflow-jobs:4",
+            "workflow-jobs:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "routing-subscription-name",
+          "query": "An approval message uses a different name than the waiting process subscription and fails correlation.",
+          "expected_document": "workflow-routing",
+          "expected_category": "workflow",
+          "kind": "supported",
+          "rationale": "Message-name and correlation-key comparisons are covered.",
+          "id": "validation-08",
+          "retrieved_documents": [
+            "workflow-routing"
+          ],
+          "source_ids": [
+            "workflow-routing:4",
+            "workflow-routing:1",
+            "workflow-routing:2",
+            "workflow-routing:3"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "token-clock-offset",
+          "query": "Valid callers get JWT token expiry errors after one application host clock drifts; issuer and audience did not change.",
+          "expected_document": "auth-tokens",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Expiry and clock-skew checks are covered.",
+          "id": "validation-09",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:2",
+            "auth-tokens:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "timeouts-budget-chain",
+          "query": "A REST caller retries slow downstream HTTP requests until the total request budget is exceeded and a circuit breaker opens.",
+          "expected_document": "api-timeouts",
+          "expected_category": "api-security",
+          "kind": "supported",
+          "rationale": "Timeout chain, retry backoff and total budget are covered.",
+          "id": "validation-10",
+          "retrieved_documents": [
+            "api-timeouts"
+          ],
+          "source_ids": [
+            "api-timeouts:2",
+            "api-timeouts:1",
+            "api-timeouts:4"
+          ],
+          "rank": 1,
+          "abstained": false
+        },
+        {
+          "scenario": "dns-record-repair",
+          "query": "Our Kubernetes DNS returns NXDOMAIN for a service hostname. Which CoreDNS zone record should I repair?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No DNS or CoreDNS runbook.",
+          "id": "validation-11",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "certificate-chain",
+          "query": "TLS certificate validation fails when the API connects to the database. Which missing intermediate certificate belongs in the trust store?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No TLS certificate-chain investigation or certificate inventory.",
+          "id": "validation-12",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:3",
+            "auth-tokens:1",
+            "auth-tokens:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "redis-eviction",
+          "query": "Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "Container/JVM memory guidance does not cover Redis eviction.",
+          "id": "validation-13",
+          "retrieved_documents": [
+            "memory-pressure"
+          ],
+          "source_ids": [
+            "memory-pressure:4",
+            "memory-pressure:3",
+            "memory-pressure:1",
+            "memory-pressure:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "search-shard",
+          "query": "Elasticsearch query requests time out because a shard is unassigned. Which shard recovery procedure applies?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No Elasticsearch shard recovery procedure.",
+          "id": "validation-14",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "kafka-billing",
+          "query": "Kafka producers send more messages this month. Calculate the dollar cost per partition on our vendor invoice.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No billing data or pricing rules.",
+          "id": "validation-15",
+          "retrieved_documents": [
+            "kafka-lag"
+          ],
+          "source_ids": [
+            "kafka-lag:1",
+            "kafka-lag:3",
+            "kafka-lag:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "exact-pool-value",
+          "query": "Tell me the exact HikariPool maximumPoolSize required for our database. I have not provided traffic or connection-budget measurements.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No numerical capacity recommendation without measurements.",
+          "id": "validation-16",
+          "retrieved_documents": [
+            "database-pool"
+          ],
+          "source_ids": [
+            "database-pool:3",
+            "database-pool:1",
+            "database-pool:2",
+            "database-pool:4"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "workflow-license",
+          "query": "Our Camunda workflow subscription renewal failed. Which license SKU and renewal key should we buy?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No licensing or renewal-key information.",
+          "id": "validation-17",
+          "retrieved_documents": [
+            "workflow-routing",
+            "workflow-jobs"
+          ],
+          "source_ids": [
+            "workflow-routing:4",
+            "workflow-jobs:1",
+            "workflow-routing:2"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "jwt-token-value",
+          "query": "The API rejects my JWT token. Print the valid bearer token for the production service account.",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "near_unsupported",
+          "rationale": "No real credentials or token values.",
+          "id": "validation-18",
+          "retrieved_documents": [
+            "auth-tokens"
+          ],
+          "source_ids": [
+            "auth-tokens:1",
+            "auth-tokens:4",
+            "auth-tokens:2",
+            "auth-tokens:3"
+          ],
+          "rank": null,
+          "abstained": false
+        },
+        {
+          "scenario": "bread-recipe",
+          "query": "How much yeast should I add when baking a loaf of bread?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-19",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        },
+        {
+          "scenario": "museum-hours",
+          "query": "What time does the local art museum close on Sunday?",
+          "expected_document": null,
+          "expected_category": null,
+          "kind": "unrelated",
+          "rationale": "Outside incident triage.",
+          "id": "validation-20",
+          "retrieved_documents": [],
+          "source_ids": [],
+          "rank": null,
+          "abstained": true
+        }
+      ]
+    }
+  },
+  "service": {
+    "summary": {
+      "supported_route_coverage": {
+        "count": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "selective_route_accuracy": {
+        "count": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "joint_route_and_top1_success": {
+        "count": 10,
+        "total": 10,
+        "rate": 1.0
+      },
+      "unsupported_query_answer_rate": {
+        "count": 6,
+        "total": 10,
+        "rate": 0.6
+      },
+      "unsupported_route_acceptance": {
+        "count": 5,
+        "total": 10,
+        "rate": 0.5
+      }
+    },
+    "cases": [
+      {
+        "scenario": "pool-cancellation",
+        "query": "Requests cancelled by the caller leave HikariPool connections checked out. Pending database requests grow while idle connections stay at zero.",
+        "expected_document": "database-pool",
+        "expected_category": "database",
+        "kind": "supported",
+        "rationale": "Connection return after cancellation is covered.",
+        "id": "validation-01",
+        "category": "database",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "database-pool"
+      },
+      {
+        "scenario": "lock-worker-order",
+        "query": "Two reconciliation workers update the same tables in opposite order and deadlock. What evidence should we collect?",
+        "expected_document": "database-locks",
+        "expected_category": "database",
+        "kind": "supported",
+        "rationale": "The runbook covers update ordering and blocking sessions.",
+        "id": "validation-02",
+        "category": "database",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "database-locks"
+      },
+      {
+        "scenario": "lag-hot-partition",
+        "query": "One Kafka partition falls behind while the others keep up; event age rises and message processing on that partition is slow.",
+        "expected_document": "kafka-lag",
+        "expected_category": "messaging",
+        "kind": "supported",
+        "rationale": "Per-partition processing and lag are covered.",
+        "id": "validation-03",
+        "category": "messaging",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "kafka-lag"
+      },
+      {
+        "scenario": "dlq-schema-release",
+        "query": "After a consumer release, messages with the older schema fail serialization and keep cycling through the dead-letter queue.",
+        "expected_document": "message-retries",
+        "expected_category": "messaging",
+        "kind": "supported",
+        "rationale": "Schema contract and poison-message investigation are covered.",
+        "id": "validation-04",
+        "category": "messaging",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "message-retries"
+      },
+      {
+        "scenario": "startup-probe-port",
+        "query": "New OpenShift replicas run without crashing but readiness probes use the old port after a rollout. How should we investigate?",
+        "expected_document": "pod-startup",
+        "expected_category": "deployment",
+        "kind": "supported",
+        "rationale": "Probe path, port and startup timing are covered.",
+        "id": "validation-05",
+        "category": "deployment",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "pod-startup"
+      },
+      {
+        "scenario": "memory-batch-peak",
+        "query": "JVM memory peaks during large batch processing and the container is OOMKilled, although steady-state usage is low.",
+        "expected_document": "memory-pressure",
+        "expected_category": "deployment",
+        "kind": "supported",
+        "rationale": "Batch peaks and container/JVM memory comparison are covered.",
+        "id": "validation-06",
+        "category": "deployment",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "memory-pressure"
+      },
+      {
+        "scenario": "jobs-side-effect-ack",
+        "query": "A workflow worker completed a side effect but failed before acknowledging the task; the Camunda job now has exhausted retries.",
+        "expected_document": "workflow-jobs",
+        "expected_category": "workflow",
+        "kind": "supported",
+        "rationale": "Side-effect completion and idempotent retry review are covered.",
+        "id": "validation-07",
+        "category": "workflow",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "workflow-jobs"
+      },
+      {
+        "scenario": "routing-subscription-name",
+        "query": "An approval message uses a different name than the waiting process subscription and fails correlation.",
+        "expected_document": "workflow-routing",
+        "expected_category": "workflow",
+        "kind": "supported",
+        "rationale": "Message-name and correlation-key comparisons are covered.",
+        "id": "validation-08",
+        "category": "workflow",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "workflow-routing"
+      },
+      {
+        "scenario": "token-clock-offset",
+        "query": "Valid callers get JWT token expiry errors after one application host clock drifts; issuer and audience did not change.",
+        "expected_document": "auth-tokens",
+        "expected_category": "api-security",
+        "kind": "supported",
+        "rationale": "Expiry and clock-skew checks are covered.",
+        "id": "validation-09",
+        "category": "api-security",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "auth-tokens"
+      },
+      {
+        "scenario": "timeouts-budget-chain",
+        "query": "A REST caller retries slow downstream HTTP requests until the total request budget is exceeded and a circuit breaker opens.",
+        "expected_document": "api-timeouts",
+        "expected_category": "api-security",
+        "kind": "supported",
+        "rationale": "Timeout chain, retry backoff and total budget are covered.",
+        "id": "validation-10",
+        "category": "api-security",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "api-timeouts"
+      },
+      {
+        "scenario": "dns-record-repair",
+        "query": "Our Kubernetes DNS returns NXDOMAIN for a service hostname. Which CoreDNS zone record should I repair?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No DNS or CoreDNS runbook.",
+        "id": "validation-11",
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
+      },
+      {
+        "scenario": "certificate-chain",
+        "query": "TLS certificate validation fails when the API connects to the database. Which missing intermediate certificate belongs in the trust store?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No TLS certificate-chain investigation or certificate inventory.",
+        "id": "validation-12",
+        "category": "api-security",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "auth-tokens"
+      },
+      {
+        "scenario": "redis-eviction",
+        "query": "Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "Container/JVM memory guidance does not cover Redis eviction.",
+        "id": "validation-13",
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "extractive",
+        "top_document": "memory-pressure"
+      },
+      {
+        "scenario": "search-shard",
+        "query": "Elasticsearch query requests time out because a shard is unassigned. Which shard recovery procedure applies?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No Elasticsearch shard recovery procedure.",
+        "id": "validation-14",
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
+      },
+      {
+        "scenario": "kafka-billing",
+        "query": "Kafka producers send more messages this month. Calculate the dollar cost per partition on our vendor invoice.",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No billing data or pricing rules.",
+        "id": "validation-15",
+        "category": "messaging",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "kafka-lag"
+      },
+      {
+        "scenario": "exact-pool-value",
+        "query": "Tell me the exact HikariPool maximumPoolSize required for our database. I have not provided traffic or connection-budget measurements.",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No numerical capacity recommendation without measurements.",
+        "id": "validation-16",
+        "category": "database",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "database-pool"
+      },
+      {
+        "scenario": "workflow-license",
+        "query": "Our Camunda workflow subscription renewal failed. Which license SKU and renewal key should we buy?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No licensing or renewal-key information.",
+        "id": "validation-17",
+        "category": "workflow",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "workflow-routing"
+      },
+      {
+        "scenario": "jwt-token-value",
+        "query": "The API rejects my JWT token. Print the valid bearer token for the production service account.",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "near_unsupported",
+        "rationale": "No real credentials or token values.",
+        "id": "validation-18",
+        "category": "api-security",
+        "needs_review": false,
+        "mode": "extractive",
+        "top_document": "auth-tokens"
+      },
+      {
+        "scenario": "bread-recipe",
+        "query": "How much yeast should I add when baking a loaf of bread?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "unrelated",
+        "rationale": "Outside incident triage.",
+        "id": "validation-19",
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
+      },
+      {
+        "scenario": "museum-hours",
+        "query": "What time does the local art museum close on Sunday?",
+        "expected_document": null,
+        "expected_category": null,
+        "kind": "unrelated",
+        "rationale": "Outside incident triage.",
+        "id": "validation-20",
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
+      }
+    ]
+  },
+  "limitations": [
+    "Twenty authored synthetic queries per split; not real incident performance.",
+    "Holdout is not blinded or external and becomes exposed after first inspection.",
+    "Shared eligibility gate isolates ranking; BM25 variant still uses the cosine gate.",
+    "Document labels do not establish passage relevance, answer entailment or calibrated confidence.",
+    "Unsupported false matches count returned passages, not hallucinated claims.",
+    "Service measurements use the full-data classifier and extractive path, not grouped CV or a live LLM."
+  ]
+}

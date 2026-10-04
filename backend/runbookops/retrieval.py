@@ -54,7 +54,9 @@ class Retriever:
             for term in set(bag):
                 self.df[term] = self.df.get(term, 0) + 1
 
-    def search(self, query: str, limit: int = 4) -> list[dict]:
+    def search(self, query: str, limit: int = 4, *, ranking: str = 'hybrid') -> list[dict]:
+        if ranking not in {'hybrid', 'bm25', 'tfidf'}:
+            raise ValueError('Unknown ranking method')
         query_terms = set(tokens(query))
         cosine = (self.matrix @ self.vectorizer.transform([query]).T).toarray().ravel()
         # Require two non-stopword overlaps so one generic word cannot create evidence.
@@ -69,7 +71,9 @@ class Retriever:
             denominator = freq + 1.5 * (.25 + .75 * self.lengths / self.average_length)
             bm25 += idf * freq * 2.5 / denominator
         normalized = bm25 / max(float(bm25.max()), 1e-12)
-        scores = .65 * cosine + .35 * normalized
+        # Evaluation variants change ranking only; every variant uses the same gate.
+        scores = {'hybrid': .65 * cosine + .35 * normalized,
+                  'bm25': normalized, 'tfidf': cosine}[ranking]
         candidates = [int(i) for i in np.argsort(-scores, kind='stable')
                       if eligible[i] and cosine[i] >= self.minimum_cosine]
         results = []
