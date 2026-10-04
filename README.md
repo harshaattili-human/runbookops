@@ -9,7 +9,8 @@ local LLM synthesis is optional. The application never executes remediation.
 
 **Status:** working baseline with passing Python tests and frontend build.
 Evaluation uses 90 synthetic descriptions across 30 scenarios and 10 synthetic
-runbooks. Operational usefulness has not been measured on real incidents.
+runbooks, plus separate 20-query validation and holdout suites. Operational usefulness
+has not been measured on real incidents.
 
 For a code walkthrough, start with the [implementation map](docs/review-guide.md).
 The [model card](docs/model-card.md) describes the evaluation protocol and its limits.
@@ -26,6 +27,7 @@ source .venv/bin/activate
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -e '.[dev]'
 python -m runbookops.evaluate
+python -m runbookops.benchmark --split validation
 cd frontend
 npm ci
 npm run build
@@ -79,12 +81,20 @@ local Markdown files when the application starts.
 ```sh
 python -m pytest -q
 python -m runbookops.evaluate
+python -m runbookops.benchmark --split validation
 ```
 
-The initial local run passed 15 tests and produced approximately **0.945 macro F1**
-under three-fold, scenario-grouped cross-validation. The runbook retriever found
-the expected document for 10 of 10 positive smoke cases and abstained on 4 of 4
-unrelated smoke cases. This is a tiny synthetic benchmark, **not production accuracy**.
+The classifier scores approximately **0.945 macro F1**, versus **0.067** for a
+most-frequent-label baseline on the same three scenario-grouped folds. The original
+retrieval smoke set found 10/10 expected documents and abstained on 4/4 unrelated
+questions. The additional validation and holdout suites exposed a gap: each returned
+guidance for **6/10 unsupported requests**, despite finding the expected top document
+for all ten supported requests. These are small synthetic experiments.
+
+Read [the baseline comparison and failure analysis](docs/evaluation-v1.md). Hybrid,
+BM25 and TF-IDF rankings tied on these cases under the same eligibility gate. This
+does not establish a hybrid advantage or production accuracy. Routine CI scores
+validation; the documented holdout command is an explicit reproducibility step.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

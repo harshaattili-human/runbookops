@@ -4,7 +4,9 @@
 
 TF-IDF plus logistic regression trains locally on the small synthetic dataset and
 exposes the terms contributing to each route. This gives the project a baseline
-to compare with other models. No comparative model study has been run yet.
+to compare with other models. The [first comparison](evaluation-v1.md) includes a
+most-frequent-label predictor on the same folds; embedding and larger-model
+comparisons have not been run.
 
 ## Separate routing from retrieval
 

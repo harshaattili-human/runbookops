@@ -18,9 +18,10 @@ is a local prototype. It has not been used to resolve production incidents.
 ## Decisions worth examining
 
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
-baseline that can train locally and expose influential terms. The current results
-do not show superiority to a dummy classifier, an embedding model, or another
-retriever: those comparisons have not been run.
+baseline that can train locally and expose influential terms. Its grouped macro F1
+is approximately 0.945 versus 0.067 for a most-frequent-label predictor on the same
+folds. The fixed-gate hybrid, BM25 and TF-IDF rankings tied on the new small query
+suites. Embedding comparisons have not been run. See [the experiment](evaluation-v1.md).
 
 **Retrieval independent of routing.** The classifier label does not filter runbooks.
 This avoids hiding relevant evidence solely because the router chose the wrong
@@ -48,14 +49,20 @@ Retrieval smoke checks find the expected document within four returned chunks fo
 are visible to the developer. They are not an independent holdout, and the perfect
 smoke result should not be read as evidence of robust open-world retrieval.
 
+The newer validation and holdout suites each include eight near-topic unsupported
+requests and two unrelated questions. Six unsupported requests in each split receive
+guidance despite the absent target answer. The reports separate that behavior from
+routing acceptance. These authored suites do not establish real-incident quality;
+the published holdout is now exposed and must not become a tuning target.
+
 Reproduction, split membership, individual errors, environment versions, and the
 dataset hash are available in the [evaluation report](../reports/evaluation.json).
 The [model card](model-card.md) describes thresholds and limitations.
 
 ## What needs evidence next
 
-1. Separate validation and holdout cases, including near-topic unsupported queries;
-   compare simple baselines and report failures as well as headline metrics.
+1. Evaluate an answerability policy on validation, then a new frozen holdout. Preserve
+   supported coverage, expand ambiguous positives, and retain the v1 failure evidence.
 2. Browser interaction tests, keyboard focus handling, and a reproducible visual demo.
 3. Container-build checks and measured latency/concurrency behavior with a stated
    environment; individual request timing is not a load test.

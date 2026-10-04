@@ -4,11 +4,11 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Add near-topic negative retrieval cases and study abstention failures without
-   repeatedly tuning on the same evaluation set. Keep a separate validation set.
-   Compare classification against a simple dummy baseline, and retrieval against
-   BM25-only and TF-IDF-only variants. Report unsupported-answer cases and routing
-   abstention separately from forced-label classifier F1.
+1. Investigate answerability on the new validation cases: the fixed gate returns
+   guidance for six of ten unsupported requests. Measure the tradeoff between
+   withholding unsupported guidance and retaining supported coverage. Use a new
+   frozen holdout for future improvement claims; v1 is now exposed. Add ambiguous
+   supported cases that can distinguish ranking methods without hard-coding queries.
 2. Add keyboard focus containment and automated browser coverage for source inspection,
    error handling, mobile navigation, and the empty state.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
@@ -26,3 +26,8 @@ new dependency or framework without a measured need.
 No paid services, production data, employer source code, or automated infrastructure
 actions are required. Research and partially implemented experiments belong on a
 branch; the default branch should remain runnable.
+
+Completed October 4: a same-fold dummy classifier comparison, fixed-gate ranking
+ablations, separate synthetic validation/holdout suites, and per-case failure reports.
+See [the protocol and results](evaluation-v1.md). The ranking variants tied on these
+small sets; answerability remains unresolved.
