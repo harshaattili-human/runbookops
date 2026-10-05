@@ -40,6 +40,9 @@ is absent, and two unrelated questions. It was authored after the v1 failure ana
 but frozen before scoring an answerability policy. It remains synthetic, visible to
 the same author, and is not an external benchmark. Its first score should be reported
 once and preserved; subsequent changes require another holdout for fresh claims.
+Its hashes and one-score protocol are recorded separately in
+`evaluation/answerability-manifest-v2.json` so the historical v1 manifest remains
+unchanged.
 
 Runbook text is illustrative investigation guidance, not vendor documentation.
 Verify real systems against current vendor documentation and local procedures.
