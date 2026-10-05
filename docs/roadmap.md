@@ -8,8 +8,9 @@ new dependency or framework without a measured need.
    coverage gate still passes requests for absent credentials, numeric guarantees
    and business decisions, and it suppresses some useful paraphrases or padded text.
    Preserve the v2 failures and freeze a new holdout before another improvement claim.
-2. Add keyboard focus containment and automated browser coverage for source inspection,
-   error handling, mobile navigation, and the empty state.
+2. Add real-browser coverage for responsive layout, source inspection and mobile
+   navigation. Component tests now cover source-dialog focus containment, Escape,
+   focus restoration, fetch errors, keyboard navigation and the empty state.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
@@ -36,3 +37,8 @@ document-coverage gate, and a separately frozen 26-case answerability holdout. T
 policy reduced unsupported answers from 11/14 to 3/14 while retaining 11/12 supported
 answers. It is a measured partial safeguard, not a solved answerability problem. See
 [the protocol and failures](answerability-v2.md).
+
+Completed October 5: the source dialog now contains keyboard focus, closes on Escape,
+restores the invoking source card and marks background regions inert. Vitest/jsdom
+interaction tests cover that flow plus source errors, navigation and the empty state.
+This does not replace real-browser or assistive-technology verification.

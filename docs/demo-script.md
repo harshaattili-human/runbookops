@@ -4,6 +4,7 @@
 2. Explain the difference between the service-area classifier and retrieval. The
    suggested label does not filter documents, so a routing error cannot hide evidence.
 3. Open a source card. Show the exact Markdown lines and the passage used in the answer.
+   Use Tab and Escape to demonstrate contained focus and return to the same card.
 4. Select **Missing information**. The memory runbook is related, but the service
    withholds it because it does not cover Redis eviction. Contrast this with
    **Outside the corpus**, where retrieval finds no candidate at all.

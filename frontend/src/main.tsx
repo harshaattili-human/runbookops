@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@fontsource/dm-sans/latin-400.css';
 import '@fontsource/dm-sans/latin-600.css';
@@ -109,6 +109,14 @@ const samples = [
 const label = (v: string) => v.replaceAll('-', ' ');
 const percent = (v: number) => (v * 100).toFixed(1) + '%';
 const recordedDemo = Boolean((window as Window & { RUNBOOKOPS_DEMO?: boolean }).RUNBOOKOPS_DEMO);
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(path, options);
@@ -117,7 +125,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json();
 }
 
-function App() {
+export function App() {
   const [page, setPage] = useState<'workbench' | 'library' | 'evaluation'>('workbench');
   const [query, setQuery] = useState(samples[0].text);
   const [overview, setOverview] = useState<Overview | null>(null);
@@ -125,14 +133,68 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [useLlm, setUseLlm] = useState(false);
-  const [document, setDocument] = useState<{ id: string; content: string } | null>(null);
+  const [openRunbook, setOpenRunbook] = useState<{ id: string; content: string } | null>(null);
   const [docError, setDocError] = useState('');
   const [filter, setFilter] = useState('');
+  const sourceDialogRef = useRef<HTMLElement | null>(null);
+  const sourceTriggerRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     request<Overview>('/api/overview')
       .then(setOverview)
       .catch((e) => setError(e.message));
   }, []);
+  useEffect(() => {
+    if (!openRunbook || !sourceDialogRef.current) return;
+    const dialog = sourceDialogRef.current;
+    const previousFocus = sourceTriggerRef.current;
+    const backdrop = dialog.parentElement;
+    const background = Array.from(backdrop?.parentElement?.children ?? []).filter(
+      (element): element is HTMLElement => element instanceof HTMLElement && element !== backdrop,
+    );
+    const previousInert = new Map(
+      background.map((element) => [element, element.hasAttribute('inert')]),
+    );
+    background.forEach((element) => element.setAttribute('inert', ''));
+
+    const focusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector));
+    (focusable()[0] ?? dialog).focus();
+
+    function handleDialogKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setOpenRunbook(null);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const controls = focusable();
+      if (!controls.length) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+      }
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && window.document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && window.document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      } else if (!dialog.contains(window.document.activeElement)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.document.addEventListener('keydown', handleDialogKey);
+    return () => {
+      window.document.removeEventListener('keydown', handleDialogKey);
+      background.forEach((element) => {
+        if (!previousInert.get(element)) element.removeAttribute('inert');
+      });
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [openRunbook]);
   async function analyze(text = query) {
     if (busy) return;
     setBusy(true);
@@ -154,8 +216,10 @@ function App() {
   }
   async function openDocument(id: string) {
     setDocError('');
+    sourceTriggerRef.current =
+      window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
     try {
-      setDocument(
+      setOpenRunbook(
         await request<{ id: string; content: string }>(`/api/runbooks/${encodeURIComponent(id)}`),
       );
     } catch (e) {
@@ -203,9 +267,7 @@ function App() {
         <div className="sidebar-note">
           <span className="tiny-label">USING THE DEMO</span>
           <h3>Check the source lines</h3>
-          <p>
-            Choose a sample incident, then open a result to read the matching runbook passage.
-          </p>
+          <p>Choose a sample incident, then open a result to read the matching runbook passage.</p>
           <ShieldCheck size={23} />
         </div>
         <div className="profile">
@@ -608,28 +670,27 @@ function App() {
           </footer>
         </div>
       </main>
-      {document && (
-        <div className="modal-backdrop" onClick={() => setDocument(null)}>
+      {openRunbook && (
+        <div className="modal-backdrop" onClick={() => setOpenRunbook(null)}>
           <section
+            ref={sourceDialogRef}
             className="document-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Runbook source"
+            aria-labelledby="source-dialog-title"
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') setDocument(null);
-            }}
           >
             <header>
-              <span>
-                <BookOpen size={18} /> {document.id}.md
+              <span id="source-dialog-title">
+                <BookOpen size={18} /> {openRunbook.id}.md
               </span>
-              <button autoFocus aria-label="Close source" onClick={() => setDocument(null)}>
+              <button aria-label="Close source" onClick={() => setOpenRunbook(null)}>
                 <X size={20} />
               </button>
             </header>
             <div className="source-lines">
-              {document.content.split('\n').map((line, i) => (
+              {openRunbook.content.split('\n').map((line, i) => (
                 <div key={i}>
                   <span>{i + 1}</span>
                   <pre>{line || ' '}</pre>
@@ -651,8 +712,10 @@ function Metric({ title, value, note }: { title: string; value: string; note: st
     </div>
   );
 }
-createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-);
+const root = window.document.getElementById('root');
+if (root)
+  createRoot(root).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  );
