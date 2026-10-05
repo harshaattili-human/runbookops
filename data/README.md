@@ -34,5 +34,12 @@ tuned abstention policies. Report per-case failures and denominators, along with
 the current service's supported-query routing coverage and unsupported-query answer
 rate. No live LLM is used.
 
+`evaluation/answerability-holdout-v2.json` adds 26 cases for a later answerability
+check: 12 supported investigations, 12 near-topic requests whose target information
+is absent, and two unrelated questions. It was authored after the v1 failure analysis
+but frozen before scoring an answerability policy. It remains synthetic, visible to
+the same author, and is not an external benchmark. Its first score should be reported
+once and preserved; subsequent changes require another holdout for fresh claims.
+
 Runbook text is illustrative investigation guidance, not vendor documentation.
 Verify real systems against current vendor documentation and local procedures.
