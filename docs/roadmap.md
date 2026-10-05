@@ -4,11 +4,10 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Investigate answerability on the new validation cases: the fixed gate returns
-   guidance for six of ten unsupported requests. Measure the tradeoff between
-   withholding unsupported guidance and retaining supported coverage. Use a new
-   frozen holdout for future improvement claims; v1 is now exposed. Add ambiguous
-   supported cases that can distinguish ranking methods without hard-coding queries.
+1. Compare passage-level answerability methods on validation. The lexical document-
+   coverage gate still passes requests for absent credentials, numeric guarantees
+   and business decisions, and it suppresses some useful paraphrases or padded text.
+   Preserve the v2 failures and freeze a new holdout before another improvement claim.
 2. Add keyboard focus containment and automated browser coverage for source inspection,
    error handling, mobile navigation, and the empty state.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
@@ -31,3 +30,9 @@ Completed October 4: a same-fold dummy classifier comparison, fixed-gate ranking
 ablations, separate synthetic validation/holdout suites, and per-case failure reports.
 See [the protocol and results](evaluation-v1.md). The ranking variants tied on these
 small sets; answerability remains unresolved.
+
+Completed October 5: an explicit insufficient-evidence response, IDF-weighted
+document-coverage gate, and a separately frozen 26-case answerability holdout. The
+policy reduced unsupported answers from 11/14 to 3/14 while retaining 11/12 supported
+answers. It is a measured partial safeguard, not a solved answerability problem. See
+[the protocol and failures](answerability-v2.md).

@@ -15,6 +15,15 @@ label must not hide a relevant runbook. Retrieval combines BM25 lexical matching
 with TF-IDF cosine similarity using a fixed weighted score. This favors vocabulary
 overlap; paraphrases with different terminology may fail to retrieve useful evidence.
 
+## Require document coverage before showing guidance
+
+Retrieval ranking answers “which passage is most related,” not “does it contain the
+requested fact or procedure.” The service therefore requires the top document to
+cover at least 0.33 of the query's IDF-weighted terms before returning its passage.
+The threshold was selected on validation before the v2 holdout was scored. The
+[experiment](answerability-v2.md) records both fewer unsupported answers and the
+supported case it suppresses. This lexical check does not establish entailment.
+
 ## Keep suggestions separate from execution
 
 The application retrieves investigation steps. It never runs shell commands,
