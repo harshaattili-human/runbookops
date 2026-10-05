@@ -28,6 +28,7 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
+python -m runbookops.answerability --split validation
 cd frontend
 npm ci
 npm run build
@@ -46,8 +47,9 @@ absolute checkout path. The Dockerfile sets this to `/app`.
 ## Try it
 
 Choose **Connection pool**, inspect the routing signals, and open the referenced
-source. Then choose **Outside the corpus** to inspect abstention. The **Evaluation**
-tab displays measured results and misclassifications from the checked-in report.
+source. Then compare **Missing information** (related document, insufficient coverage)
+with **Outside the corpus** (no retrieved candidate). The **Evaluation** tab displays
+measured results and misclassifications from the checked-in report.
 
 ```sh
 curl http://127.0.0.1:8000/api/triage \
@@ -82,6 +84,7 @@ local Markdown files when the application starts.
 python -m pytest -q
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
+python -m runbookops.answerability --split validation
 ```
 
 The classifier scores approximately **0.945 macro F1**, versus **0.067** for a
@@ -91,10 +94,12 @@ questions. The additional validation and holdout suites exposed a gap: each retu
 guidance for **6/10 unsupported requests**, despite finding the expected top document
 for all ten supported requests. These are small synthetic experiments.
 
-Read [the baseline comparison and failure analysis](docs/evaluation-v1.md). Hybrid,
-BM25 and TF-IDF rankings tied on these cases under the same eligibility gate. This
-does not establish a hybrid advantage or production accuracy. Routine CI scores
-validation; the documented holdout command is an explicit reproducibility step.
+Read [the baseline comparison](docs/evaluation-v1.md) and the follow-up
+[answerability experiment](docs/answerability-v2.md). An IDF-weighted document-coverage
+gate reduced unsupported answers from 11/14 to 3/14 on a new frozen synthetic holdout,
+while withholding one of 12 supported answers; another supported case still selected
+the wrong top document. This tradeoff is not production accuracy. Routine CI scores
+validation; holdout commands are explicit reproduction steps.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

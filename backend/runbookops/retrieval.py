@@ -27,6 +27,8 @@ class Chunk:
 class Retriever:
     # Fixed before smoke evaluation; not a calibrated probability threshold.
     minimum_cosine = 0.09
+    # Selected on validation-v1 before answerability-holdout-v2 was scored.
+    minimum_document_coverage = 0.33
 
     def __init__(self, directory: Path):
         self.documents = {p.stem: p.read_text() for p in sorted(directory.glob('*.md'))}
@@ -54,6 +56,20 @@ class Retriever:
             for term in set(bag):
                 self.df[term] = self.df.get(term, 0) + 1
 
+    def document_coverage(self, query: str, document: str) -> float:
+        """Return IDF-weighted query-term coverage in one complete document."""
+        query_terms = set(tokens(query))
+        if not query_terms or document not in self.documents:
+            return 0.0
+        document_terms = set(tokens(self.documents[document]))
+        weights = {
+            term: np.log(1 + (len(self.chunks) - self.df.get(term, 0) + .5)
+                         / (self.df.get(term, 0) + .5))
+            for term in query_terms
+        }
+        total = sum(weights.values())
+        return float(sum(weights[t] for t in query_terms & document_terms) / total)
+
     def search(self, query: str, limit: int = 4, *, ranking: str = 'hybrid') -> list[dict]:
         if ranking not in {'hybrid', 'bm25', 'tfidf'}:
             raise ValueError('Unknown ranking method')
@@ -80,5 +96,7 @@ class Retriever:
         for i in candidates[:limit]:
             results.append({**asdict(self.chunks[i]), 'score': round(float(scores[i]), 4),
                             'cosine': round(float(cosine[i]), 4),
+                            'document_coverage': round(
+                                self.document_coverage(query, self.chunks[i].document), 4),
                             'matched_terms': sorted(query_terms & set(self.bags[i]))})
         return results

@@ -1,7 +1,7 @@
 """Export a self-contained, explicitly labeled replay of real API responses.
 
 Run after `npm run build`. Requires development dependencies and a checkout.
-The replay supports the four sample incidents, source viewing, and evaluation;
+The replay supports the five sample incidents, source viewing, and evaluation;
 it does not claim to execute Python inference in the browser.
 """
 
@@ -20,6 +20,7 @@ queries = [
     'Requests time out acquiring a HikariPool database connection. Active connections are at the maximum and pending requests keep rising.',
     'Kafka consumer lag is increasing and the group keeps rebalancing. What should we inspect before considering a replay?',
     'A Camunda workflow service task exhausted its retries and the process instance is stuck after a downstream error.',
+    'Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?',
     'How do I bake chocolate brownies for a birthday party?',
 ]
 

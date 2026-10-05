@@ -24,7 +24,10 @@ class TriageService:
     def triage(self, query: str, use_llm: bool = False) -> dict:
         started = perf_counter()
         routing = self.classifier.predict(query)
-        sources = self.retriever.search(query)
+        candidates = self.retriever.search(query)
+        coverage = candidates[0]['document_coverage'] if candidates else None
+        sufficient = coverage is not None and coverage >= self.retriever.minimum_document_coverage
+        sources = candidates if sufficient else []
         answer = 'No sufficiently matching evidence was found. Add the error text, affected component, and recent change.'
         mode = 'abstained'
         warning = None
@@ -44,9 +47,20 @@ class TriageService:
         else:
             routing['category'] = 'needs-review'
             routing['needs_review'] = True
+            if candidates:
+                answer = ('A related runbook was found, but it does not cover enough of the request. '
+                          'Add the missing procedure, value, or system context before using guidance.')
+        answerability = {
+            'status': 'sufficient' if sources else 'insufficient' if candidates else 'no-match',
+            'method': 'idf-weighted query-term coverage in the top document',
+            'coverage': coverage,
+            'threshold': self.retriever.minimum_document_coverage,
+            'candidate_source_id': candidates[0]['id'] if candidates else None,
+            'note': 'Lexical coverage heuristic selected on synthetic validation data; not a probability.',
+        }
         return {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
                 'answer': answer, 'citations': citations, 'sources': sources,
-                'mode': mode, 'warning': warning,
+                'mode': mode, 'warning': warning, 'answerability': answerability,
                 'duration_ms': round((perf_counter() - started) * 1000, 1)}
 
     def _generate(self, query: str, sources: list[dict]) -> tuple[str, list[str]]:

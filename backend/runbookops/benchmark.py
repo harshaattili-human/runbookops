@@ -25,6 +25,11 @@ def load_suites(root: Path) -> tuple[dict, dict]:
     for name, expected in manifest['sha256'].items():
         if sha256(root / name) != expected:
             raise ValueError(f'Frozen input changed: {name}; version the dataset before evaluating')
+    answerability_manifest = json.loads(
+        (root / 'data/evaluation/answerability-manifest-v2.json').read_text())
+    for name, expected in answerability_manifest['sha256'].items():
+        if sha256(root / name) != expected:
+            raise ValueError(f'Frozen input changed: {name}; version the dataset before evaluating')
     runbooks = {str(p.relative_to(root)) for p in (root / 'data/runbooks').glob('*.md')}
     frozen_runbooks = {name for name in manifest['sha256'] if name.startswith('data/runbooks/')}
     if runbooks != frozen_runbooks:
@@ -38,8 +43,13 @@ def load_suites(root: Path) -> tuple[dict, dict]:
     seen_scenarios = {r['scenario'] for r in training}
     seen_ids = set()
     suites = {}
-    for split in ('validation', 'holdout'):
-        cases = json.loads((root / f'data/evaluation/{split}-v1.json').read_text())
+    suite_files = {
+        'validation': 'validation-v1.json',
+        'holdout': 'holdout-v1.json',
+        'answerability_holdout': 'answerability-holdout-v2.json',
+    }
+    for split, filename in suite_files.items():
+        cases = json.loads((root / 'data/evaluation' / filename).read_text())
         for case in cases:
             query = ' '.join(case['query'].lower().split())
             if case['id'] in seen_ids or case['scenario'] in seen_scenarios or query in seen_queries:
@@ -57,6 +67,7 @@ def load_suites(root: Path) -> tuple[dict, dict]:
         if not any(c['kind'] == 'supported' for c in cases) or not any(c['kind'] != 'supported' for c in cases):
             raise ValueError('Each split must include supported and unsupported cases')
         suites[split] = cases
+    manifest['answerability_v2'] = answerability_manifest
     return manifest, suites
 
 

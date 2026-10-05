@@ -42,9 +42,10 @@ Each new suite has ten supported requests, eight near-topic unsupported requests
 two unrelated questions. Fixed hybrid/BM25/TF-IDF rankings share the same eligibility
 gate and all find the expected top document on 10/10 supported cases, but each returns
 guidance on 6/10 unsupported cases. No settings were tuned on either new suite.
-The default service accepts 10/10 supported routes correctly in each split; on the
-unsupported cases it accepts 5/10 routes and returns guidance for 6/10. The route's
-`needs-review` flag does not by itself prevent an extractive answer.
+Before the later answerability gate, the default service accepted 10/10 supported
+routes correctly in each split; on unsupported cases it accepted 5/10 routes and
+returned guidance for 6/10. The route's `needs-review` flag did not by itself prevent
+an extractive answer. The follow-up policy and new holdout are described below.
 
 The [protocol and failure analysis](evaluation-v1.md) link every case and hash. The
 holdout is authored synthetic data and now exposed, not a fresh test set for future
@@ -56,7 +57,17 @@ Markdown sections are indexed with title context and original line references.
 Ranking is 0.65 times TF-IDF cosine similarity plus 0.35 times query-normalized
 BM25 (k1=1.5, b=0.75). A passage needs two non-stopword overlaps and cosine >=0.09.
 The four highest eligible chunks are returned, possibly from the same document.
-This is sparse lexical retrieval; it is not neural semantic search.
+Before showing guidance, the service also requires the top document to contain at
+least 0.33 of the query's IDF-weighted terms. Below that threshold it returns no
+source passage and does not call the optional LLM. The threshold was selected on
+the v1 validation set; it is a lexical heuristic, not calibrated confidence.
+
+On the separately frozen v2 synthetic holdout, the original retrieval gate answered
+11/14 unsupported requests and all 12 supported requests. The coverage policy answered
+3/14 unsupported requests and 11/12 supported requests. It answered ten supported
+requests with the expected top document; one answered case selected the wrong document.
+See the [protocol and failures](answerability-v2.md). This is sparse lexical retrieval,
+not neural semantic search or passage entailment.
 
 Default answers extract the highest-ranked passage verbatim. Optional Ollama
 synthesis uses retrieved passages and a JSON response contract. Citation IDs are
@@ -72,3 +83,5 @@ Only authored local documents are indexed, and the model has no tool execution.
 - No production authentication, rate limiting, or tenant isolation.
 - This demo should run locally. Public deployment needs a separate security review.
 - UI keyboard focus containment and end-to-end browser tests remain on the backlog.
+- The coverage gate can suppress useful evidence when a query contains irrelevant
+  terms, and can pass absent values or secrets when topical overlap is strong.

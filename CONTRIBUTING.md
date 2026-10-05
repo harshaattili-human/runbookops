@@ -12,6 +12,7 @@ Before pushing:
 python -m pytest -q
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
+python -m runbookops.answerability --split validation
 cd frontend
 npm ci
 npm run build
@@ -21,6 +22,8 @@ Update the model card when a dataset, threshold, model, or evaluation protocol c
 Keep validation and held-out evaluation sets separate as the benchmark grows.
 The v1 holdout has already been inspected. Use validation for development and a new
 frozen holdout for fresh quality claims. See [the protocol](docs/evaluation-v1.md).
+The answerability v2 holdout is also exposed after its first score. Preserve its
+failures and freeze another holdout before tuning or claiming a further improvement.
 
 ## Evidence for a change
 

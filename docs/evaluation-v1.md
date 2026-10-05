@@ -119,5 +119,9 @@ insufficient-evidence response with the current extractive path, including its e
 on supported-query coverage. Do not add a list of special-case query strings to make
 these cases pass. Freeze a new, more diverse holdout before measuring an improvement.
 
+That follow-up is now recorded in the [answerability experiment](answerability-v2.md).
+The original results above remain the baseline; the v2 policy and holdout introduce
+new denominators and must not be collapsed into this first experiment.
+
 References: [scikit-learn dummy baseline](https://scikit-learn.org/1.8/modules/generated/sklearn.dummy.DummyClassifier.html)
 and [avoiding test-set leakage](https://scikit-learn.org/1.8/common_pitfalls.html).

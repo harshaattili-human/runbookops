@@ -11,7 +11,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Incident routing | [Classifier](../backend/runbookops/classifier.py): TF-IDF plus logistic regression, term contributions, and heuristic abstention | [Grouped evaluation](../backend/runbookops/evaluate.py); model scores are not calibrated confidence |
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
-| Answer construction | [Service](../backend/runbookops/service.py): exact source extraction, optional Ollama synthesis, citation-ID validation | Mocked adapter tests cover valid/invalid citations and missing configuration; live generation quality is unmeasured |
+| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; live generation quality is unmeasured |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | TypeScript and production build pass; keyboard interaction and end-to-end browser coverage are still planned |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | CI runs tests, evaluation, and frontend build; the Dockerfile has not yet been built in CI |
 
@@ -38,6 +38,12 @@ answers require valid retrieved citation IDs and fall back when the provider or
 validation fails. An answer can cite a valid passage and still misrepresent it;
 entailment and live-model evaluation remain open work.
 
+**Answerability after retrieval.** A top-ranked passage is not automatically shown.
+The service first checks IDF-weighted query-term coverage across its document. The
+fixed v2 holdout reduced unsupported answers from 11/14 to 3/14 but withheld one of
+12 supported answers. Strong topical overlap still passes some requests for absent
+credentials, numerical guarantees, and business decisions.
+
 ## What the measurements establish
 
 The checked-in report records approximately 0.945 macro F1 under three-fold grouped
@@ -49,11 +55,13 @@ Retrieval smoke checks find the expected document within four returned chunks fo
 are visible to the developer. They are not an independent holdout, and the perfect
 smoke result should not be read as evidence of robust open-world retrieval.
 
-The newer validation and holdout suites each include eight near-topic unsupported
+The v1 validation and holdout suites each include eight near-topic unsupported
 requests and two unrelated questions. Six unsupported requests in each split receive
 guidance despite the absent target answer. The reports separate that behavior from
 routing acceptance. These authored suites do not establish real-incident quality;
-the published holdout is now exposed and must not become a tuning target.
+the published holdout is now exposed and must not become a tuning target. A later
+26-case holdout measures the coverage gate separately; see
+[the answerability report](answerability-v2.md) for its denominators and five failures.
 
 Reproduction, split membership, individual errors, environment versions, and the
 dataset hash are available in the [evaluation report](../reports/evaluation.json).
@@ -61,8 +69,9 @@ The [model card](model-card.md) describes thresholds and limitations.
 
 ## What needs evidence next
 
-1. Evaluate an answerability policy on validation, then a new frozen holdout. Preserve
-   supported coverage, expand ambiguous positives, and retain the v1 failure evidence.
+1. Compare passage-level answerability methods on validation, including missing
+   credentials/values and verbose supported incidents; freeze a new holdout before
+   another improvement claim.
 2. Browser interaction tests, keyboard focus handling, and a reproducible visual demo.
 3. Container-build checks and measured latency/concurrency behavior with a stated
    environment; individual request timing is not a load test.

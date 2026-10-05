@@ -19,12 +19,13 @@
   },
   "code_sha256": {
     "backend/runbookops/__init__.py": "efea901531adf82c7bbfdd7e3139779605d19d0c291c619f834954b016239be4",
+    "backend/runbookops/answerability.py": "10be8e795a450cf4cfc6e8601fc983bd07d2ef23d323afeb15fef7a81034a57c",
     "backend/runbookops/api.py": "507d149206a2fe97a3fdd977de802bc5f536acfc85e4ff20d5251cf87fc21ddb",
-    "backend/runbookops/benchmark.py": "a5e4359b72398b981d6b3ef627f9370063a3df748fef2acfd01d944c3a24ba40",
+    "backend/runbookops/benchmark.py": "18023019b165f40d9bb402e6b7aaf2be3a9f49461172a3bff24a087b93b2790d",
     "backend/runbookops/classifier.py": "db0bb7f5a79888d65181cfc0603b5cb9f18bb49f6f1ed10dbd58b40f75a6f951",
     "backend/runbookops/evaluate.py": "1bf041dac3b49c6e64fa88e06cf22d7a16dba7e23cbcefc211d330aca436d1aa",
-    "backend/runbookops/retrieval.py": "2dc55cea5776d906c8dded258738f83bd3f90ef695a1fc4288118c9d7dbbd507",
-    "backend/runbookops/service.py": "3419b3add64559ba3e2f109c5c962bc6f34b8b59dde7814dab8bab6b20fba496"
+    "backend/runbookops/retrieval.py": "6ab3cfeda6abade8e78d4bdc23f9fef4cbae3ba71b1b78a3dc011ce352bef47c",
+    "backend/runbookops/service.py": "f25d07e4baff15d2c090bdfc9413e1a11ae40acfc53a89523e036179d9a2ed28"
   },
   "environment": {
     "python": "3.12.14",
@@ -1252,14 +1253,14 @@
         "rate": 1.0
       },
       "unsupported_query_answer_rate": {
-        "count": 6,
+        "count": 1,
         "total": 10,
-        "rate": 0.6
+        "rate": 0.1
       },
       "unsupported_route_acceptance": {
-        "count": 5,
+        "count": 1,
         "total": 10,
-        "rate": 0.5
+        "rate": 0.1
       }
     },
     "cases": [
@@ -1414,10 +1415,10 @@
         "kind": "near_unsupported",
         "rationale": "No TLS certificate-chain investigation or certificate inventory.",
         "id": "validation-12",
-        "category": "api-security",
-        "needs_review": false,
-        "mode": "extractive",
-        "top_document": "auth-tokens"
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
       },
       {
         "scenario": "redis-eviction",
@@ -1429,8 +1430,8 @@
         "id": "validation-13",
         "category": "needs-review",
         "needs_review": true,
-        "mode": "extractive",
-        "top_document": "memory-pressure"
+        "mode": "abstained",
+        "top_document": null
       },
       {
         "scenario": "search-shard",
@@ -1453,10 +1454,10 @@
         "kind": "near_unsupported",
         "rationale": "No billing data or pricing rules.",
         "id": "validation-15",
-        "category": "messaging",
-        "needs_review": false,
-        "mode": "extractive",
-        "top_document": "kafka-lag"
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
       },
       {
         "scenario": "exact-pool-value",
@@ -1466,10 +1467,10 @@
         "kind": "near_unsupported",
         "rationale": "No numerical capacity recommendation without measurements.",
         "id": "validation-16",
-        "category": "database",
-        "needs_review": false,
-        "mode": "extractive",
-        "top_document": "database-pool"
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
       },
       {
         "scenario": "workflow-license",
@@ -1479,10 +1480,10 @@
         "kind": "near_unsupported",
         "rationale": "No licensing or renewal-key information.",
         "id": "validation-17",
-        "category": "workflow",
-        "needs_review": false,
-        "mode": "extractive",
-        "top_document": "workflow-routing"
+        "category": "needs-review",
+        "needs_review": true,
+        "mode": "abstained",
+        "top_document": null
       },
       {
         "scenario": "jwt-token-value",

@@ -1,0 +1,23 @@
+{
+  "version": "answerability-v2",
+  "created": "2026-10-05",
+  "baseline_commit": "56ecf435ea09daed8915f370a947c520632ee479",
+  "holdout_frozen_commit": "1661081b607ef8f7322552a7ad5c830d8bf4c5c7",
+  "provenance": "Synthetic cases authored with AI assistance; not a blinded, independent or external benchmark.",
+  "protocol": "Select the lexical coverage policy and threshold on validation-v1 only. Score answerability-holdout-v2 once after implementation is fixed, preserve all failures, and treat it as exposed thereafter.",
+  "sha256": {
+    "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
+    "data/evaluation/validation-v1.json": "3fca27648f30903b646f7488dc85edb405ee6a47ee26aa82313b2df69bd08c60",
+    "data/evaluation/answerability-holdout-v2.json": "c20796d70bb07ca10b3c0aa2fb93101bd36f0403e74a9c272946a4c2f7bd6877",
+    "data/runbooks/api-timeouts.md": "65b015aa2b529e53ae5529755a66ee78f03b07d8f5d522b2a16d8f994898ddfa",
+    "data/runbooks/auth-tokens.md": "8b4c964005d2306d52f0e7136e4155d782968b2c6cf89f26ae5ed4134bff5868",
+    "data/runbooks/database-locks.md": "201704b074853662e5da8e7616351045de00360e1e54a549bb66ab54948a3d35",
+    "data/runbooks/database-pool.md": "66a3d966fb2e6713507a8dbc933a282bab5cca6cd5f1acb8ae3a86e0f3949e0c",
+    "data/runbooks/kafka-lag.md": "88488de264cafa7a98f5f345fc603d117d60e7ff8c08e07b675d8e7b0b339cdc",
+    "data/runbooks/memory-pressure.md": "e34f5c58a947a851b5efdf97cd9cb35e42c131dce6fbda718a7c015f4bb41c28",
+    "data/runbooks/message-retries.md": "f2ca8b9f6c0f4d87e35d231f516c471426c269995c9ff5d5a838f017603058c8",
+    "data/runbooks/pod-startup.md": "687dc1f36fa9e86fece9556602fc99d51acc14c43cdcf24d72d7b8dd8e317d7b",
+    "data/runbooks/workflow-jobs.md": "b4d9cb3c778b780f9975375a80d78aa63977f6aa5f0088e9613c4b84b1e004b9",
+    "data/runbooks/workflow-routing.md": "be1f623fa90e10b5832a4a145051c1a2b1ac1baeca324caf4bb99158d31dad72"
+  }
+}

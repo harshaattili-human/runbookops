@@ -30,6 +30,7 @@ type Source = {
   end_line: number;
   text: string;
   score: number;
+  document_coverage: number;
   matched_terms: string[];
 };
 type Routing = {
@@ -49,6 +50,11 @@ type Result = {
   sources: Source[];
   mode: string;
   warning: string | null;
+  answerability?: {
+    status: 'sufficient' | 'insufficient' | 'no-match';
+    coverage: number | null;
+    threshold: number;
+  };
   duration_ms: number;
 };
 type Evaluation = {
@@ -88,6 +94,11 @@ const samples = [
     name: 'Stalled approval',
     area: 'WORKFLOW',
     text: 'A Camunda workflow service task exhausted its retries and the process instance is stuck after a downstream error.',
+  },
+  {
+    name: 'Missing information',
+    area: 'ANSWERABILITY',
+    text: 'Redis cache keys disappear under memory pressure. How do I inspect and change its eviction policy?',
   },
   {
     name: 'Outside the corpus',
@@ -443,6 +454,16 @@ function App() {
                           <span>Top model score</span>
                           <strong>{percent(result.routing.score)}</strong>
                         </div>
+                        {result.answerability && (
+                          <div className="score-line">
+                            <span>Evidence coverage</span>
+                            <strong>
+                              {result.answerability.coverage === null
+                                ? 'No match'
+                                : percent(result.answerability.coverage)}
+                            </strong>
+                          </div>
+                        )}
                         <div className="distribution">
                           {result.routing.distribution.map((d) => (
                             <div key={d.category}>
@@ -464,7 +485,8 @@ function App() {
                         </div>
                         <p className="fine-print">
                           Scores are uncalibrated model outputs, not a measure of real-world
-                          accuracy. Weak matches require review.
+                          accuracy. Evidence coverage is a lexical threshold, not proof that a
+                          passage answers the question.
                         </p>
                       </>
                     ) : (
@@ -481,8 +503,8 @@ function App() {
                   <div className="method-note">
                     <Check size={17} />
                     <div>
-                      <strong>Source text by default</strong>
-                      <p>Enable the local LLM option only after configuring a model.</p>
+                      <strong>Coverage check before source text</strong>
+                      <p>Low-coverage matches ask for context instead of showing a passage.</p>
                     </div>
                   </div>
                 </aside>
