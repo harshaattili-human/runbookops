@@ -15,6 +15,7 @@ python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
 cd frontend
 npm ci
+npm test
 npm run build
 ```
 

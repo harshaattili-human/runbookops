@@ -31,6 +31,7 @@ python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
 cd frontend
 npm ci
+npm test
 npm run build
 cd ..
 python -m uvicorn runbookops.api:app --host 127.0.0.1 --port 8000
@@ -85,6 +86,8 @@ python -m pytest -q
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
+cd frontend
+npm test
 ```
 
 The classifier scores approximately **0.945 macro F1**, versus **0.067** for a
