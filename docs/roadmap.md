@@ -18,7 +18,7 @@ new dependency or framework without a measured need.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
-8. Add container-build verification and dependency auditing to the hosted CI workflow.
+8. Add explicit Python dependency and base-image vulnerability auditing to CI.
 9. Add a reproducible visual demo or short recording with source inspection and
    abstention. Label recorded responses explicitly; keep real inference local until
    the deployment controls in the model card are addressed.

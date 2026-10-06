@@ -20,6 +20,7 @@ npm run build
 ```
 
 Update the model card when a dataset, threshold, model, or evaluation protocol changes.
+For Dockerfile or packaging changes, run the [container checks](docs/container-checks.md).
 Keep validation and held-out evaluation sets separate as the benchmark grows.
 The v1 holdout has already been inspected. Use validation for development and a new
 frozen holdout for fresh quality claims. See [the protocol](docs/evaluation-v1.md).
