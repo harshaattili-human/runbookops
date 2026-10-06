@@ -42,3 +42,9 @@ Completed October 5: the source dialog now contains keyboard focus, closes on Es
 restores the invoking source card and marks background regions inert. Vitest/jsdom
 interaction tests cover that flow plus source errors, navigation and the empty state.
 This does not replace real-browser or assistive-technology verification.
+
+Completed October 6: a separate CI job builds the Docker image and checks its
+packaged UI/API over HTTP, non-root read-only operation, health, shutdown and
+restart. [Commands and observed environment](container-checks.md) distinguish
+hosted container evidence from the local HTTP checks. Load testing and dependency
+vulnerability auditing remain separate work.

@@ -56,5 +56,26 @@ dependencies can change between builds; this is not a bit-for-bit reproducible b
 or a full dependency vulnerability audit. The compiled frontend uses its committed
 npm lockfile.
 
+## Verified October 6, 2026
+
+[Run 37455311551](https://github.com/harshaattili-human/runbookops/actions/runs/37455311551)
+passed both jobs at implementation commit
+[`461cc1a`](https://github.com/harshaattili-human/runbookops/commit/461cc1af1c05856c0afdc49a640340a36c7d104a).
+The container job built the image, passed the HTTP checks above, stopped with exit
+code 0, restarted and returned the same inference fields. It used Linux x86-64,
+Docker 28.0.4 and Python 3.12.15. Runtime versions were FastAPI 0.142.2, Uvicorn
+0.54.0, scikit-learn 1.8.0, NumPy 2.3.5 and httpx 0.28.1. The logged image ID was
+`sha256:f4a669a2733dc3b931fff32fe28f9b866abbcbc0365a715a8fa1aa03daf959f1`;
+this identifies that build, not a downloadable registry artifact.
+
+The separate verification job passed the existing 27 Python tests, three frontend
+interaction tests, classifier/retrieval/answerability validation and production
+build. The Starlette/httpx deprecation and Lucide build warnings remain.
+
+Docker was unavailable in the development workspace. Local checks exercised the
+same HTTP assertions against Uvicorn and deliberately removed a built JavaScript
+asset to confirm that the smoke check rejected it. Container execution evidence
+comes from hosted CI. No application or Dockerfile fix was needed in this increment.
+
 Docker references: [run options](https://docs.docker.com/reference/cli/docker/container/run/)
 and [health checks](https://docs.docker.com/reference/dockerfile/#healthcheck).
