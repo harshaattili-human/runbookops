@@ -10,10 +10,40 @@ is a local prototype. It has not been used to resolve production incidents.
 | --- | --- | --- |
 | Incident routing | [Classifier](../backend/runbookops/classifier.py): TF-IDF plus logistic regression, term contributions, and heuristic abstention | [Grouped evaluation](../backend/runbookops/evaluate.py); model scores are not calibrated confidence |
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
+| Source identity | SHA-256 of indexed document text; optional expected-hash check on runbook reads | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); automatic refresh and workbench integration remain pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
 | Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; live generation quality is unmeasured |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) cover dialog focus/Escape/restore, errors, navigation and empty state; no real-browser or assistive-technology verification |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
+
+## Source versions
+
+Each triage source includes `document_hash`, the lowercase SHA-256 hex digest of
+its complete indexed document, not just the returned passage. The runbook endpoint
+returns the same value as `content_hash`. Hash input is the UTF-8 encoding of the
+served `content`: text-mode reading normalizes CRLF/CR to LF; trailing newlines and
+all other text are retained. File location and timestamps do not enter the hash.
+
+A version-aware client sends `GET /api/runbooks/{slug}?expected_hash=<document_hash>`.
+A matching version returns HTTP 200 with `{id, content, content_hash}`; a mismatch
+returns HTTP 409 with `{"detail":"Runbook version changed; run triage again."}` and
+no document content. A removed or unknown document returns HTTP 404. Omitting
+`expected_hash` retains the unversioned fetch behavior for existing callers.
+Compare the complete hash rather than relying on the section ID, which can survive
+an edit while its line numbers or contents change.
+
+This identifies an in-memory snapshot; it does not make that snapshot current.
+Sources are still read only when the retriever is constructed. Disk edits do not
+change a running service until it restarts or explicitly rebuilds its index. The
+workbench does not yet send `expected_hash`. Automatic refresh and UI handling of
+version conflicts remain backlog items. Hashes detect version differences, not
+source authenticity, factual correctness, or LLM citation entailment.
+
+The [12 focused regression cases](../tests/test_source_versions.py) cover all three
+ranking modes, Unicode text, normalized line endings, stable and changed hashes,
+restart/version conflicts, removed sources, and unversioned callers. Run
+`python -m pytest -q tests/test_source_versions.py`. These are synthetic contract
+checks, not a new retrieval-quality evaluation.
 
 ## Decisions worth examining
 

@@ -56,11 +56,15 @@ def overview():
 
 
 @app.get('/api/runbooks/{slug}')
-def runbook(slug: str):
-    text = app.state.triage.retriever.documents.get(slug)
+def runbook(slug: str, expected_hash: str | None = None):
+    retriever = app.state.triage.retriever
+    text = retriever.documents.get(slug)
     if text is None:
         raise HTTPException(404, 'Runbook not found')
-    return {'id': slug, 'content': text}
+    content_hash = retriever.document_hashes[slug]
+    if expected_hash is not None and expected_hash != content_hash:
+        raise HTTPException(409, 'Runbook version changed; run triage again.')
+    return {'id': slug, 'content': text, 'content_hash': content_hash}
 
 
 # Only the compiled frontend is served. No source tree or data directory mount.

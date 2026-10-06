@@ -14,7 +14,9 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add content hashes to runbook evidence and invalidate cached indexes when sources change.
+5. Invalidate cached indexes when sources change and wire version-aware source reads
+   into the workbench. API evidence now carries document hashes and supports an
+   optional expected-hash check; see [source versions](review-guide.md#source-versions).
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
