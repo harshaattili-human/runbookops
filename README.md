@@ -130,8 +130,9 @@ docker build -t runbookops .
 docker run --rm -p 127.0.0.1:8000:8000 runbookops
 ```
 
-The image builds the frontend and runs the API as a non-root user. Docker build
-execution has not been verified in the current workspace. Keep this demo local:
+The image builds the frontend and runs the API as a non-root user. The separate
+[container CI check](docs/container-checks.md) exercises the packaged UI and API,
+read-only operation, health checks and restart behavior. Keep this demo local:
 authentication, rate limiting, and multi-tenant isolation are not implemented.
 
 ## Project notes

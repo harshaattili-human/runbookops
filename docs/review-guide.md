@@ -13,7 +13,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
 | Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; live generation quality is unmeasured |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) cover dialog focus/Escape/restore, errors, navigation and empty state; no real-browser or assistive-technology verification |
-| Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | CI runs tests, evaluation, and frontend build; the Dockerfile has not yet been built in CI |
+| Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
 
 ## Decisions worth examining
 
@@ -74,8 +74,8 @@ The [model card](model-card.md) describes thresholds and limitations.
    another improvement claim.
 2. Real-browser coverage for responsive layout and source inspection, plus manual
    assistive-technology checks. Component-level keyboard focus coverage is implemented.
-3. Container-build checks and measured latency/concurrency behavior with a stated
-   environment; individual request timing is not a load test.
+3. Measured latency/concurrency behavior with a stated environment; the container
+   smoke check and individual request timing are not load tests.
 4. Live LLM evaluation before making generation-quality claims. Authentication,
    abuse controls, and tenant boundaries before exposing a live public API.
 

@@ -18,7 +18,7 @@ new dependency or framework without a measured need.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
-8. Add container-build verification and dependency auditing to the hosted CI workflow.
+8. Add explicit Python dependency and base-image vulnerability auditing to CI.
 9. Add a reproducible visual demo or short recording with source inspection and
    abstention. Label recorded responses explicitly; keep real inference local until
    the deployment controls in the model card are addressed.
@@ -42,3 +42,9 @@ Completed October 5: the source dialog now contains keyboard focus, closes on Es
 restores the invoking source card and marks background regions inert. Vitest/jsdom
 interaction tests cover that flow plus source errors, navigation and the empty state.
 This does not replace real-browser or assistive-technology verification.
+
+Completed October 6: a separate CI job builds the Docker image and checks its
+packaged UI/API over HTTP, non-root read-only operation, health, shutdown and
+restart. [Commands and observed environment](container-checks.md) distinguish
+hosted container evidence from the local HTTP checks. Load testing and dependency
+vulnerability auditing remain separate work.
