@@ -13,6 +13,7 @@ python -m pytest -q
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
+python -m runbookops.passage_answerability --split validation
 cd frontend
 npm ci
 npm test
@@ -26,6 +27,8 @@ The v1 holdout has already been inspected. Use validation for development and a 
 frozen holdout for fresh quality claims. See [the protocol](docs/evaluation-v1.md).
 The answerability v2 holdout is also exposed after its first score. Preserve its
 failures and freeze another holdout before tuning or claiming a further improvement.
+The [passage experiment](docs/passage-experiment.md) uses v2 only as an explicitly
+exposed regression check; its negative result is not permission to tune on those cases.
 
 ## Evidence for a change
 

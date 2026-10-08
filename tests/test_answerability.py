@@ -2,6 +2,7 @@ from pathlib import Path
 
 from runbookops.answerability import answerability_summary, evaluate_answerability
 from runbookops.benchmark import fraction, load_suites
+from runbookops.passage_answerability import evaluate_passage_policy
 from runbookops.retrieval import Retriever
 from runbookops.service import ROOT, TriageService
 
@@ -98,3 +99,33 @@ def test_v2_holdout_is_frozen_and_balanced_without_scoring_it():
     assert sum(case['kind'] == 'supported' for case in cases) == 12
     assert sum(case['kind'] == 'near_unsupported' for case in cases) == 12
     assert sum(case['kind'] == 'unrelated' for case in cases) == 2
+
+
+def test_weighted_coverage_can_measure_a_single_passage():
+    retriever = Retriever(ROOT / 'data/runbooks')
+    query = 'JWT expiry and clock skew'
+    relevant = 'Check token expiry and clock skew without recording raw bearer tokens.'
+    assert retriever.weighted_coverage(query, relevant) > .7
+    assert retriever.weighted_coverage(query, 'Compare database transaction age.') == 0
+    assert retriever.weighted_coverage('', relevant) == 0
+
+
+def test_passage_experiment_defaults_to_validation(monkeypatch):
+    _, suites = load_suites(ROOT)
+    allowed = {case['query'] for case in suites['validation']}
+    original = Retriever.search
+    calls = []
+
+    def tracked(self, query, *args, **kwargs):
+        assert query in allowed
+        calls.append(query)
+        return original(self, query, *args, **kwargs)
+
+    monkeypatch.setattr(Retriever, 'search', tracked)
+    report = evaluate_passage_policy()
+    assert report['suite'] == 'validation-v1'
+    assert set(calls) == allowed
+    assert report['document_policy']['supported_answer_rate'] == fraction(10, 10)
+    assert report['document_policy']['unsupported_answer_rate'] == fraction(1, 10)
+    assert report['compound_policy']['supported_answer_rate'] == fraction(10, 10)
+    assert report['compound_policy']['unsupported_answer_rate'] == fraction(0, 10)

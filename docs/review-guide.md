@@ -11,7 +11,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Incident routing | [Classifier](../backend/runbookops/classifier.py): TF-IDF plus logistic regression, term contributions, and heuristic abstention | [Grouped evaluation](../backend/runbookops/evaluate.py); model scores are not calibrated confidence |
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
-| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; live generation quality is unmeasured |
+| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; a [passage candidate](passage-experiment.md) was rejected after regression comparison |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) cover dialog focus/Escape/restore, errors, navigation and empty state; no real-browser or assistive-technology verification |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
 
@@ -69,9 +69,9 @@ The [model card](model-card.md) describes thresholds and limitations.
 
 ## What needs evidence next
 
-1. Compare passage-level answerability methods on validation, including missing
-   credentials/values and verbose supported incidents; freeze a new holdout before
-   another improvement claim.
+1. Test an information-type or entailment-oriented answerability method that can
+   distinguish investigation guidance from absent credentials, values and business
+   decisions. Do not tune on v2; freeze a new holdout before an improvement claim.
 2. Real-browser coverage for responsive layout and source inspection, plus manual
    assistive-technology checks. Component-level keyboard focus coverage is implemented.
 3. Measured latency/concurrency behavior with a stated environment; the container
