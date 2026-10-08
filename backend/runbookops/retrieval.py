@@ -58,17 +58,23 @@ class Retriever:
 
     def document_coverage(self, query: str, document: str) -> float:
         """Return IDF-weighted query-term coverage in one complete document."""
-        query_terms = set(tokens(query))
-        if not query_terms or document not in self.documents:
+        if document not in self.documents:
             return 0.0
-        document_terms = set(tokens(self.documents[document]))
+        return self.weighted_coverage(query, self.documents[document])
+
+    def weighted_coverage(self, query: str, evidence: str) -> float:
+        """Return IDF-weighted query-term coverage in arbitrary evidence text."""
+        query_terms = set(tokens(query))
+        if not query_terms:
+            return 0.0
+        evidence_terms = set(tokens(evidence))
         weights = {
             term: np.log(1 + (len(self.chunks) - self.df.get(term, 0) + .5)
                          / (self.df.get(term, 0) + .5))
             for term in query_terms
         }
         total = sum(weights.values())
-        return float(sum(weights[t] for t in query_terms & document_terms) / total)
+        return float(sum(weights[t] for t in query_terms & evidence_terms) / total)
 
     def search(self, query: str, limit: int = 4, *, ranking: str = 'hybrid') -> list[dict]:
         if ranking not in {'hybrid', 'bm25', 'tfidf'}:

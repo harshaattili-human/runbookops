@@ -1,12 +1,13 @@
 {
   "suite": "validation-v1",
   "provenance": "Synthetic cases authored with AI assistance; not a blinded, independent or external benchmark.",
-  "protocol": "Select the lexical coverage policy and threshold on validation-v1 only. Score answerability-holdout-v2 once after implementation is fixed, preserve all failures, and treat it as exposed thereafter.",
-  "holdout_frozen_commit": "1661081b607ef8f7322552a7ad5c830d8bf4c5c7",
+  "protocol": "Select the passage threshold on validation-v1. Compare against the current document policy. The v2 suite is already exposed and is used only as a regression check, not as a fresh holdout or tuning set.",
   "policy": {
-    "method": "IDF-weighted fraction of distinct query terms present in the top document",
-    "minimum_document_coverage": 0.33,
-    "selection": "Threshold selected on validation-v1 to retain all supported cases while reducing unsupported answers. The v2 holdout was frozen before scoring."
+    "document_minimum": 0.33,
+    "passage_minimum": 0.27,
+    "passage": "top retrieved chunk text plus its document title",
+    "decision": "both document and top-passage coverage must meet their thresholds",
+    "production_status": "experiment only; the service still uses document coverage"
   },
   "frozen_inputs_sha256": {
     "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
@@ -34,34 +35,7 @@
     "backend/runbookops/retrieval.py": "efef72fab96779f10a8e9f03e2ee04e513486de7337f9ce17d0ea1c5d3b7394e",
     "backend/runbookops/service.py": "f25d07e4baff15d2c090bdfc9413e1a11ae40acfc53a89523e036179d9a2ed28"
   },
-  "baseline": {
-    "supported_answer_rate": {
-      "count": 10,
-      "total": 10,
-      "rate": 1.0
-    },
-    "supported_top_document_success": {
-      "count": 10,
-      "total": 10,
-      "rate": 1.0
-    },
-    "unsupported_answer_rate": {
-      "count": 6,
-      "total": 10,
-      "rate": 0.6
-    },
-    "near_unsupported_answer_rate": {
-      "count": 6,
-      "total": 8,
-      "rate": 0.75
-    },
-    "unrelated_answer_rate": {
-      "count": 0,
-      "total": 2,
-      "rate": 0.0
-    }
-  },
-  "coverage_policy": {
+  "document_policy": {
     "supported_answer_rate": {
       "count": 10,
       "total": 10,
@@ -88,6 +62,33 @@
       "rate": 0.0
     }
   },
+  "compound_policy": {
+    "supported_answer_rate": {
+      "count": 10,
+      "total": 10,
+      "rate": 1.0
+    },
+    "supported_top_document_success": {
+      "count": 10,
+      "total": 10,
+      "rate": 1.0
+    },
+    "unsupported_answer_rate": {
+      "count": 0,
+      "total": 10,
+      "rate": 0.0
+    },
+    "near_unsupported_answer_rate": {
+      "count": 0,
+      "total": 8,
+      "rate": 0.0
+    },
+    "unrelated_answer_rate": {
+      "count": 0,
+      "total": 2,
+      "rate": 0.0
+    }
+  },
   "cases": [
     {
       "scenario": "pool-cancellation",
@@ -100,8 +101,9 @@
       "top_document": "database-pool",
       "top_source_id": "database-pool:1",
       "document_coverage": 0.3432,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.2702,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "lock-worker-order",
@@ -114,8 +116,9 @@
       "top_document": "database-locks",
       "top_source_id": "database-locks:2",
       "document_coverage": 0.5831,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.2969,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "lag-hot-partition",
@@ -128,8 +131,9 @@
       "top_document": "kafka-lag",
       "top_source_id": "kafka-lag:4",
       "document_coverage": 0.5285,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.3691,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "dlq-schema-release",
@@ -142,8 +146,9 @@
       "top_document": "message-retries",
       "top_source_id": "message-retries:1",
       "document_coverage": 0.5698,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.4042,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "startup-probe-port",
@@ -156,8 +161,9 @@
       "top_document": "pod-startup",
       "top_source_id": "pod-startup:1",
       "document_coverage": 0.3998,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.3215,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "memory-batch-peak",
@@ -170,8 +176,9 @@
       "top_document": "memory-pressure",
       "top_source_id": "memory-pressure:2",
       "document_coverage": 0.7806,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.6866,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "jobs-side-effect-ack",
@@ -184,8 +191,9 @@
       "top_document": "workflow-jobs",
       "top_source_id": "workflow-jobs:1",
       "document_coverage": 0.8522,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.5649,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "routing-subscription-name",
@@ -198,8 +206,9 @@
       "top_document": "workflow-routing",
       "top_source_id": "workflow-routing:4",
       "document_coverage": 0.6417,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.3549,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "token-clock-offset",
@@ -212,8 +221,9 @@
       "top_document": "auth-tokens",
       "top_source_id": "auth-tokens:1",
       "document_coverage": 0.5897,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.2958,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "timeouts-budget-chain",
@@ -226,8 +236,9 @@
       "top_document": "api-timeouts",
       "top_source_id": "api-timeouts:1",
       "document_coverage": 0.5984,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.3438,
+      "document_policy_answered": true,
+      "compound_policy_answered": true
     },
     {
       "scenario": "dns-record-repair",
@@ -240,8 +251,9 @@
       "top_document": null,
       "top_source_id": null,
       "document_coverage": null,
-      "baseline_answered": false,
-      "coverage_policy_answered": false
+      "top_passage_coverage": null,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "certificate-chain",
@@ -254,8 +266,9 @@
       "top_document": "auth-tokens",
       "top_source_id": "auth-tokens:3",
       "document_coverage": 0.0874,
-      "baseline_answered": true,
-      "coverage_policy_answered": false
+      "top_passage_coverage": 0.0874,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "redis-eviction",
@@ -268,8 +281,9 @@
       "top_document": "memory-pressure",
       "top_source_id": "memory-pressure:3",
       "document_coverage": 0.2566,
-      "baseline_answered": true,
-      "coverage_policy_answered": false
+      "top_passage_coverage": 0.2129,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "search-shard",
@@ -282,8 +296,9 @@
       "top_document": null,
       "top_source_id": null,
       "document_coverage": null,
-      "baseline_answered": false,
-      "coverage_policy_answered": false
+      "top_passage_coverage": null,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "kafka-billing",
@@ -296,8 +311,9 @@
       "top_document": "kafka-lag",
       "top_source_id": "kafka-lag:1",
       "document_coverage": 0.2528,
-      "baseline_answered": true,
-      "coverage_policy_answered": false
+      "top_passage_coverage": 0.2528,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "exact-pool-value",
@@ -310,8 +326,9 @@
       "top_document": "database-pool",
       "top_source_id": "database-pool:3",
       "document_coverage": 0.3265,
-      "baseline_answered": true,
-      "coverage_policy_answered": false
+      "top_passage_coverage": 0.17,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "workflow-license",
@@ -324,8 +341,9 @@
       "top_document": "workflow-routing",
       "top_source_id": "workflow-routing:2",
       "document_coverage": 0.2195,
-      "baseline_answered": true,
-      "coverage_policy_answered": false
+      "top_passage_coverage": 0.2195,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "jwt-token-value",
@@ -338,8 +356,9 @@
       "top_document": "auth-tokens",
       "top_source_id": "auth-tokens:1",
       "document_coverage": 0.4836,
-      "baseline_answered": true,
-      "coverage_policy_answered": true
+      "top_passage_coverage": 0.2078,
+      "document_policy_answered": true,
+      "compound_policy_answered": false
     },
     {
       "scenario": "bread-recipe",
@@ -352,8 +371,9 @@
       "top_document": null,
       "top_source_id": null,
       "document_coverage": null,
-      "baseline_answered": false,
-      "coverage_policy_answered": false
+      "top_passage_coverage": null,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     },
     {
       "scenario": "museum-hours",
@@ -366,16 +386,16 @@
       "top_document": null,
       "top_source_id": null,
       "document_coverage": null,
-      "baseline_answered": false,
-      "coverage_policy_answered": false
+      "top_passage_coverage": null,
+      "document_policy_answered": false,
+      "compound_policy_answered": false
     }
   ],
   "limitations": [
     "Authored synthetic cases for ten small runbooks; not real incident performance.",
-    "The same author created validation and holdout cases, so this is not blinded or external.",
-    "Coverage measures lexical presence anywhere in a document, not passage entailment.",
-    "The policy can pass a request whose critical missing terms are outweighed by topical overlap.",
-    "Irrelevant query terms can lower coverage enough to suppress otherwise useful evidence.",
-    "No live LLM, calibrated probability or operational risk study is included."
+    "The validation threshold separates two nearby observed scores and may be overfit.",
+    "Lexical overlap within a passage does not establish that it answers the request.",
+    "The v2 regression suite was visible before this experiment and is not a new holdout.",
+    "No production decision, live LLM behavior or security control changed."
   ]
 }

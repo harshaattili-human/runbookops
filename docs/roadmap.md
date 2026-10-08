@@ -4,10 +4,9 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Compare passage-level answerability methods on validation. The lexical document-
-   coverage gate still passes requests for absent credentials, numeric guarantees
-   and business decisions, and it suppresses some useful paraphrases or padded text.
-   Preserve the v2 failures and freeze a new holdout before another improvement claim.
+1. Test an information-type or entailment-oriented answerability method. A localized
+   passage-coverage gate overfit validation and did not improve exposed v2 regressions.
+   Preserve those failures and freeze a new holdout before another improvement claim.
 2. Add real-browser coverage for responsive layout, source inspection and mobile
    navigation. Component tests now cover source-dialog focus containment, Escape,
    focus restoration, fetch errors, keyboard navigation and the empty state.
@@ -48,3 +47,9 @@ packaged UI/API over HTTP, non-root read-only operation, health, shutdown and
 restart. [Commands and observed environment](container-checks.md) distinguish
 hosted container evidence from the local HTTP checks. Load testing and dependency
 vulnerability auditing remain separate work.
+
+Completed October 8: a reproducible passage-locality comparison tested a second
+lexical gate. It reduced validation's unsupported answers from 1/10 to 0/10, but on
+the exposed v2 regression suite it left unsupported answers at 3/14 and reduced
+supported answers from 11/12 to 9/12. The candidate was not adopted. See the
+[negative result and per-case reports](passage-experiment.md).

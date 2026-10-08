@@ -29,6 +29,7 @@ pip install -e '.[dev]'
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
+python -m runbookops.passage_answerability --split validation
 cd frontend
 npm ci
 npm test
@@ -86,6 +87,7 @@ python -m pytest -q
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
+python -m runbookops.passage_answerability --split validation
 cd frontend
 npm test
 ```
@@ -103,6 +105,11 @@ gate reduced unsupported answers from 11/14 to 3/14 on a new frozen synthetic ho
 while withholding one of 12 supported answers; another supported case still selected
 the wrong top document. This tradeoff is not production accuracy. Routine CI scores
 validation; holdout commands are explicit reproduction steps.
+
+A follow-up [passage-coverage experiment](docs/passage-experiment.md) reduced
+validation's unsupported answers from 1/10 to 0/10, but failed to improve the
+already-exposed v2 regression cases and withheld two additional supported answers.
+It remains an experiment; the service behavior did not change.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

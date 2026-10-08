@@ -49,7 +49,7 @@ an extractive answer. The follow-up policy and new holdout are described below.
 
 The [protocol and failure analysis](evaluation-v1.md) link every case and hash. The
 holdout is authored synthetic data and now exposed, not a fresh test set for future
-tuning. Naturally occurring incidents and passage-level answerability remain gaps.
+tuning. Naturally occurring incidents remain a gap.
 
 ## Retrieval and answer generation
 
@@ -68,6 +68,12 @@ On the separately frozen v2 synthetic holdout, the original retrieval gate answe
 requests with the expected top document; one answered case selected the wrong document.
 See the [protocol and failures](answerability-v2.md). This is sparse lexical retrieval,
 not neural semantic search or passage entailment.
+
+A later [passage-coverage experiment](passage-experiment.md) added a 0.27 top-chunk
+threshold to the document gate. It changed validation from 1/10 to 0/10 unsupported
+answers while retaining 10/10 supported answers, but on the exposed v2 regression set
+it retained the same 3/14 unsupported answers and reduced supported answers from 11/12
+to 9/12. The candidate was rejected and is not part of the service decision.
 
 Default answers extract the highest-ranked passage verbatim. Optional Ollama
 synthesis uses retrieved passages and a JSON response contract. Citation IDs are
