@@ -13,7 +13,9 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add content hashes to runbook evidence and invalidate cached indexes when sources change.
+5. Add atomic index refresh when sources change. API evidence and workbench source
+   reads now check document hashes; running processes still use their startup
+   snapshot. See [source versions](review-guide.md#source-versions).
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
@@ -53,3 +55,8 @@ lexical gate. It reduced validation's unsupported answers from 1/10 to 0/10, but
 the exposed v2 regression suite it left unsupported answers at 3/14 and reduced
 supported answers from 11/12 to 9/12. The candidate was not adopted. See the
 [negative result and per-case reports](passage-experiment.md).
+
+Completed October 10: integrated source-snapshot hashes and version-checked citation
+inspection. A changed or removed runbook prompts a fresh analysis instead of opening
+a different document under old line references. Library browsing remains unversioned.
+The recorded demo and container checks use the updated API contract.

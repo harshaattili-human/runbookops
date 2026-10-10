@@ -5,6 +5,7 @@ model, cloud credentials or application packages on the host are required.
 """
 
 import argparse
+from hashlib import sha256
 from html.parser import HTMLParser
 import json
 from pathlib import Path
@@ -95,7 +96,9 @@ def check_http(base):
     require(overview['evaluation'] == json.loads((ROOT / 'reports/evaluation.json').read_text()),
             'Packaged evaluation report differs')
     for slug, content in expected_documents.items():
-        require(get_json(base, '/api/runbooks/' + slug) == {'id': slug, 'content': content},
+        require(get_json(base, '/api/runbooks/' + slug) == {
+                    'id': slug, 'content': content,
+                    'content_hash': sha256(content.encode('utf-8')).hexdigest()},
                 f'Packaged source differs: {slug}')
 
     html, content_type = request(base, '/')
@@ -114,6 +117,13 @@ def check_http(base):
             'Supported database incident did not return an extractive route')
     require(result['sources'][0]['document'] == 'database-pool', 'Wrong top runbook')
     for source in result['sources']:
+        expected_hash = sha256(expected_documents[source['document']].encode('utf-8')).hexdigest()
+        require(source['document_hash'] == expected_hash, 'Evidence snapshot hash differs')
+        path = '/api/runbooks/' + source['document']
+        checked = get_json(base, path + '?expected_hash=' + expected_hash)
+        require(checked['content'] == expected_documents[source['document']], 'Versioned source differs')
+        conflict, _ = request(base, path + '?expected_hash=' + '0' * 64, expected=409)
+        require('content' not in json.loads(conflict), 'Conflict leaked a different document version')
         lines = expected_documents[source['document']].splitlines()
         require('\n'.join(lines[source['start_line'] - 1:source['end_line']]).strip() == source['text'],
                 f'Incorrect source lines: {source["id"]}')
@@ -139,7 +149,8 @@ def check_http(base):
     for path in ['/api/runbooks/unknown', '/data/incidents.json', '/backend/runbookops/api.py', '/.env']:
         request(base, path, expected=404)
     print(f'HTTP checks passed: {len(expected_documents)} packaged runbooks, report, '
-          f'{len(assets.paths)} frontend assets, source lines, abstention, fallback and validation', flush=True)
+          f'{len(assets.paths)} frontend assets, source lines/hashes, version conflicts, '
+          'abstention, fallback and validation', flush=True)
     return result
 
 
