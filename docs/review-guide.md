@@ -57,6 +57,15 @@ The hash is computed with Python [SHA-256](https://docs.python.org/3.12/library/
 from the same in-memory text used to build the index. Hashing a fresh disk read
 instead would risk labeling old indexed passages with a newer file version.
 
+Verified October 10 in [run 38063334397](https://github.com/harshaattili-human/runbookops/actions/runs/38063334397)
+at implementation head `07ca789`: 41 Python tests, seven frontend component tests,
+classifier/validation evaluations, production build and packaged container
+HTTP/restart checks passed. Local Python 3.12.14 checks also passed, including a
+Uvicorn HTTP smoke and exported replay-shim checks for all ten runbooks. Docker ran
+in hosted CI; no new real-browser, accessibility or retrieval-quality claim follows.
+Validation reports changed only in code hashes; exposed holdouts were not rescored.
+The existing Starlette/httpx deprecation and Lucide bundling warnings remain.
+
 ## Decisions worth examining
 
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
