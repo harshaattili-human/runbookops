@@ -50,7 +50,9 @@ absolute checkout path. The Dockerfile sets this to `/app`.
 
 Choose **Connection pool**, inspect the routing signals, and open the referenced
 source. Then compare **Missing information** (related document, insufficient coverage)
-with **Outside the corpus** (no retrieved candidate). The **Evaluation** tab displays
+with **Outside the corpus** (no retrieved candidate). Source cards check the [document version](docs/review-guide.md#source-versions)
+before opening it; if the indexed runbook changed, run the analysis again.
+The **Evaluation** tab displays
 measured results and misclassifications from the checked-in report.
 
 ```sh

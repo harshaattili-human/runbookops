@@ -36,10 +36,19 @@ window.RUNBOOKOPS_DEMO = true;
 const fixtures = PAYLOAD;
 window.fetch = async (path, options) => {
   let body;
-  if (path === '/api/overview') body = fixtures.overview;
-  else if (path === '/api/triage') body = fixtures.results[JSON.parse(options.body).query];
-  else if (path.startsWith('/api/runbooks/')) body = fixtures.documents[decodeURIComponent(path.split('/').pop())];
-  return new Response(JSON.stringify(body || {detail:'Choose a recorded scenario.'}), {status: body ? 200 : 404, headers:{'Content-Type':'application/json'}});
+  let status;
+  const url = new URL(path, 'http://recorded.local');
+  if (url.pathname === '/api/overview') body = fixtures.overview;
+  else if (url.pathname === '/api/triage') body = fixtures.results[JSON.parse(options.body).query];
+  else if (url.pathname.startsWith('/api/runbooks/')) {
+    body = fixtures.documents[decodeURIComponent(url.pathname.split('/').pop())];
+    if (body && url.searchParams.has('expected_hash') &&
+        url.searchParams.get('expected_hash') !== body.content_hash) {
+      body = {detail:'Runbook version changed; run triage again.'};
+      status = 409;
+    }
+  }
+  return new Response(JSON.stringify(body || {detail:'Choose a recorded scenario.'}), {status: status ?? (body ? 200 : 404), headers:{'Content-Type':'application/json'}});
 };
 """.replace('PAYLOAD', payload)
 dist = ROOT / 'frontend/dist'

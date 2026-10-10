@@ -1,6 +1,7 @@
 """Small, inspectable hybrid retriever. No network or embedding download."""
 
 from dataclasses import asdict, dataclass
+from hashlib import sha256
 from pathlib import Path
 import re
 
@@ -31,7 +32,11 @@ class Retriever:
     minimum_document_coverage = 0.33
 
     def __init__(self, directory: Path):
-        self.documents = {p.stem: p.read_text() for p in sorted(directory.glob('*.md'))}
+        self.documents = {p.stem: p.read_text(encoding='utf-8')
+                          for p in sorted(directory.glob('*.md'))}
+        # Hash the indexed text, including trailing newlines, not a later disk read.
+        self.document_hashes = {slug: sha256(text.encode('utf-8')).hexdigest()
+                                for slug, text in self.documents.items()}
         self.chunks: list[Chunk] = []
         for slug, content in self.documents.items():
             lines = content.splitlines()
@@ -102,6 +107,7 @@ class Retriever:
         for i in candidates[:limit]:
             results.append({**asdict(self.chunks[i]), 'score': round(float(scores[i]), 4),
                             'cosine': round(float(cosine[i]), 4),
+                            'document_hash': self.document_hashes[self.chunks[i].document],
                             'document_coverage': round(
                                 self.document_coverage(query, self.chunks[i].document), 4),
                             'matched_terms': sorted(query_terms & set(self.bags[i]))})

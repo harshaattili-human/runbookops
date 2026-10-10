@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -105,3 +105,107 @@ test('starts with an explicit empty analysis state and supports keyboard navigat
   expect(screen.getByRole('heading', { name: 'Evaluation results' })).toBeTruthy();
   expect(screen.getByText('Run the evaluation command to generate a report.')).toBeTruthy();
 });
+
+const originalHash = 'a'.repeat(64);
+const updatedHash = 'b'.repeat(64);
+const sourceContent = '# Database connection pool exhaustion\n\nInspect pool wait metrics.';
+
+function analysis(documentHash: string) {
+  return {
+    request_id: 'synthetic-version-check',
+    answer: 'Inspect pool wait metrics.',
+    citations: ['database-pool:1'],
+    sources: [
+      {
+        id: 'database-pool:1',
+        document: 'database-pool',
+        document_hash: documentHash,
+        title: 'Database connection pool exhaustion',
+        section: 'Investigation',
+        start_line: 3,
+        end_line: 3,
+        text: 'Inspect pool wait metrics.',
+        score: 0.8,
+        document_coverage: 0.8,
+        matched_terms: ['pool'],
+      },
+    ],
+    routing: {
+      category: 'database',
+      suggested_category: 'database',
+      score: 0.8,
+      needs_review: false,
+      distribution: [],
+      signals: [],
+    },
+    mode: 'extractive',
+    warning: null,
+    duration_ms: 1,
+  };
+}
+
+function versionedApi(status: number, returnedHash = originalHash) {
+  let triageCalls = 0;
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+    const path = String(input);
+    if (path === '/api/overview') return response(overview);
+    if (path === '/api/triage') {
+      triageCalls++;
+      return response(analysis(triageCalls === 1 ? originalHash : updatedHash));
+    }
+    if (path === `/api/runbooks/database-pool?expected_hash=${updatedHash}`) {
+      return response({ id: 'database-pool', content: sourceContent, content_hash: updatedHash });
+    }
+    if (path === `/api/runbooks/database-pool?expected_hash=${originalHash}`) {
+      return response(
+        { id: 'database-pool', content: sourceContent, content_hash: returnedHash },
+        status,
+      );
+    }
+    return response({ detail: 'Unexpected test request' }, 404);
+  });
+}
+
+async function analyzeSample(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', { name: 'Connection pool' }));
+  return screen.findByRole('button', { name: /Database connection pool exhaustion/ });
+}
+
+test('opens a cited source with its complete expected hash and restores card focus', async () => {
+  const api = versionedApi(200);
+  const user = userEvent.setup();
+  render(<App />);
+  const card = await analyzeSample(user);
+  await user.click(card);
+  const dialog = await screen.findByRole('dialog');
+  expect(within(dialog).getByText('Inspect pool wait metrics.')).toBeTruthy();
+  expect(api).toHaveBeenCalledWith(
+    `/api/runbooks/database-pool?expected_hash=${originalHash}`,
+    undefined,
+  );
+  await user.keyboard('{Escape}');
+  expect(window.document.activeElement).toBe(card);
+});
+
+test.each([
+  [409, originalHash, 'This runbook changed since the analysis.'],
+  [404, originalHash, 'This runbook is no longer available.'],
+  [200, updatedHash, 'This runbook changed since the analysis.'],
+])(
+  'keeps version failures visible and permits a fresh analysis (%i)',
+  async (status, hash, message) => {
+    versionedApi(status as number, hash as string);
+    const user = userEvent.setup();
+    render(<App />);
+    const card = await analyzeSample(user);
+    await user.click(card);
+    expect((await screen.findByRole('alert')).textContent).toContain(message);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(window.document.activeElement).toBe(card);
+
+    const refreshedCard = await analyzeSample(user);
+    expect(screen.queryByRole('alert')).toBeNull();
+    await user.click(refreshedCard);
+    expect(await screen.findByRole('dialog')).toBeTruthy();
+  },
+);

@@ -24,6 +24,7 @@ import './style.css';
 type Source = {
   id: string;
   document: string;
+  document_hash: string;
   title: string;
   section: string;
   start_line: number;
@@ -118,10 +119,15 @@ const focusableSelector = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
+class RequestError extends Error {
+  constructor(readonly status: number) {
+    super(`Request failed (${status}). Check the API and try again.`);
+  }
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(path, options);
-  if (!response.ok)
-    throw new Error(`Request failed (${response.status}). Check the API and try again.`);
+  if (!response.ok) throw new RequestError(response.status);
   return response.json();
 }
 
@@ -199,6 +205,7 @@ export function App() {
     if (busy) return;
     setBusy(true);
     setError('');
+    setDocError('');
     setResult(null);
     try {
       setResult(
@@ -214,16 +221,27 @@ export function App() {
       setBusy(false);
     }
   }
-  async function openDocument(id: string) {
+  async function openDocument(id: string, expectedHash?: string) {
     setDocError('');
     sourceTriggerRef.current =
       window.document.activeElement instanceof HTMLElement ? window.document.activeElement : null;
     try {
-      setOpenRunbook(
-        await request<{ id: string; content: string }>(`/api/runbooks/${encodeURIComponent(id)}`),
+      const version = expectedHash ? `?expected_hash=${encodeURIComponent(expectedHash)}` : '';
+      const document = await request<{ id: string; content: string; content_hash: string }>(
+        `/api/runbooks/${encodeURIComponent(id)}${version}`,
       );
+      if (expectedHash && document.content_hash !== expectedHash) throw new RequestError(409);
+      setOpenRunbook(document);
     } catch (e) {
-      setDocError(e instanceof Error ? e.message : 'Could not open runbook.');
+      if (expectedHash && e instanceof RequestError && (e.status === 409 || e.status === 404)) {
+        setDocError(
+          e.status === 409
+            ? 'This runbook changed since the analysis. Run the incident again to get current evidence.'
+            : 'This runbook is no longer available. Run the incident again to find current evidence.',
+        );
+      } else {
+        setDocError(e instanceof Error ? e.message : 'Could not open runbook.');
+      }
     }
   }
   const evaluation = overview?.evaluation;
@@ -472,7 +490,7 @@ export function App() {
                             <button
                               className="source-card"
                               key={s.id}
-                              onClick={() => void openDocument(s.document)}
+                              onClick={() => void openDocument(s.document, s.document_hash)}
                             >
                               <span className="source-number">
                                 {String(i + 1).padStart(2, '0')}
