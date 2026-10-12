@@ -21,7 +21,9 @@ npm run build
 ```
 
 Update the model card when a dataset, threshold, model, or evaluation protocol changes.
-For Dockerfile or packaging changes, run the [container checks](docs/container-checks.md).
+For Dockerfile or packaging changes, run the [container checks](docs/container-checks.md)
+and [image/dependency audits](docs/dependency-audits.md). Preserve unfiltered findings
+and the scanner database date when reporting an update.
 For UI interaction or layout changes, run the [browser checks](docs/browser-checks.md)
 and inspect the generated screenshots as well as the assertions.
 Keep validation and held-out evaluation sets separate as the benchmark grows.

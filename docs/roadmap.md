@@ -19,7 +19,9 @@ new dependency or framework without a measured need.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
-8. Add explicit Python dependency and base-image vulnerability auditing to CI.
+8. Recheck unresolved OS advisories as base images receive fixes; extend auditing
+   to the Node builder and assess native-library coverage. See the current
+   [image/dependency audit scope](dependency-audits.md).
 9. Add a reproducible visual demo or short recording with source inspection and
    abstention. Label recorded responses explicitly; keep real inference local until
    the deployment controls in the model card are addressed.
@@ -67,3 +69,8 @@ source-conflict recovery. They exposed a missing keyboard focus target in the
 source document; the text is now a focusable region inside the modal trap. CI
 retains reproducible screenshots and failure traces. This is resized desktop
 Chromium, not physical-device or assistive-technology verification.
+
+Completed October 12: CI records installed OS/Python package advisories and audits
+the frontend lockfile. The runtime image no longer retains pip after installation.
+Unfiltered reports preserve findings outside the blocking policy; this is known
+advisory matching, not a clean bill of health or exploitability assessment.
