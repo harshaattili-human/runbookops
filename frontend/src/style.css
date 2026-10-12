@@ -797,6 +797,9 @@ textarea {
   max-height: calc(85vh - 65px);
   padding: 18px 22px;
 }
+.source-lines:focus-visible {
+  outline-offset: -3px;
+}
 .source-lines > div {
   display: flex;
   gap: 15px;

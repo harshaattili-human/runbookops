@@ -707,7 +707,12 @@ export function App() {
                 <X size={20} />
               </button>
             </header>
-            <div className="source-lines">
+            <div
+              className="source-lines"
+              role="region"
+              aria-label="Runbook source text"
+              tabIndex={0}
+            >
               {openRunbook.content.split('\n').map((line, i) => (
                 <div key={i}>
                   <span>{i + 1}</span>

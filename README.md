@@ -84,6 +84,11 @@ local Markdown files when the application starts.
 
 ## Evaluation and checks
 
+The [browser checks](docs/browser-checks.md) exercise live triage, versioned source
+inspection and keyboard navigation at three Chromium viewport sizes. The report
+includes reproducible screenshots; physical-device and assistive-technology checks
+remain separate work.
+
 ```sh
 python -m pytest -q
 python -m runbookops.evaluate

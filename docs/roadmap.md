@@ -7,9 +7,9 @@ new dependency or framework without a measured need.
 1. Test an information-type or entailment-oriented answerability method. A localized
    passage-coverage gate overfit validation and did not improve exposed v2 regressions.
    Preserve those failures and freeze a new holdout before another improvement claim.
-2. Add real-browser coverage for responsive layout, source inspection and mobile
-   navigation. Component tests now cover source-dialog focus containment, Escape,
-   focus restoration, fetch errors, keyboard navigation and the empty state.
+2. Extend browser checks to Firefox/WebKit and touch/physical-device behavior;
+   perform manual assistive-technology checks. Chromium coverage now exercises
+   responsive layout and source inspection at three widths; see [browser checks](browser-checks.md).
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
@@ -60,3 +60,10 @@ Completed October 10: integrated source-snapshot hashes and version-checked cita
 inspection. A changed or removed runbook prompts a fresh analysis instead of opening
 a different document under old line references. Library browsing remains unversioned.
 The recorded demo and container checks use the updated API contract.
+
+Completed October 12: live Chromium workflows now check desktop and narrow layouts,
+versioned source inspection, keyboard source scrolling, abstention, navigation and
+source-conflict recovery. They exposed a missing keyboard focus target in the
+source document; the text is now a focusable region inside the modal trap. CI
+retains reproducible screenshots and failure traces. This is resized desktop
+Chromium, not physical-device or assistive-technology verification.

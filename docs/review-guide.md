@@ -13,7 +13,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Source identity | SHA-256 of indexed document text; optional expected-hash check on runbook reads | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
 | Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; a [passage candidate](passage-experiment.md) was rejected after regression comparison |
-| Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) cover dialog focus/Escape/restore, errors, navigation and empty state; no real-browser or assistive-technology verification |
+| Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live Chromium checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
 
 ## Source versions
@@ -123,8 +123,9 @@ The [model card](model-card.md) describes thresholds and limitations.
 1. Test an information-type or entailment-oriented answerability method that can
    distinguish investigation guidance from absent credentials, values and business
    decisions. Do not tune on v2; freeze a new holdout before an improvement claim.
-2. Real-browser coverage for responsive layout and source inspection, plus manual
-   assistive-technology checks. Component-level keyboard focus coverage is implemented.
+2. Firefox/WebKit, touch/physical-device and manual assistive-technology checks.
+   [Chromium workflows](browser-checks.md) cover three viewport sizes and include
+   screenshots for review.
 3. Measured latency/concurrency behavior with a stated environment; the container
    smoke check and individual request timing are not load tests.
 4. Live LLM evaluation before making generation-quality claims. Authentication,
