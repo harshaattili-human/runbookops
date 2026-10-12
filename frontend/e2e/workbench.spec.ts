@@ -59,8 +59,19 @@ test('live analysis opens its indexed source and supports keyboard reading', asy
   await page.keyboard.press('Tab');
   const lines = page.getByRole('region', { name: 'Runbook source text' });
   await expect(lines).toBeFocused();
-  await page.keyboard.press('End');
-  await expect.poll(() => lines.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  const scrollable = await lines.evaluate((element) => element.scrollHeight > element.clientHeight);
+  if (info.project.name !== 'desktop') expect(scrollable).toBe(true);
+  if (scrollable) {
+    await page.keyboard.press('End');
+    await expect
+      .poll(() =>
+        lines.evaluate(
+          (element) => element.scrollHeight - element.clientHeight - element.scrollTop,
+        ),
+      )
+      .toBeLessThanOrEqual(1);
+    await snapshot(page, info, 'source-keyboard-end');
+  }
   await page.keyboard.press('Tab');
   await expect(close).toBeFocused();
   await page.keyboard.press('Shift+Tab');

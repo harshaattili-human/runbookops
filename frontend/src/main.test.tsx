@@ -61,10 +61,13 @@ describe('source inspection', () => {
     expect(background.length).toBeGreaterThan(0);
     expect(background.every((element) => element.hasAttribute('inert'))).toBe(true);
 
+    const sourceText = screen.getByRole('region', { name: 'Runbook source text' });
+    await user.tab();
+    expect(window.document.activeElement).toBe(sourceText);
     await user.tab();
     expect(window.document.activeElement).toBe(close);
     await user.tab({ shift: true });
-    expect(window.document.activeElement).toBe(close);
+    expect(window.document.activeElement).toBe(sourceText);
 
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
