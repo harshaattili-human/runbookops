@@ -10,7 +10,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 RUNBOOKOPS_ROOT=/app
 WORKDIR /app
 COPY pyproject.toml ./
 COPY backend/ ./backend/
-RUN pip install --no-cache-dir . && useradd --create-home --uid 10001 appuser
+RUN python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+    && python -m pip install --no-cache-dir . \
+    && useradd --create-home --uid 10001 appuser
 COPY data/ ./data/
 COPY reports/ ./reports/
 COPY --from=web /web/dist ./frontend/dist
