@@ -41,6 +41,14 @@ jobs:
         run: docker build --pull --tag runbookops:smoke .
       - name: Check the image over HTTP
         run: python scripts/container_smoke.py
+      - name: Audit installed OS and Python packages
+        run: bash scripts/audit_image.sh
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: image-audit
+          path: reports/security/
+          retention-days: 30
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -69,3 +77,23 @@ jobs:
           name: browser-report
           path: frontend/playwright-report/
           retention-days: 14
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm audit --audit-level=high --json > npm-audit.json
+        working-directory: frontend
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: npm-audit
+          path: frontend/npm-audit.json
+          retention-days: 30

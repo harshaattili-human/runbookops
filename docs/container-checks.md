@@ -54,7 +54,8 @@ The job logs the image ID, Docker server version, CPU architecture, Python versi
 and direct runtime package versions. Base image tags and transitive Python
 dependencies can change between builds; this is not a bit-for-bit reproducible build
 or a full dependency vulnerability audit. The compiled frontend uses its committed
-npm lockfile.
+npm lockfile. The separate [advisory scan](dependency-audits.md), added October 12,
+records installed OS/Python findings and audits the npm lockfile after installation.
 
 ## Verified October 6, 2026
 

@@ -89,7 +89,8 @@ Only authored local documents are indexed, and the model has no tool execution.
 - No production authentication, rate limiting, or tenant isolation.
 - This demo should run locally. Public deployment needs a separate security review.
 - Component interaction tests cover source-dialog focus containment, Escape, focus
-  restoration, fetch errors, keyboard navigation and the empty state. Real-browser,
-  responsive-layout and assistive-technology verification remain on the backlog.
+  restoration, fetch errors, keyboard navigation and the empty state.
+  [Chromium checks](browser-checks.md) also cover three viewport sizes and live source
+  inspection. Physical-device and assistive-technology verification remain pending.
 - The coverage gate can suppress useful evidence when a query contains irrelevant
   terms, and can pass absent values or secrets when topical overlap is strong.

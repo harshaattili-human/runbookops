@@ -138,3 +138,10 @@ The source dialog follows the W3C
 [modal keyboard pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/):
 focus enters the dialog, Tab remains contained, Escape closes it, and focus returns
 to the invoking source card.
+
+## Dependency evidence
+
+[Image/dependency audits](dependency-audits.md) preserve installed inventories,
+unfiltered advisories, scanner/database versions and the local image ID. The
+fixed high/critical image gate permits unresolved OS findings; read the report
+before interpreting a green check. npm's separate gate includes build/test tools.
