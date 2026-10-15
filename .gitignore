@@ -11,3 +11,7 @@ frontend/test-results/
 frontend/playwright-report/
 reports/security/
 frontend/npm-audit.json
+artifacts/
+RunbookOps-Demo.html
+RunbookOps-Demo.json
+frontend/playwright-replay-report/

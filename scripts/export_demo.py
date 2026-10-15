@@ -6,10 +6,13 @@ it does not claim to execute Python inference in the browser.
 """
 
 import base64
+from datetime import datetime, timezone
+from hashlib import sha256
 import json
 import mimetypes
 from pathlib import Path
 import re
+import subprocess
 import sys
 
 from fastapi.testclient import TestClient
@@ -25,9 +28,10 @@ queries = [
 ]
 
 with TestClient(app) as client:
-    overview = client.get('/api/overview').json()
-    results = {q: client.post('/api/triage', json={'query': q}).json() for q in queries}
-    documents = {r['id']: client.get('/api/runbooks/' + r['id']).json()
+    overview = client.get('/api/overview').raise_for_status().json()
+    results = {q: client.post('/api/triage', json={'query': q, 'use_llm': False})
+               .raise_for_status().json() for q in queries}
+    documents = {r['id']: client.get('/api/runbooks/' + r['id']).raise_for_status().json()
                  for r in overview['runbooks']}
 
 payload = json.dumps({'overview': overview, 'results': results, 'documents': documents}).replace('<', '\\u003c')
@@ -39,7 +43,13 @@ window.fetch = async (path, options) => {
   let status;
   const url = new URL(path, 'http://recorded.local');
   if (url.pathname === '/api/overview') body = fixtures.overview;
-  else if (url.pathname === '/api/triage') body = fixtures.results[JSON.parse(options.body).query];
+  else if (url.pathname === '/api/triage') {
+    const request = JSON.parse(options.body);
+    if (request.use_llm) {
+      body = {detail:'Recorded replay does not run a local model.'};
+      status = 422;
+    } else body = fixtures.results[request.query];
+  }
   else if (url.pathname.startsWith('/api/runbooks/')) {
     body = fixtures.documents[decodeURIComponent(url.pathname.split('/').pop())];
     if (body && url.searchParams.has('expected_hash') &&
@@ -73,5 +83,25 @@ html = re.sub(r'<link[^>]*rel="stylesheet"[^>]*>', '', html)
 html = html.replace('</head>', '<style>' + css + '</style></head>')
 html = html.replace('</body>', '<script>' + shim + '</script><script type="module">' + javascript + '</script></body>')
 destination = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'RunbookOps-Demo.html'
-destination.write_text(html)
+destination.parent.mkdir(parents=True, exist_ok=True)
+destination.write_text(html, encoding='utf-8')
+inputs = [Path(__file__).resolve(), ROOT / 'reports/evaluation.json',
+          *sorted((ROOT / 'backend/runbookops').glob('*.py')),
+          *sorted((ROOT / 'data').rglob('*.json')),
+          *sorted((ROOT / 'data/runbooks').glob('*.md')),
+          *sorted(p for p in dist.rglob('*') if p.is_file())]
+receipt = {
+    'mode': 'recorded replay; no browser inference or live model',
+    'generated_at': datetime.now(timezone.utc).isoformat(),
+    'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+    'tracked_changes': bool(subprocess.check_output(['git', 'diff', 'HEAD', '--name-only'], cwd=ROOT)),
+    'html_sha256': sha256(destination.read_bytes()).hexdigest(),
+    'python': sys.version.split()[0],
+    'scenario_count': len(results), 'document_count': len(documents),
+    'scenarios': [{'query': q, 'mode': result['mode'],
+                   'answerability': result['answerability']['status']} for q, result in results.items()],
+    'document_hashes': {slug: document['content_hash'] for slug, document in documents.items()},
+    'input_sha256': {str(p.relative_to(ROOT)): sha256(p.read_bytes()).hexdigest() for p in inputs},
+}
+destination.with_suffix('.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
 print(f'Created {destination.name}: {destination.stat().st_size} bytes; {len(results)} recorded scenarios')

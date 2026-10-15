@@ -1,5 +1,10 @@
 # Two-minute walkthrough
 
+Use the live local app for new incident text, or the
+[offline recorded demo](recorded-demo.md) for the five sample scenarios. In the
+recorded version, begin by showing its replay label and explaining that inference
+ran when the file was exported.
+
 1. Start at the incident workbench and select **Connection pool**.
 2. Explain the difference between the service-area classifier and retrieval. The
    suggested label does not filter documents, so a routing error cannot hide evidence.

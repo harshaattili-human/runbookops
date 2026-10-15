@@ -55,6 +55,11 @@ before opening it; if the indexed runbook changed, run the analysis again.
 The **Evaluation** tab displays
 measured results and misclassifications from the checked-in report.
 
+For an interview walkthrough without running the backend, export the
+[single-file recorded demo](docs/recorded-demo.md). CI checks it with networking
+offline and provides a downloadable artifact; it replays five synthetic scenarios
+and is clearly labeled as recorded, rather than accepting new incident text.
+
 ```sh
 curl http://127.0.0.1:8000/api/triage \
   -H 'Content-Type: application/json' \
