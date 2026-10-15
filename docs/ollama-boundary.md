@@ -30,6 +30,29 @@ The response and client contexts close on success and failure. Redirects remain
 disabled and no retry is added. Request callers still cannot choose the provider
 URL or model; those are operator environment settings.
 
+## Generation admission
+
+At most two optional generation attempts run at once per Python process. A shared
+nonblocking bounded semaphore covers provider connection, response consumption and
+validation across service instances. When both slots are occupied, triage returns
+HTTP 200 with the original extractive answer, citations and a **Local generation is
+busy** warning. There is no generation queue, sleep or automatic retry. Unsupported
+queries and extractive-only requests never acquire a slot. Slots are released in a
+`finally` block on success or exception.
+
+Two is a conservative local-demo policy, not a measured optimal provider setting.
+It permits overlapping local requests without allowing every incoming request to
+start model work. Each worker process has its own limit; multiple workers or app
+replicas can collectively exceed two. This is not tenant fairness, rate limiting,
+a distributed limit, or a bound on provider work that survives a closed connection.
+
+`tests/test_generation_concurrency.py` holds two real loopback provider requests
+behind an event, one from FastAPI and one from another service instance. In three
+cases (valid reply, HTTP error, malformed JSON), it verifies request-specific busy
+fallback, extractive/unsupported/health availability, no extra provider request and
+capacity reuse after release. Events establish ordering; timeouts only prevent a
+hung test. These are synthetic correctness checks, not throughput measurements.
+
 ## Tradeoffs and limits
 
 The fixed cap leaves room for the brief answer and ordinary response metadata while
@@ -42,9 +65,9 @@ The adapter does not silently truncate a reply to make it fit.
 The existing HTTPX timeout remains 30 seconds for network operations. In particular,
 the read timeout concerns inactivity between received data, **not a 30-second total
 request deadline**. Slow progress can keep a call alive longer. This increment does
-not bound concurrent requests, all process memory, HTTP headers, provider compute
-or model loading. Cancellation, total deadlines and generation concurrency limits
-remain separate work.
+not bound total incoming requests, all process memory, HTTP headers, provider compute
+or model loading. A stalled call holds one generation slot until it completes or
+fails; cancellation and total deadlines remain separate work.
 
 Completion flags and valid citation IDs do not prove entailment or factual accuracy.
 No model was downloaded or run for these tests. Ranking, answerability thresholds,
@@ -94,3 +117,18 @@ and [timeout semantics](https://www.python-httpx.org/advanced/timeouts/).
 
 Optional interview exercise: why do a token-generation option, a final answer-length
 check and an inactivity timeout fail to establish a byte bound or total deadline?
+
+### Admission verification — October 15, 2026
+
+Commit `ad89b501` passed [run 38742047307](https://github.com/harshaattili-human/runbookops/actions/runs/38742047307):
+80 Python cases, seven component cases, nine live and six offline Chromium executions,
+validation/build, container HTTP/runtime/restart and configured audit gates. The three
+new concurrency cases run in the Python job with real loopback HTTP, not a live model.
+Python 3.12.15 and Node 24.21.0 were used in hosted verification. Local Python 3.12.14,
+component tests, validation commands and production build also passed. Existing
+Starlette/httpx and Lucide warnings remain. Validation results changed only in the
+service source hash; exposed holdouts were not rescored.
+
+Optional interview exercise: why does immediate fallback avoid a generation queue,
+yet still leave a slow provider occupying capacity? What happens to this limit when
+the API is started with four worker processes?
