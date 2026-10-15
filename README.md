@@ -132,10 +132,11 @@ Set `OLLAMA_MODEL` to that exact model name before starting the API. Optionally 
 local LLM** in the UI. No model is downloaded automatically and no cloud service is
 called by default.
 
-Generation requires citation IDs from the retrieved evidence. Invalid IDs or a
-provider failure return the original source extract. This validates references,
-not factual entailment. The adapter has mocked contract tests; a live local-model
-quality evaluation is still pending.
+Generation requires citation IDs from the retrieved evidence and a completed
+provider response. The [adapter boundary](docs/ollama-boundary.md) caps the JSON
+envelope at 65,536 bytes and falls back to the original source extract on oversized,
+incomplete or invalid replies. Controlled HTTP tests cover this behavior; a live
+local-model quality evaluation and citation-entailment checks remain pending.
 
 ## Container
 

@@ -85,9 +85,10 @@ only on training data. This addresses that leakage route; it does not establish
 generalization beyond the authored synthetic dataset.
 
 **An explicit fallback.** Source extraction is the default. Optional generated
-answers require valid retrieved citation IDs and fall back when the provider or
-validation fails. An answer can cite a valid passage and still misrepresent it;
-entailment and live-model evaluation remain open work.
+answers require valid retrieved citation IDs and a normally completed response.
+The [provider boundary](ollama-boundary.md) rejects oversized envelopes before
+parsing and closes rejected streams. An answer can cite a valid passage and still
+misrepresent it; entailment and live-model evaluation remain open work.
 
 **Answerability after retrieval.** A top-ranked passage is not automatically shown.
 The service first checks IDF-weighted query-term coverage across its document. The
