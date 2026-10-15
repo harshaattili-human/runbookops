@@ -117,3 +117,18 @@ and [timeout semantics](https://www.python-httpx.org/advanced/timeouts/).
 
 Optional interview exercise: why do a token-generation option, a final answer-length
 check and an inactivity timeout fail to establish a byte bound or total deadline?
+
+### Admission verification — October 15, 2026
+
+Commit `ad89b501` passed [run 38742047307](https://github.com/harshaattili-human/runbookops/actions/runs/38742047307):
+80 Python cases, seven component cases, nine live and six offline Chromium executions,
+validation/build, container HTTP/runtime/restart and configured audit gates. The three
+new concurrency cases run in the Python job with real loopback HTTP, not a live model.
+Python 3.12.15 and Node 24.21.0 were used in hosted verification. Local Python 3.12.14,
+component tests, validation commands and production build also passed. Existing
+Starlette/httpx and Lucide warnings remain. Validation results changed only in the
+service source hash; exposed holdouts were not rescored.
+
+Optional interview exercise: why does immediate fallback avoid a generation queue,
+yet still leave a slow provider occupying capacity? What happens to this limit when
+the API is started with four worker processes?
