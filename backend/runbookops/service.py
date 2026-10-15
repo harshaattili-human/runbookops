@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+from threading import BoundedSemaphore
 from time import perf_counter
 from uuid import uuid4
 
@@ -13,6 +14,8 @@ from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))
 MAX_PROVIDER_BYTES = 65_536
+# Shared across service instances in this process; do not queue optional generation.
+_GENERATION_SLOTS = BoundedSemaphore(2)
 
 
 def _read_provider_body(response: httpx.Response) -> bytearray:
@@ -56,11 +59,16 @@ class TriageService:
             answer = best['text'].split('\n', 1)[-1].strip()
             citations = [best['id']]
             if use_llm:
-                try:
-                    answer, citations = self._generate(query, sources)
-                    mode = 'local-llm'
-                except (httpx.HTTPError, ValueError, KeyError, TypeError, RecursionError):
-                    warning = 'Local generation was unavailable or returned an invalid response. Showing source text instead.'
+                if not _GENERATION_SLOTS.acquire(blocking=False):
+                    warning = 'Local generation is busy. Showing source text instead.'
+                else:
+                    try:
+                        answer, citations = self._generate(query, sources)
+                        mode = 'local-llm'
+                    except (httpx.HTTPError, ValueError, KeyError, TypeError, RecursionError):
+                        warning = 'Local generation was unavailable or returned an invalid response. Showing source text instead.'
+                    finally:
+                        _GENERATION_SLOTS.release()
         else:
             routing['category'] = 'needs-review'
             routing['needs_review'] = True

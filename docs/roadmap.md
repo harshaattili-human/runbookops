@@ -19,8 +19,9 @@ new dependency or framework without a measured need.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
-   Add total generation deadlines and concurrency bounds; the current network
-   inactivity timeout and [response byte bound](ollama-boundary.md) do not supply them.
+   Add total generation deadlines and cancellation. A two-slot per-process admission
+   limit now falls back immediately when generation is busy; the network inactivity
+   timeout and [response byte bound](ollama-boundary.md) still do not supply a total deadline.
 8. Recheck unresolved OS advisories as base images receive fixes; extend auditing
    to the Node builder and assess native-library coverage. See the current
    [image/dependency audit scope](dependency-audits.md).
