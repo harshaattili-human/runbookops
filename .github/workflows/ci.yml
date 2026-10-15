@@ -73,6 +73,9 @@ jobs:
         working-directory: frontend
       - name: Export the recorded demo
         run: python scripts/export_demo.py artifacts/RunbookOps-Demo.html
+      - name: Diagnose WebKit local-file navigation
+        run: node file-navigation-probe.mjs
+        working-directory: frontend
       - run: npm run test:replay
         working-directory: frontend
       - uses: actions/upload-artifact@v7

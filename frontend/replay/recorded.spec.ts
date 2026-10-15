@@ -7,6 +7,11 @@ import { pathToFileURL } from 'node:url';
 const artifact = resolve('../artifacts/RunbookOps-Demo.html');
 const receipt = JSON.parse(readFileSync(artifact.replace(/\.html$/, '.json'), 'utf8'));
 
+test.beforeEach(async ({ context }) => {
+  // Apply this to both workflows, including WebKit where offline file navigation fails.
+  await context.route(/^https?:/, (route) => route.abort());
+});
+
 test('recorded workflow works from a local file with networking offline', async ({ page, browser }, info) => {
   console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
   const network: string[] = [];
@@ -58,6 +63,10 @@ test('recorded workflow works from a local file with networking offline', async 
 });
 
 test('recorded sources enforce hashes and unsupported requests stay explicit', async ({ page }) => {
+  const network: string[] = [];
+  page.on('request', (request) => {
+    if (/^https?:/.test(request.url())) network.push(request.url());
+  });
   await page.goto(pathToFileURL(artifact).href);
   const result = await page.evaluate(async ({ hashes, query }) => {
     const statuses: number[] = [];
@@ -81,4 +90,5 @@ test('recorded sources enforce hashes and unsupported requests stay explicit', a
     return statuses;
   }, { hashes: receipt.document_hashes as Record<string, string>, query: receipt.scenarios[0].query });
   expect(result).toEqual([...Array.from({ length: 10 }, () => [200, 409]).flat(), 404, 404, 422]);
+  expect(network).toEqual([]);
 });
