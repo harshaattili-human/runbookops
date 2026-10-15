@@ -7,7 +7,8 @@ import { pathToFileURL } from 'node:url';
 const artifact = resolve('../artifacts/RunbookOps-Demo.html');
 const receipt = JSON.parse(readFileSync(artifact.replace(/\.html$/, '.json'), 'utf8'));
 
-test('recorded workflow works from a local file with networking offline', async ({ page }, info) => {
+test('recorded workflow works from a local file with networking offline', async ({ page, browser }, info) => {
+  console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
   const network: string[] = [];
   const errors: string[] = [];
   page.on('request', (request) => {

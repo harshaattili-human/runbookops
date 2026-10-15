@@ -13,13 +13,14 @@ source .venv/bin/activate
 pip install -e '.[dev]'
 cd frontend
 npm ci
-npx playwright install --with-deps chromium
+npx playwright install --with-deps chromium firefox webkit
 npm run build
 npm run test:browser
 npx playwright show-report
 ```
 
-Three workflows run in Chromium at 1440×900, 390×844 and 320×640 CSS pixels:
+Three workflows run in Chromium, Firefox and WebKit, each at 1440×900, 390×844
+and 320×640 CSS pixels: 27 executions across nine projects, not 27 distinct workflows.
 
 - Live analysis, the citation's expected hash in the source request, matching
   content hash, modal focus containment, keyboard scrolling to the end of overflowing source text
@@ -32,16 +33,20 @@ Three workflows run in Chromium at 1440×900, 390×844 and 320×640 CSS pixels:
 The HTML report includes analysis, source and filtered-library screenshots for
 review. CI retains it for 14 days; failing tests also retain a trace and screenshot.
 These are observations, not pixel-baseline assertions. There are no automatic
-retries. Run `npm run test:browser -- --project=small` for one viewport.
+retries. Run `npm run test:browser -- --project=firefox-small` for one engine/viewport.
+Project names combine `chromium`, `firefox` or `webkit` with `desktop`, `narrow` or
+`small`. The same project matrix is used for the separate offline replay suite.
 
-This is desktop Chromium with resized viewports, not physical phone, touch,
-Safari/Firefox, screen-reader or other assistive-technology verification. The
+These are Playwright's desktop browser builds with resized viewports, not physical
+phones, touch input, branded Safari, screen-reader or other assistive-technology verification. The
 synthetic scenarios check application wiring and interactions, not model quality.
 The source-conflict case is fault injection, not an index-refresh experiment.
 
 Configuration follows Playwright's [web server](https://playwright.dev/docs/test-webserver),
 [projects](https://playwright.dev/docs/test-projects) and
 [CI](https://playwright.dev/docs/ci) documentation.
+The [browser guide](https://playwright.dev/docs/browsers) explains why Playwright's
+patched Firefox and WebKit builds do not stand in for every installed browser or OS.
 
 ## Failure found during implementation
 

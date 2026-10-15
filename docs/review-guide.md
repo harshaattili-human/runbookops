@@ -124,9 +124,9 @@ The [model card](model-card.md) describes thresholds and limitations.
 1. Test an information-type or entailment-oriented answerability method that can
    distinguish investigation guidance from absent credentials, values and business
    decisions. Do not tune on v2; freeze a new holdout before an improvement claim.
-2. Firefox/WebKit, touch/physical-device and manual assistive-technology checks.
-   [Chromium workflows](browser-checks.md) cover three viewport sizes and include
-   screenshots for review.
+2. Touch/physical-device and manual assistive-technology checks.
+   [Browser workflows](browser-checks.md) run on Chromium, Firefox and WebKit at
+   three viewport sizes and include screenshots for review.
 3. Measured latency/concurrency behavior with a stated environment; the container
    smoke check and individual request timing are not load tests.
 4. Live LLM evaluation before making generation-quality claims. Authentication,

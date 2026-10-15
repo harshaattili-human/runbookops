@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { browserProjects } from './browser-projects';
 
 export default defineConfig({
   testDir: './e2e',
@@ -8,15 +9,10 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: 'http://127.0.0.1:8765',
-    browserName: 'chromium',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: [
-    { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
-    { name: 'narrow', use: { viewport: { width: 390, height: 844 } } },
-    { name: 'small', use: { viewport: { width: 320, height: 640 } } },
-  ],
+  projects: browserProjects,
   webServer: {
     command: 'python -m uvicorn runbookops.api:app --host 127.0.0.1 --port 8765',
     cwd: '..',

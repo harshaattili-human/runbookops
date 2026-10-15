@@ -65,22 +65,23 @@ After generating the artifact:
 
 ```sh
 cd frontend
-npx playwright install --with-deps chromium
+npx playwright install --with-deps chromium firefox webkit
 npm run test:replay
 npx playwright show-report playwright-replay-report
 ```
 
 The separate configuration starts no web server and opens a `file:` URL with
 Playwright's browser context offline. Two workflows run at 1440×900, 390×844 and
-320×640: six executions, not six distinct workflows. The first exercises all five
+320×640 in Chromium, Firefox and WebKit: 18 executions, not 18 distinct workflows.
+The first exercises all five
 scenarios, replay labels/controls, viewport fit, source focus/return, library and
 evaluation while rejecting page errors or attempted HTTP(S) requests. The second
 checks all ten document hashes, conflicts, missing sources and unsupported requests.
 The HTML hash is also compared with the receipt. Screenshots are observations,
 not stored pixel baselines. No automatic retries are configured.
 
-These checks establish a recorded workflow in resized desktop Chromium. They do
-not establish physical-device, screen-reader, other-browser or live-model quality.
+These checks exercise a recorded workflow in three resized desktop browser engines.
+They do not establish physical-device, screen-reader, branded Safari or live-model quality.
 The existing [live browser suite](browser-checks.md) remains separate and continues
 to exercise FastAPI inference. [Playwright offline mode](https://playwright.dev/docs/api/class-browsercontext#browser-context-set-offline)
 is a browser test setting, not a security boundary or public deployment control.
