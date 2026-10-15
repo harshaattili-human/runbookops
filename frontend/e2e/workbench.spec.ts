@@ -27,7 +27,7 @@ test('live analysis opens its indexed source and supports keyboard reading', asy
   page,
   browser,
 }, info) => {
-  console.log(`Chromium ${browser.version()} / ${info.project.name}`);
+  console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
   const analysis = page.waitForResponse('/api/triage');
   await page.getByRole('button', { name: 'Connection pool', exact: true }).click();
   const result = await (await analysis).json();
@@ -60,7 +60,7 @@ test('live analysis opens its indexed source and supports keyboard reading', asy
   const lines = page.getByRole('region', { name: 'Runbook source text' });
   await expect(lines).toBeFocused();
   const scrollable = await lines.evaluate((element) => element.scrollHeight > element.clientHeight);
-  if (info.project.name !== 'desktop') expect(scrollable).toBe(true);
+  if (info.project.use.viewport!.width < 1440) expect(scrollable).toBe(true);
   if (scrollable) {
     await page.keyboard.press('End');
     await expect

@@ -7,9 +7,9 @@ new dependency or framework without a measured need.
 1. Test an information-type or entailment-oriented answerability method. A localized
    passage-coverage gate overfit validation and did not improve exposed v2 regressions.
    Preserve those failures and freeze a new holdout before another improvement claim.
-2. Extend browser checks to Firefox/WebKit and touch/physical-device behavior;
-   perform manual assistive-technology checks. Chromium coverage now exercises
-   responsive layout and source inspection at three widths; see [browser checks](browser-checks.md).
+2. Verify touch/physical-device behavior and perform manual assistive-technology
+   checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
+   inspection at three widths; see [browser checks](browser-checks.md).
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
