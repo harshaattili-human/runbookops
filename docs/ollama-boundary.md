@@ -79,6 +79,15 @@ classifier evaluation and validation-only retrieval/answerability/passage comman
 also passed. Validation reports changed only in the service source hash; exposed
 holdouts were not rescored. Existing Starlette/httpx and Lucide warnings remain.
 
+Hosted [run 38690943933](https://github.com/harshaattili-human/runbookops/actions/runs/38690943933)
+at implementation commit `05a5796` passed all four jobs on October 15, 2026:
+77 Python tests, seven component tests, nine existing Chromium executions,
+evaluations/build, container HTTP/runtime/restart checks and the configured image
+and npm audit gates. The verify job used Python 3.12.15 and Node 24.21.0 on Ubuntu.
+Container/browser execution was hosted; the new controlled-provider cases ran in
+the Python job, not against an Ollama process inside the container. Passing audit
+gates does not imply zero unresolved advisories; see [audit scope](dependency-audits.md).
+
 References: Ollama's [chat response fields](https://docs.ollama.com/api/chat),
 HTTPX [streaming responses](https://www.python-httpx.org/quickstart/#streaming-responses)
 and [timeout semantics](https://www.python-httpx.org/advanced/timeouts/).
