@@ -26,6 +26,8 @@ and [image/dependency audits](docs/dependency-audits.md). Preserve unfiltered fi
 and the scanner database date when reporting an update.
 For UI interaction or layout changes, run the [browser checks](docs/browser-checks.md)
 and inspect the generated screenshots as well as the assertions.
+For recorded-demo changes, generate the HTML after the frontend build, then run
+`npm run test:replay` from `frontend`; see [offline checks](docs/recorded-demo.md).
 Keep validation and held-out evaluation sets separate as the benchmark grows.
 The v1 holdout has already been inspected. Use validation for development and a new
 frozen holdout for fresh quality claims. See [the protocol](docs/evaluation-v1.md).

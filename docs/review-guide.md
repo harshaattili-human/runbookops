@@ -135,6 +135,11 @@ The [model card](model-card.md) describes thresholds and limitations.
 See the [development backlog](roadmap.md) for planned work. Planned items are not
 part of the current implementation.
 
+The [recorded demo](recorded-demo.md) packages five actual synthetic API responses,
+the runbooks and evaluation into one HTML file with an adjacent provenance receipt.
+Its offline browser checks are separate from live inference checks. Use the replay
+for a walkthrough; it supplies no additional model-quality evidence.
+
 The source dialog follows the W3C
 [modal keyboard pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/):
 focus enters the dialog, Tab remains contained, Escape closes it, and focus returns

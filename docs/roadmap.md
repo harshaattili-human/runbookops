@@ -24,9 +24,9 @@ new dependency or framework without a measured need.
 8. Recheck unresolved OS advisories as base images receive fixes; extend auditing
    to the Node builder and assess native-library coverage. See the current
    [image/dependency audit scope](dependency-audits.md).
-9. Add a reproducible visual demo or short recording with source inspection and
-   abstention. Label recorded responses explicitly; keep real inference local until
-   the deployment controls in the model card are addressed.
+9. Extend the recorded walkthrough when new workflows are implemented. The
+   [single-file replay](recorded-demo.md) now has an export receipt and offline
+   browser checks; keep real inference local until deployment controls are addressed.
 
 No paid services, production data, employer source code, or automated infrastructure
 actions are required. Research and partially implemented experiments belong on a
