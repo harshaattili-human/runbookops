@@ -12,7 +12,7 @@ test.beforeEach(async ({ context }) => {
   await context.route(/^https?:/, (route) => route.abort());
 });
 
-test('recorded workflow works from a local file with networking offline', async ({ page, browser }, info) => {
+test('recorded workflow works from a local file without HTTP requests', async ({ page, browser }, info) => {
   console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
   const network: string[] = [];
   const errors: string[] = [];

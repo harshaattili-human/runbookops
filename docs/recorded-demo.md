@@ -70,8 +70,12 @@ npm run test:replay
 npx playwright show-report playwright-replay-report
 ```
 
-The separate configuration starts no web server and opens a `file:` URL with
-Playwright's browser context offline. Two workflows run at 1440×900, 390×844 and
+The separate configuration starts no web server and opens a `file:` URL. Chromium
+and Firefox use Playwright's offline context setting. WebKit uses request blocking
+instead, because its offline setting rejects local-file navigation before the app
+loads. All engines abort HTTP(S) requests, block service workers and assert that no
+HTTP(S) request was attempted. This tests the replay's network independence, not
+an operating-system network disconnection. Two workflows run at 1440×900, 390×844 and
 320×640 in Chromium, Firefox and WebKit: 18 executions, not 18 distinct workflows.
 The first exercises all five
 scenarios, replay labels/controls, viewport fit, source focus/return, library and
@@ -111,3 +115,14 @@ Local Python tests (77), component tests (7), validation commands, production bu
 export and receipt hash checks passed. Local Chromium downloads returned invalid
 archives, so browser execution evidence comes from hosted CI. Existing Starlette/httpx
 and Lucide warnings remain. No exposed holdout was rescored.
+
+The later [three-engine run 38744301512](https://github.com/harshaattili-human/runbookops/actions/runs/38744301512)
+at `f99ec1a` passed all 18 replay executions and all 27 live executions. Its
+[checked export](https://github.com/harshaattili-human/runbookops/actions/runs/38744301512/artifacts/11978161582)
+is retained for 30 days. See [browser evidence](browser-checks.md#three-engine-verification--october-15-2026)
+for engine versions, the initial WebKit failure and the request-blocking adjustment.
+To reproduce the minimal navigation comparison independently, run
+`node file-navigation-probe.mjs` from `frontend` after installing WebKit. The probe
+prints observations for both offline settings; it does not assert that a browser
+limitation must persist in future versions. The replay suite remains the acceptance
+check for the actual exported application.
