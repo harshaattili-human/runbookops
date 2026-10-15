@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .service import ROOT, TriageService
+from .request_bounds import TriageBodyLimit
 
 
 class TriageRequest(BaseModel):
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title='RunbookOps', version='0.1.0', lifespan=lifespan)
+app.add_middleware(TriageBodyLimit)
 
 
 @app.get('/healthz')

@@ -7,12 +7,14 @@ model, cloud credentials or application packages on the host are required.
 import argparse
 from hashlib import sha256
 from html.parser import HTMLParser
+from http.client import HTTPConnection
 import json
 from pathlib import Path
 import subprocess
 import time
 from urllib.error import HTTPError
 from urllib.request import ProxyHandler, Request, build_opener
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 
@@ -70,6 +72,26 @@ def get_json(base, path, body=None):
     content, content_type = request(base, path, body)
     require(content_type == 'application/json', f'{path}: expected JSON, got {content_type}')
     return json.loads(content)
+
+
+def check_request_bounds(base):
+    address = urlsplit(base)
+    for chunked in (False, True):
+        for excess in (0, 1):
+            body = json.dumps({'query': QUERY}).encode()
+            body += b' ' * (32_768 + excess - len(body))
+            payload = (body[i:i + 257] for i in range(0, len(body), 257)) if chunked else body
+            connection = HTTPConnection(address.hostname, address.port, timeout=10)
+            try:
+                connection.request('POST', '/api/triage', body=payload,
+                                   headers={'Content-Type': 'application/json'}, encode_chunked=chunked)
+                response = connection.getresponse()
+                content = json.loads(response.read())
+                require(response.status == (413 if excess else 200), 'Request byte bound differs')
+                if not excess:
+                    require(content['mode'] == 'extractive', 'Exact-bound request did not run triage')
+            finally:
+                connection.close()
 
 
 class Assets(HTMLParser):
@@ -146,11 +168,14 @@ def check_http(base):
             'Missing local model did not fall back to source text')
     request(base, '/api/triage', {'query': 'short'}, expected=422)
     request(base, '/api/triage', {'query': QUERY, 'provider_url': 'http://example.invalid'}, expected=422)
+    check_request_bounds(base)
+    require(get_json(base, '/api/triage', {'query': QUERY})['mode'] == 'extractive',
+            'Triage did not recover after oversized requests')
     for path in ['/api/runbooks/unknown', '/data/incidents.json', '/backend/runbookops/api.py', '/.env']:
         request(base, path, expected=404)
     print(f'HTTP checks passed: {len(expected_documents)} packaged runbooks, report, '
           f'{len(assets.paths)} frontend assets, source lines/hashes, version conflicts, '
-          'abstention, fallback and validation', flush=True)
+          'abstention, fallback, validation and fixed/chunked request bounds', flush=True)
     return result
 
 
