@@ -52,3 +52,21 @@ The [ASGI HTTP specification](https://asgi.readthedocs.io/en/latest/specs/www.ht
 defines body chunks, completion and disconnect events. Interview exercise: why
 does a 2,000-character query limit fail to bound the HTTP request body, and why
 does a per-request byte limit fail to cap total process memory?
+
+## Observed verification — October 15, 2026
+
+Implementation `abdc3032cce031ab1911fbf116c9d84b91ac645b` passed
+[run 38805246280](https://github.com/harshaattili-human/runbookops/actions/runs/38805246280):
+101 Python cases (21 new boundary cases), seven component cases, validation
+evaluations, production build, 27 live and 18 recorded browser executions across
+the existing three-engine/three-width matrix, and the configured dependency gates.
+The container job passed fixed/chunked body checks plus non-root read-only,
+health, shutdown and restart checks on Python 3.12.15. Its audit still reported
+166 advisory entries and zero fixable high/critical entries under the gate;
+this is not a vulnerability-free image claim.
+
+Local Python 3.12.14 tests, validation commands, frontend tests/build and whitespace
+checks passed. Docker and browser execution were hosted. The existing
+Starlette/httpx deprecation and Lucide build warnings remain. Validation reports
+changed only in code hashes; exposed holdouts were not rescored. These checks
+establish the stated HTTP behavior, not a measured memory ceiling or load capacity.
