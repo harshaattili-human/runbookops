@@ -137,6 +137,9 @@ Set `OLLAMA_MODEL` to that exact model name before starting the API. Optionally 
 local LLM** in the UI. No model is downloaded automatically and no cloud service is
 called by default.
 
+The triage API [limits request bodies](docs/request-bounds.md) to 32 KiB before
+JSON parsing; the existing 2,000-character query validation still applies.
+
 Generation requires citation IDs from the retrieved evidence and a completed
 provider response. The [adapter boundary](docs/ollama-boundary.md) caps the JSON
 envelope at 65,536 bytes and falls back to the original source extract on oversized,

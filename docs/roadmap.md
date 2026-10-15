@@ -33,6 +33,10 @@ No paid services, production data, employer source code, or automated infrastruc
 actions are required. Research and partially implemented experiments belong on a
 branch; the default branch should remain runnable.
 
+The triage HTTP boundary now rejects bodies above 32 KiB before parsing, including
+chunked uploads. [Request-bound checks](request-bounds.md) cover framing and
+disconnects; upload deadlines, aggregate admission and rate limits remain open.
+
 Completed October 4: a same-fold dummy classifier comparison, fixed-gate ranking
 ablations, separate synthetic validation/holdout suites, and per-case failure reports.
 See [the protocol and results](evaluation-v1.md). The ranking variants tied on these
