@@ -88,3 +88,25 @@ is a browser test setting, not a security boundary or public deployment control.
 Optional interview exercise: which checks would fail if this supposedly standalone
 file still depended on a font CDN, JavaScript asset or live API, and which inference
 claims cannot be supported by a replay?
+
+## Observed verification
+
+On October 15, 2026, implementation `b65fa4b` passed
+[run 38692924184](https://github.com/harshaattili-human/runbookops/actions/runs/38692924184):
+six offline executions (two workflows at three widths), alongside the nine live
+browser executions and the verify, container and dependency jobs. The browser job
+used Python 3.12.15, Node.js 24.21.0 and Chromium 151.0.7922.34. All three source-dialog
+screenshots were inspected; the narrow layouts wrap the source text inside a
+scrollable, keyboard-focusable region.
+
+The [checked demo artifact](https://github.com/harshaattili-human/runbookops/actions/runs/38692924184/artifacts/11953185857)
+contains 428,169 HTML bytes, five scenarios and ten documents. Its receipt identifies
+GitHub test-merge commit `01db9afd0682d91ec768336eafd6f231d6e5f2aa`, with no tracked
+changes, and HTML SHA-256
+`202696a49fe4b5ee098296f4efc6c10de81d1fd7eb513497116679be60ef3062`.
+This identifies that export, not a promise that later exports have identical bytes.
+
+Local Python tests (77), component tests (7), validation commands, production build,
+export and receipt hash checks passed. Local Chromium downloads returned invalid
+archives, so browser execution evidence comes from hosted CI. Existing Starlette/httpx
+and Lucide warnings remain. No exposed holdout was rescored.
