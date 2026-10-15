@@ -80,12 +80,15 @@ synthesis uses retrieved passages and a JSON response contract. Citation IDs are
 validated against retrieved IDs; this does not verify the truth or entailment of
 the generated answer. Prompt injection is not solved by the prompt instruction.
 Only authored local documents are indexed, and the model has no tool execution.
+The [provider boundary](ollama-boundary.md) requires normal completion and bounds
+the JSON envelope before parsing; it does not evaluate generated-answer quality.
 
 ## Known gaps
 
 - Synthetic English descriptions favor vocabulary represented in training.
 - No public or real operational validation, calibration study, or drift monitoring.
-- No live LLM quality evaluation; adapter behavior is covered with mocked responses.
+- No live LLM quality evaluation; adapter behavior is covered with controlled HTTP
+  responses and instrumented streams.
 - No production authentication, rate limiting, or tenant isolation.
 - This demo should run locally. Public deployment needs a separate security review.
 - Component interaction tests cover source-dialog focus containment, Escape, focus
