@@ -31,8 +31,10 @@ def local_model(monkeypatch):
 
 @asynccontextmanager
 async def provider(monkeypatch, framing):
-    state = {'requests': 0, 'closed': 0, 'pieces': 0, 'healthy': False}
+    state = {'requests': 0, 'closed': 0, 'pieces': 0, 'healthy': False,
+             'hold_healthy': False, 'healthy_requests': 0}
     entered = asyncio.Event()
+    both_healthy = asyncio.Event()
     handlers = []
 
     async def handle(reader, writer):
@@ -62,6 +64,11 @@ async def provider(monkeypatch, framing):
             writer.write(response_headers + b'\r\n')
             await writer.drain()
             if healthy:
+                if state['hold_healthy']:
+                    state['healthy_requests'] += 1
+                    if state['healthy_requests'] == 2:
+                        both_healthy.set()
+                    await asyncio.wait_for(both_healthy.wait(), 3)
                 writer.write(body)
                 await writer.drain()
                 return
@@ -141,6 +148,7 @@ def test_external_cancellation_propagates_and_both_slots_are_reusable(service, m
                 results = await asyncio.gather(*calls, return_exceptions=True)
                 assert all(isinstance(result, asyncio.CancelledError) for result in results)
                 state['healthy'] = True
+                state['hold_healthy'] = True
                 recovered = await asyncio.gather(*(service.triage_async(QUERY, True) for _ in range(2)))
                 assert all(result['mode'] == 'local-llm' for result in recovered)
                 assert state['requests'] == 4

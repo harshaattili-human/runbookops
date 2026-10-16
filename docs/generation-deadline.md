@@ -83,3 +83,26 @@ and HTTPX's [async streaming contexts](https://www.python-httpx.org/async/).
 Interview exercise: why does `future.result(timeout=30)` on a synchronous worker
 not cancel the worker's socket read, and why does closing that socket still fail
 to establish that the model stopped computing?
+
+## Observed verification — October 15, 2026
+
+Implementation `23a6f07c5a2cda1a391918fa62e0ad6654751efc` passed
+[run 38828935488](https://github.com/harshaattili-human/runbookops/actions/runs/38828935488):
+110 Python cases (nine new deadline/cancellation cases), seven component cases,
+validation evaluations, production build, 27 live and 18 recorded browser
+executions across Chromium/Firefox/WebKit and three widths. The container HTTP,
+non-root/read-only, health/shutdown/restart checks and configured audit gates also
+passed. The image audit retained 166 advisory entries, with zero fixable high or
+critical entries under its blocking policy; this is not a vulnerability-free claim.
+
+Local Python 3.12.14, component tests, validation commands, build, documentation
+links and whitespace checks passed. Hosted verification used Python 3.12.15 and
+Node 24.21.0 on Ubuntu. The provider tests ran in the Python job using controlled
+HTTP responses, not a model inside the container. Browser/container execution was
+hosted. Existing Starlette/httpx and Lucide warnings remain. Validation reports
+changed only in API/service code hashes; exposed holdouts were not rescored.
+
+The follow-up test refinement holds both recovery responses until both requests
+reach the provider. This prevents two sequential calls through one remaining slot
+from being mistaken for recovery of both slots. All nine focused cases passed
+locally after that refinement; the PR records verification of the final head.
