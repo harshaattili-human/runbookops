@@ -58,18 +58,18 @@ def test_missing_local_model_falls_back_to_source(service, monkeypatch):
 
 
 def test_bad_llm_citation_is_not_published(service, monkeypatch, local_model):
-    def fake_request(self, request):
+    async def fake_request(self, request):
         body = {'done': True, 'done_reason': 'stop', 'message': {'content': json.dumps(
             {'answer': 'Unsupported claim', 'citations': ['invented:99']})}}
         return httpx.Response(200, stream=httpx.ByteStream(json.dumps(body).encode()))
-    monkeypatch.setattr(httpx.HTTPTransport, 'handle_request', fake_request)
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', fake_request)
     result = service.triage('Kafka consumer lag increases while producers send more events.', use_llm=True)
     assert result['mode'] == 'extractive'
     assert result['answer'] != 'Unsupported claim'
 
 
 def test_valid_llm_adapter_contract(service, monkeypatch, local_model):
-    def fake_request(self, request):
+    async def fake_request(self, request):
         body = json.loads(request.content)
         assert body['stream'] is False
         assert body['messages'][0]['role'] == 'system'
@@ -77,7 +77,7 @@ def test_valid_llm_adapter_contract(service, monkeypatch, local_model):
         reply = {'done': True, 'done_reason': 'stop', 'message': {'content': json.dumps(
             {'answer': 'Review the matching passage.', 'citations': [evidence[0]['id']]})}}
         return httpx.Response(200, stream=httpx.ByteStream(json.dumps(reply).encode()))
-    monkeypatch.setattr(httpx.HTTPTransport, 'handle_request', fake_request)
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', fake_request)
     result = service.triage('Kafka consumer lag increases while producers send more events.', use_llm=True)
     assert result['mode'] == 'local-llm'
     assert result['citations'][0] in {s['id'] for s in result['sources']}

@@ -179,18 +179,18 @@ def test_transport_rejection_preserves_source(service, provider, case):
 
 @pytest.mark.parametrize('case', ['declared-excess', 'encoding', 'unknown-length', 'timeout'])
 def test_stream_is_bounded_and_closed(service, monkeypatch, case):
-    class ProbeStream(httpx.SyncByteStream):
+    class ProbeStream(httpx.AsyncByteStream):
         chunks = 0
         closed = False
 
-        def __iter__(self):
+        async def __aiter__(self):
             if case == 'timeout':
                 raise httpx.ReadTimeout('Controlled provider timeout')
             for _ in range(100):
                 self.chunks += 1
                 yield b' ' * 8192
 
-        def close(self):
+        async def aclose(self):
             self.closed = True
 
     stream = ProbeStream()
@@ -200,10 +200,10 @@ def test_stream_is_bounded_and_closed(service, monkeypatch, case):
     elif case == 'encoding':
         headers['Content-Encoding'] = 'gzip'
 
-    def reply(self, request):
+    async def reply(self, request):
         return httpx.Response(200, headers=headers, stream=stream)
 
-    monkeypatch.setattr(httpx.HTTPTransport, 'handle_request', reply)
+    monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', reply)
     assert_fallback(service)
     assert stream.closed
     assert stream.chunks == (9 if case == 'unknown-length' else 0)
