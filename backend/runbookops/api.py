@@ -1,9 +1,10 @@
 """Stateless HTTP boundary. Run from the repository, not as a standalone wheel."""
 
+import asyncio
 from contextlib import asynccontextmanager
 import json
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -41,8 +42,30 @@ def health():
 
 
 @app.post('/api/triage')
-async def triage(body: TriageRequest):
-    return await app.state.triage.triage_async(body.query, body.use_llm)
+async def triage(body: TriageRequest, request: Request):
+    if not body.use_llm:
+        return await app.state.triage.triage_async(body.query)
+
+    # FastAPI has consumed the complete body. Only this watcher reads afterward.
+    async def disconnected():
+        while (await request.receive())['type'] != 'http.disconnect':
+            pass
+
+    work = asyncio.create_task(app.state.triage.triage_async(body.query, True))
+    watcher = asyncio.create_task(disconnected())
+    try:
+        done, _ = await asyncio.wait((work, watcher), return_when=asyncio.FIRST_COMPLETED)
+        if watcher in done:
+            watcher.result()  # Do not hide a receive-channel failure.
+            # No answer is sent to a caller that has already left. Uvicorn ignores
+            # this empty response on the closed transport; 499 labels access logs.
+            return Response(status_code=499)
+        return work.result()
+    finally:
+        for task in (work, watcher):
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(work, watcher, return_exceptions=True)
 
 
 @app.get('/api/overview')
