@@ -4,7 +4,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Lock
 from time import perf_counter
 from uuid import uuid4
 
@@ -42,14 +42,36 @@ class TriageService:
         self.data = data or ROOT / 'data'
         self.rows = json.loads((self.data / 'incidents.json').read_text())
         self.classifier = IncidentClassifier(self.rows)
-        self.retriever = Retriever(self.data / 'runbooks')
+        self._refresh_lock = Lock()
+        self._snapshot_lock = Lock()
+        self._retriever = Retriever(self.data / 'runbooks')
+
+    @property
+    def retriever(self) -> Retriever:
+        """Capture one published index; callers must not mutate it."""
+        with self._snapshot_lock:
+            return self._retriever
+
+    def refresh_runbooks(self) -> dict[str, str]:
+        """Rebuild from operator-managed files, retaining the old index on failure.
+
+        Call from a worker thread, with source writers stopped. This is a trusted
+        in-process operation, not an HTTP endpoint or a filesystem transaction.
+        """
+        # Serialize the complete rebuild so an older candidate cannot publish last.
+        with self._refresh_lock:
+            candidate = Retriever(self.data / 'runbooks')
+            with self._snapshot_lock:
+                self._retriever = candidate
+            return dict(candidate.document_hashes)
 
     def triage(self, query: str, use_llm: bool = False) -> dict:
         started = perf_counter()
         routing = self.classifier.predict(query)
-        candidates = self.retriever.search(query)
+        retriever = self.retriever
+        candidates = retriever.search(query)
         coverage = candidates[0]['document_coverage'] if candidates else None
-        sufficient = coverage is not None and coverage >= self.retriever.minimum_document_coverage
+        sufficient = coverage is not None and coverage >= retriever.minimum_document_coverage
         sources = candidates if sufficient else []
         answer = 'No sufficiently matching evidence was found. Add the error text, affected component, and recent change.'
         mode = 'abstained'
@@ -71,7 +93,7 @@ class TriageService:
             'status': 'sufficient' if sources else 'insufficient' if candidates else 'no-match',
             'method': 'idf-weighted query-term coverage in the top document',
             'coverage': coverage,
-            'threshold': self.retriever.minimum_document_coverage,
+            'threshold': retriever.minimum_document_coverage,
             'candidate_source_id': candidates[0]['id'] if candidates else None,
             'note': 'Lexical coverage heuristic selected on synthetic validation data; not a probability.',
         }

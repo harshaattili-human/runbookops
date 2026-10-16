@@ -154,3 +154,7 @@ to the invoking source card.
 unfiltered advisories, scanner/database versions and the local image ID. The
 fixed high/critical image gate permits unresolved OS findings; read the report
 before interpreting a green check. npm's separate gate includes build/test tools.
+
+Trusted integrations can now [refresh an index atomically](index-refresh.md).
+The stock HTTP app has no refresh trigger; source writers must be stopped during
+rebuilding, and multiple processes are not coordinated.

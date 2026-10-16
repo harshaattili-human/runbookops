@@ -13,9 +13,10 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add atomic index refresh when sources change. API evidence and workbench source
-   reads now check document hashes; running processes still use their startup
-   snapshot. See [source versions](review-guide.md#source-versions).
+5. Add an operator refresh trigger and coordinated corpus publication. The trusted
+   service now supports [atomic in-process index refresh](index-refresh.md), retaining
+   the old index on rebuild failure. The stock HTTP app still uses its startup
+   snapshot; filesystem writers and multiple workers need separate coordination.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
