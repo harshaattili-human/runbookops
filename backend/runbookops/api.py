@@ -71,13 +71,14 @@ async def triage(body: TriageRequest, request: Request):
 @app.get('/api/overview')
 def overview():
     service = app.state.triage
+    retriever = service.retriever
     report = ROOT / 'reports' / 'evaluation.json'
-    return {'documents': len(service.retriever.documents),
-            'chunks': len(service.retriever.chunks), 'incidents': len(service.rows),
+    return {'documents': len(retriever.documents),
+            'chunks': len(retriever.chunks), 'incidents': len(service.rows),
             'categories': sorted({r['category'] for r in service.rows}),
             'evaluation': json.loads(report.read_text()) if report.exists() else None,
             'runbooks': [{'id': slug, 'title': text.splitlines()[0].removeprefix('# ')}
-                        for slug, text in service.retriever.documents.items()]}
+                        for slug, text in retriever.documents.items()]}
 
 
 @app.get('/api/runbooks/{slug}')
