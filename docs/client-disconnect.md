@@ -52,3 +52,22 @@ and [Uvicorn response completion behavior](https://uvicorn.dev/server-behavior/)
 Interview exercise: why must the disconnect watcher wait until body parsing is
 complete, and why does closing the provider socket establish less than stopping
 its model computation?
+
+## Observed verification — October 16, 2026
+
+Implementation `f6e3cd8e5ce6e825683cb066632e36f88e7b5e14` passed
+[run 38909638345](https://github.com/harshaattili-human/runbookops/actions/runs/38909638345):
+116 Python cases, seven frontend component cases, validation evaluations and
+production build. The existing 27 live and 18 recorded browser executions passed
+across three engines and three widths, as did container HTTP/non-root/read-only,
+health/shutdown/restart and configured dependency audit gates. These browser counts
+are repeated workflows across configurations, not 45 distinct workflows.
+
+The six new cases passed locally with Python 3.12.14; the full Python suite,
+component tests, validation commands and production build also passed locally.
+Hosted verification used Python 3.12.15 and Node 24.21.0 on Ubuntu. Container and
+browser execution was hosted. The existing Starlette/httpx and Lucide warnings
+remain. The image audit still retained 166 advisory entries with zero fixable
+high/critical entries under its gate; passing is not a vulnerability-free claim.
+Validation reports changed only in API code hashes; no model/data/threshold change
+or exposed-holdout rescore was performed.
