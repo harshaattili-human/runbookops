@@ -147,6 +147,8 @@ incomplete or invalid replies. Controlled HTTP tests cover this behavior; a live
 local-model quality evaluation and citation-entailment checks remain pending.
 Two generation attempts may run concurrently per process; extra requests receive
 the source extract with a busy warning instead of waiting for a provider slot.
+A [30-second generation I/O deadline](docs/generation-deadline.md) also falls back
+when a provider stalls or keeps sending an unfinished reply.
 
 ## Container
 

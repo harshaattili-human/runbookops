@@ -62,12 +62,13 @@ completion fields. Older servers, unusually verbose metadata, large thinking
 outputs or heavily escaped content may fall back despite containing useful text.
 The adapter does not silently truncate a reply to make it fit.
 
-The existing HTTPX timeout remains 30 seconds for network operations. In particular,
-the read timeout concerns inactivity between received data, **not a 30-second total
-request deadline**. Slow progress can keep a call alive longer. This increment does
-not bound total incoming requests, all process memory, HTTP headers, provider compute
-or model loading. A stalled call holds one generation slot until it completes or
-fails; cancellation and total deadlines remain separate work.
+Generation now has a [30-second cooperative I/O deadline](generation-deadline.md)
+in addition to HTTPX's per-operation inactivity timeouts. A slow provider cannot
+extend the deadline by sending occasional bytes. Timeout closes the response and
+returns the original extract; explicit task cancellation propagates after cleanup.
+This is not a hard wall-clock limit on the entire HTTP request, CPU work, cleanup,
+DNS resolver threads or provider computation. Client disconnect detection after
+upload remains separate work.
 
 Completion flags and valid citation IDs do not prove entailment or factual accuracy.
 No model was downloaded or run for these tests. Ranking, answerability thresholds,

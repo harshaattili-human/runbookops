@@ -41,8 +41,8 @@ def health():
 
 
 @app.post('/api/triage')
-def triage(body: TriageRequest):
-    return app.state.triage.triage(body.query, body.use_llm)
+async def triage(body: TriageRequest):
+    return await app.state.triage.triage_async(body.query, body.use_llm)
 
 
 @app.get('/api/overview')

@@ -1,5 +1,6 @@
 """Combine routing and retrieval, with source text as the generation fallback."""
 
+import asyncio
 import json
 import os
 from pathlib import Path
@@ -8,17 +9,19 @@ from time import perf_counter
 from uuid import uuid4
 
 import httpx
+from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
 from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))
 MAX_PROVIDER_BYTES = 65_536
+GENERATION_DEADLINE_SECONDS = 30.0
 # Shared across service instances in this process; do not queue optional generation.
 _GENERATION_SLOTS = BoundedSemaphore(2)
 
 
-def _read_provider_body(response: httpx.Response) -> bytearray:
+async def _read_provider_body(response: httpx.Response) -> bytearray:
     """Bound the JSON envelope before parsing, without content decompression."""
     response.raise_for_status()
     if response.headers.get('content-encoding', 'identity').strip().lower() != 'identity':
@@ -27,7 +30,7 @@ def _read_provider_body(response: httpx.Response) -> bytearray:
     if declared is not None and not 0 <= int(declared) <= MAX_PROVIDER_BYTES:
         raise ValueError('Oversized provider response')
     body = bytearray()
-    for chunk in response.iter_raw(chunk_size=8192):
+    async for chunk in response.aiter_raw(chunk_size=8192):
         if len(body) + len(chunk) > MAX_PROVIDER_BYTES:
             raise ValueError('Oversized provider response')
         body.extend(chunk)
@@ -58,17 +61,6 @@ class TriageService:
             best = sources[0]
             answer = best['text'].split('\n', 1)[-1].strip()
             citations = [best['id']]
-            if use_llm:
-                if not _GENERATION_SLOTS.acquire(blocking=False):
-                    warning = 'Local generation is busy. Showing source text instead.'
-                else:
-                    try:
-                        answer, citations = self._generate(query, sources)
-                        mode = 'local-llm'
-                    except (httpx.HTTPError, ValueError, KeyError, TypeError, RecursionError):
-                        warning = 'Local generation was unavailable or returned an invalid response. Showing source text instead.'
-                    finally:
-                        _GENERATION_SLOTS.release()
         else:
             routing['category'] = 'needs-review'
             routing['needs_review'] = True
@@ -83,12 +75,53 @@ class TriageService:
             'candidate_source_id': candidates[0]['id'] if candidates else None,
             'note': 'Lexical coverage heuristic selected on synthetic validation data; not a probability.',
         }
-        return {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
+        result = {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
                 'answer': answer, 'citations': citations, 'sources': sources,
                 'mode': mode, 'warning': warning, 'answerability': answerability,
                 'duration_ms': round((perf_counter() - started) * 1000, 1)}
 
-    def _generate(self, query: str, sources: list[dict]) -> tuple[str, list[str]]:
+        if use_llm and sources:
+            # CLI/replay callers are synchronous. Async callers use triage_async.
+            try:
+                asyncio.get_running_loop()
+            except RuntimeError:
+                asyncio.run(self._synthesize(result))
+            else:
+                raise RuntimeError('Use await service.triage_async() in an event loop')
+        result['duration_ms'] = round((perf_counter() - started) * 1000, 1)
+        return result
+
+    async def triage_async(self, query: str, use_llm: bool = False) -> dict:
+        started = perf_counter()
+        # Keep scikit-learn work off the API event loop, using FastAPI's bounded pool.
+        result = await run_in_threadpool(self.triage, query)
+        if use_llm and result['sources']:
+            await self._synthesize(result)
+        result['duration_ms'] = round((perf_counter() - started) * 1000, 1)
+        return result
+
+    async def _synthesize(self, result: dict) -> None:
+        if not _GENERATION_SLOTS.acquire(blocking=False):
+            result['warning'] = 'Local generation is busy. Showing source text instead.'
+            return
+        try:
+            # Includes connection/headers/body and validation, with one shared clock.
+            deadline = asyncio.get_running_loop().time() + GENERATION_DEADLINE_SECONDS
+            async with asyncio.timeout_at(deadline):
+                answer, citations = await self._generate(result['query'], result['sources'])
+                # Synchronous parsing cannot be preempted by an event-loop timer.
+                if asyncio.get_running_loop().time() >= deadline:
+                    raise TimeoutError
+            result.update(answer=answer, citations=citations, mode='local-llm')
+        except TimeoutError:
+            result['warning'] = 'Local generation exceeded its time limit. Showing source text instead.'
+        except (httpx.HTTPError, ValueError, KeyError, TypeError, RecursionError):
+            result['warning'] = 'Local generation was unavailable or returned an invalid response. Showing source text instead.'
+        finally:
+            # External cancellation propagates after closing the provider contexts.
+            _GENERATION_SLOTS.release()
+
+    async def _generate(self, query: str, sources: list[dict]) -> tuple[str, list[str]]:
         model = os.getenv('OLLAMA_MODEL')
         if not model:
             raise ValueError('No local model configured')
@@ -108,10 +141,10 @@ class TriageService:
                 {'role': 'user', 'content': json.dumps({'question': query, 'evidence': evidence})},
             ],
         }
-        with httpx.Client(timeout=30, follow_redirects=False) as client:
-            with client.stream('POST', base + '/api/chat',
+        async with httpx.AsyncClient(timeout=30, follow_redirects=False) as client:
+            async with client.stream('POST', base + '/api/chat',
                                headers={'Accept-Encoding': 'identity'}, json=payload) as response:
-                envelope = json.loads(_read_provider_body(response))
+                envelope = json.loads(await _read_provider_body(response))
         # A token-limited response may contain valid JSON but still be incomplete.
         if envelope['done'] is not True or envelope['done_reason'] != 'stop':
             raise ValueError('Incomplete provider generation')
