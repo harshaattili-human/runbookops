@@ -149,6 +149,8 @@ Two generation attempts may run concurrently per process; extra requests receive
 the source extract with a busy warning instead of waiting for a provider slot.
 A [30-second generation I/O deadline](docs/generation-deadline.md) also falls back
 when a provider stalls or keeps sending an unfinished reply.
+[Disconnected callers](docs/client-disconnect.md) cancel optional provider I/O
+and release their generation slots.
 
 ## Container
 

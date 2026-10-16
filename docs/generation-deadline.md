@@ -43,8 +43,8 @@ wrapper can additionally wait for its event loop's executor shutdown; it does no
 promise an end-to-end wall-clock bound for hostname resolution.
 
 Closing a socket does not prove that Ollama stopped model loading or generation.
-An HTTP client disconnect after upload does not itself trigger task cancellation
-here; generation can continue until completion or the deadline. Incoming admission,
+The API now watches for client disconnects after the complete body is parsed;
+[disconnect checks](client-disconnect.md) cover cleanup through real HTTP. Incoming admission,
 rate limits, aggregate memory, provider-side cancellation and a production load
 study remain open. Each process still has its own two-slot admission limit.
 

@@ -88,7 +88,9 @@ generalization beyond the authored synthetic dataset.
 answers require valid retrieved citation IDs and a normally completed response.
 The [provider boundary](ollama-boundary.md) rejects oversized envelopes before
 parsing and closes rejected streams. The [generation deadline](generation-deadline.md)
-cancels slow provider I/O and releases its admission slot. An answer can cite a valid passage and still
+cancels slow provider I/O and releases its admission slot.
+[Client-disconnect handling](client-disconnect.md) also cancels optional work when
+the ASGI server reports that the caller has left. An answer can cite a valid passage and still
 misrepresent it; entailment and live-model evaluation remain open work.
 
 **Answerability after retrieval.** A top-ranked passage is not automatically shown.

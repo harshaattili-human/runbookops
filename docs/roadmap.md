@@ -19,7 +19,8 @@ new dependency or framework without a measured need.
 6. Add a Spring Boot integration example that calls the triage API with bounded
    timeouts and correlation IDs; use synthetic incidents only.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
-   Verify client-disconnect cancellation and provider-side compute termination.
+   Verify provider-side compute termination. Client-disconnect cancellation now
+   closes adapter I/O; see [HTTP disconnect checks](client-disconnect.md).
    A [30-second cooperative generation deadline](generation-deadline.md) now closes
    slow HTTP responses, with two per-process slots and immediate busy fallback.
 8. Recheck unresolved OS advisories as base images receive fixes; extend auditing
