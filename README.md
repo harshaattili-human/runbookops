@@ -68,6 +68,10 @@ curl http://127.0.0.1:8000/api/triage \
 
 ## How it fits together
 
+For a Java backend caller, the [Spring Boot example](docs/spring-client.md) preserves
+abstention, checks source versions and distinguishes HTTP failures from valid results.
+Its separate CI job calls the running Python API using synthetic incidents.
+
 ```mermaid
 flowchart TD
   A[Incident description] --> B[FastAPI validation]
