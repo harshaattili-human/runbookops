@@ -15,6 +15,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; a [passage candidate](passage-experiment.md) was rejected after regression comparison |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live browser checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
+| Java integration | [Spring Boot client](spring-client.md): typed extractive/abstained results, response request IDs and versioned source inspection | Loopback failure fixtures and live FastAPI contract checks; synchronous calls with connect/read inactivity timeouts, no whole-request deadline |
 
 ## Source versions
 

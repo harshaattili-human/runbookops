@@ -17,8 +17,10 @@ new dependency or framework without a measured need.
    service now supports [atomic in-process index refresh](index-refresh.md), retaining
    the old index on rebuild failure. The stock HTTP app still uses its startup
    snapshot; filesystem writers and multiple workers need separate coordination.
-6. Add a Spring Boot integration example that calls the triage API with bounded
-   timeouts and correlation IDs; use synthetic incidents only.
+6. Extend the [Spring Boot client example](spring-client.md) when a concrete caller
+   needs total deadlines, admission limits or tracing propagation. It now uses
+   explicit connect/read timeouts, retains response request IDs and checks source
+   hashes; its synchronous calls still need a caller concurrency budget.
 7. Evaluate real local LLM outputs for citation entailment and unsupported claims.
    Verify provider-side compute termination. Client-disconnect cancellation now
    closes adapter I/O; see [HTTP disconnect checks](client-disconnect.md).

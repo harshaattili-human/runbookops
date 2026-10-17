@@ -21,6 +21,8 @@ npm run build
 ```
 
 Update the model card when a dataset, threshold, model, or evaluation protocol changes.
+For Java example changes, run `python scripts/check_spring_client.py` with Java 17
+and Maven available; it owns its API process and checks the packaged walkthrough.
 For Dockerfile or packaging changes, run the [container checks](docs/container-checks.md)
 and [image/dependency audits](docs/dependency-audits.md). Preserve unfiltered findings
 and the scanner database date when reporting an update.
