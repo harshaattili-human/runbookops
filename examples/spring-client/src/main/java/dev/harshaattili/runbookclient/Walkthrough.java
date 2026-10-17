@@ -20,7 +20,7 @@ public class Walkthrough {
         return new RunbookClient(base, 1_000, 2_000);
     }
 
-    @Bean CommandLineRunner walkthrough(RunbookClient client) {
+    @Bean CommandLineRunner syntheticIncident(RunbookClient client) {
         return args -> {
             // Authored synthetic incident; avoid putting operational text in command arguments/logs.
             var result = client.triage("Database connection pool is exhausted and requests wait for connections.");

@@ -38,9 +38,11 @@ def main():
                         f'-Drunbook.live-url={base}', 'verify'], cwd=PROJECT, check=True)
         completed = subprocess.run(['java', '-jar',
                                     str(PROJECT / 'target/runbookops-client-example-0.1.0-SNAPSHOT.jar'),
-                                    f'--runbook.base-url={base}'], cwd=ROOT, check=True,
+                                    f'--runbook.base-url={base}'], cwd=ROOT,
                                    text=True, capture_output=True, timeout=30)
         print(completed.stdout)
+        print(completed.stderr, file=sys.stderr)
+        completed.check_returncode()
         if 'mode=extractive' not in completed.stdout or 'version_verified=true' not in completed.stdout:
             raise RuntimeError('Packaged walkthrough did not inspect its source')
         print('Spring client tests and executable walkthrough passed against live FastAPI.')
