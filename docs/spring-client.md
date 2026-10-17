@@ -67,8 +67,30 @@ live cases check source lines/hashes against the actual Python response, stale-s
 data or establish production interoperability.
 
 CI has a separate `spring-client` job. The ordinary Python/frontend/container/browser
-and audit jobs remain separate checks. See the PR for exact-head execution results;
-the source example alone does not establish that a particular environment passed.
+and audit jobs remain separate checks. Existing image/npm audits do not inventory
+the example's Java JAR; a Java dependency audit remains separate work.
+
+On October 17, [run 39012541145](https://github.com/harshaattili-human/runbookops/actions/runs/39012541145),
+job `117337935353`, passed all nine Java cases with zero failures/errors/skips and
+the executable walkthrough at commit `9158ab72c2bd78afd695ba9a4e3f31cc0c0e7005`.
+The JAR returned an extractive database result and verified `database-pool` lines
+5–7. Environment: Maven 3.10.0, Temurin Java 17.0.20.1, Spring Boot 3.5.16,
+Python 3.12.15 on the Linux amd64 hosted runner. These are contract/packaging checks,
+not new model-quality results.
+
+The initial [run 39012419360](https://github.com/harshaattili-human/runbookops/actions/runs/39012419360)
+passed all nine tests but its executable JAR exited with status 1. Inspection found
+that the application class and runner bean were both named `walkthrough`; the runner
+now has a distinct bean name. The initial subprocess wrapper did not print captured
+startup diagnostics on failure, so that run did not retain the underlying exception.
+It now prints stdout/stderr before checking exit status. No test or launch step was
+skipped to obtain the passing result.
+
+Local checks passed 120 Python cases, seven component cases, validation commands,
+the frontend build, runner syntax/XML, documentation links and whitespace. Maven's
+parent POM was not cached locally, so Java/live-integration execution was hosted.
+No Python model/data/threshold changed and no exposed holdout was rescored.
+The final documentation-head checks are linked in [PR 17](https://github.com/harshaattili-human/runbookops/pull/17).
 
 References: [Spring REST clients](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html),
 [request factory timeouts](https://docs.spring.io/spring-framework/docs/6.2.7/javadoc-api/org/springframework/http/client/SimpleClientHttpRequestFactory.html).
