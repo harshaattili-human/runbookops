@@ -39,7 +39,8 @@ branch; the default branch should remain runnable.
 
 The triage HTTP boundary now rejects bodies above 32 KiB before parsing, including
 chunked uploads. [Request-bound checks](request-bounds.md) cover framing and
-disconnects; upload deadlines, aggregate admission and rate limits remain open.
+disconnects. A single 30-second upload deadline now rejects stalled/trickling bodies;
+aggregate admission and rate limits remain open.
 
 Completed October 4: a same-fold dummy classifier comparison, fixed-gate ranking
 ablations, separate synthetic validation/holdout suites, and per-case failure reports.

@@ -1,4 +1,4 @@
-# Triage request byte limit
+# Triage request byte and upload limits
 
 `POST /api/triage` now accepts at most 32,768 body bytes before JSON parsing or
 classification. The character limit alone was insufficient: unknown fields and
@@ -22,9 +22,32 @@ this policy. No training data, retrieval policy or evaluation threshold changes.
 The middleware accumulator is bounded; the server-supplied ASGI chunk, socket and
 header buffers, JSON objects and concurrent requests have separate memory costs.
 Replaying the accepted body also makes a bounded bytes copy. This is not an
-aggregate memory limit, upload deadline, rate limit, authentication boundary or
-request-smuggling defense. Slow clients can still occupy connections. Deployment
+aggregate memory limit, rate limit, authentication boundary or
+request-smuggling defense. Deployment
 would require separate server/proxy controls.
+
+## Upload deadline
+
+After header checks, one 30-second cooperative asyncio deadline covers reading the
+complete body. Receiving another chunk does not reset it. An incomplete upload
+returns JSON HTTP 408 without invoking JSON parsing, classification or generation.
+HTTP/1 responses request connection closure so an unfinished body is not reused.
+External task cancellation still propagates; disconnects still discard the body.
+Completed requests leave the timeout context before downstream work begins.
+
+This starts when the ASGI middleware receives the request, not when a TCP connection
+opens. Header reception, proxy buffering, event-loop scheduling and response sending
+are outside the guarantee. It is not a hard wall-clock SLA, concurrent-connection
+limit or protection against many clients. A slow valid upload can be rejected;
+clients should send the bounded JSON in one ordinary request. No automatic retry is
+added. The separate generation deadline starts later and remains unchanged.
+
+Four new real Uvicorn HTTP/1.1 cases cross fixed/chunked framing with stalled/trickle
+uploads using a test-only 0.3-second limit. They require 408, connection closure,
+no triage invocation and a successful subsequent request; trickle cases confirm
+multiple chunks were sent. One ASGI lifecycle case checks cancellation propagation
+without a response. Production retains 30 seconds. These are synthetic protocol
+checks, not a load benchmark. See [asyncio timeout semantics](https://docs.python.org/3.12/library/asyncio-task.html#asyncio.timeout).
 
 ## Reproduce
 

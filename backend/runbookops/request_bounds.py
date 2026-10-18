@@ -1,10 +1,13 @@
 """Count triage request bytes before FastAPI reads or parses JSON."""
 
+import asyncio
+
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 
 MAX_TRIAGE_BYTES = 32_768
+TRIAGE_UPLOAD_SECONDS = 30.0
 
 
 class TriageBodyLimit:
@@ -37,17 +40,31 @@ class TriageBodyLimit:
                 return
 
         body = bytearray()
-        while True:
-            message = await receive()
-            if message['type'] == 'http.disconnect':
-                return
-            chunk = message.get('body', b'')
-            if len(body) + len(chunk) > MAX_TRIAGE_BYTES:
-                await reject(413, f'Triage request exceeds {MAX_TRIAGE_BYTES} bytes.')
-                return
-            body.extend(chunk)
-            if not message.get('more_body', False):
-                break
+        oversized = False
+        try:
+            # One deadline for the whole upload; incremental progress cannot reset it.
+            async with asyncio.timeout(TRIAGE_UPLOAD_SECONDS):
+                while True:
+                    message = await receive()
+                    if message['type'] == 'http.disconnect':
+                        return
+                    chunk = message.get('body', b'')
+                    if len(body) + len(chunk) > MAX_TRIAGE_BYTES:
+                        oversized = True
+                        break
+                    body.extend(chunk)
+                    if not message.get('more_body', False):
+                        break
+        except TimeoutError:
+            # Do not reuse HTTP/1 connections carrying an unfinished request body.
+            headers = {'Connection': 'close'} if scope.get('http_version') in ('1.0', '1.1') else {}
+            await JSONResponse({'detail': 'Triage request upload timed out.'},
+                               status_code=408, headers=headers)(scope, receive, send)
+            return
+
+        if oversized:
+            await reject(413, f'Triage request exceeds {MAX_TRIAGE_BYTES} bytes.')
+            return
 
         # Only a complete bounded body reaches JSON parsing and the triage worker.
         delivered = False
