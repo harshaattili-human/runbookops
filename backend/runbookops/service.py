@@ -116,7 +116,22 @@ class TriageService:
     async def triage_async(self, query: str, use_llm: bool = False) -> dict:
         started = perf_counter()
         # Keep scikit-learn work off the API event loop, using FastAPI's bounded pool.
-        result = await run_in_threadpool(self.triage, query)
+        worker = asyncio.create_task(run_in_threadpool(self.triage, query))
+        try:
+            result = await asyncio.shield(worker)
+        except asyncio.CancelledError:
+            # A cancelled await does not stop Python worker code. Join it before
+            # returning request capacity; repeated cancellation must not detach it.
+            while not worker.done():
+                try:
+                    await asyncio.shield(worker)
+                except asyncio.CancelledError:
+                    continue
+                except Exception:
+                    break
+            if not worker.cancelled():
+                worker.exception()  # Consume failure without replacing cancellation.
+            raise
         if use_llm and result['sources']:
             await self._synthesize(result)
         result['duration_ms'] = round((perf_counter() - started) * 1000, 1)

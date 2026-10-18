@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .service import ROOT, TriageService
 from .request_bounds import TriageBodyLimit
+from .admission import TriageAdmission
 
 
 class TriageRequest(BaseModel):
@@ -34,6 +35,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title='RunbookOps', version='0.1.0', lifespan=lifespan)
 app.add_middleware(TriageBodyLimit)
+# Last added is outermost: admission precedes buffering, parsing and worker work.
+app.add_middleware(TriageAdmission)
 
 
 @app.get('/healthz')
