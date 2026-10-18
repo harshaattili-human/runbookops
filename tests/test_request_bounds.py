@@ -86,6 +86,36 @@ def test_upload_cancellation_propagates_without_response():
     asyncio.run(check())
 
 
+@pytest.mark.parametrize('oversized', [False, True])
+def test_upload_timer_does_not_cover_analysis_or_rejection_send(monkeypatch, oversized):
+    monkeypatch.setattr(request_bounds, 'TRIAGE_UPLOAD_SECONDS', .01)
+
+    async def check():
+        sent = []
+        delivered = []
+
+        async def receive():
+            return {'type': 'http.request', 'body': b'x' * (MAX_TRIAGE_BYTES + 1 if oversized else 1),
+                    'more_body': False}
+
+        async def send(message):
+            # Backpressure after accepting/rejecting a body is not upload time.
+            await asyncio.sleep(.03)
+            sent.append(message)
+
+        async def downstream(scope, receive, send):
+            delivered.append(await receive())
+            await asyncio.sleep(.03)
+            await send({'type': 'http.response.start', 'status': 200, 'headers': []})
+            await send({'type': 'http.response.body', 'body': b'ok'})
+
+        await TriageBodyLimit(downstream)(
+            {'type': 'http', 'method': 'POST', 'path': '/api/triage', 'headers': []}, receive, send)
+        assert [m['status'] for m in sent if m['type'] == 'http.response.start'] == [413 if oversized else 200]
+        assert len(delivered) == (0 if oversized else 1)
+    asyncio.run(check())
+
+
 @pytest.fixture(scope='module')
 def api_server():
     sock = socket.socket()

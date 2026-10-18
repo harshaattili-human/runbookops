@@ -46,7 +46,9 @@ Four new real Uvicorn HTTP/1.1 cases cross fixed/chunked framing with stalled/tr
 uploads using a test-only 0.3-second limit. They require 408, connection closure,
 no triage invocation and a successful subsequent request; trickle cases confirm
 multiple chunks were sent. One ASGI lifecycle case checks cancellation propagation
-without a response. Production retains 30 seconds. These are synthetic protocol
+without a response. Two further ASGI cases ensure downstream analysis and a
+backpressured rejection response run outside the upload timer. Production retains
+30 seconds. These are synthetic protocol
 checks, not a load benchmark. See [asyncio timeout semantics](https://docs.python.org/3.12/library/asyncio-task.html#asyncio.timeout).
 
 ## Reproduce
