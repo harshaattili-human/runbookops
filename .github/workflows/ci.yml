@@ -21,6 +21,15 @@ jobs:
       - run: mvn --version
       - name: Check the Spring client against the live API
         run: python scripts/check_spring_client.py
+      - run: python scripts/test_jar_audit.py
+      - name: Audit the packaged Spring client
+        run: bash scripts/audit_jar.sh examples/spring-client/target/runbookops-client-example-0.1.0-SNAPSHOT.jar examples/spring-client/target/java-audit
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: java-audit
+          path: examples/spring-client/target/java-audit/
+          retention-days: 30
       - uses: actions/upload-artifact@v7
         if: always()
         with:
