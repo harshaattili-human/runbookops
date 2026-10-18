@@ -5,17 +5,115 @@ import gzip
 from http.client import HTTPConnection
 import json
 import socket
-from threading import Thread
+from threading import Event, Thread
 import time
 
 import pytest
 import uvicorn
 
 from runbookops.api import app
+from runbookops import request_bounds
 from runbookops.request_bounds import MAX_TRIAGE_BYTES, TriageBodyLimit
 
 
 QUERY = 'Kafka consumer lag increases while producers send more events.'
+
+
+@pytest.mark.parametrize('chunked', [False, True])
+@pytest.mark.parametrize('trickle', [False, True])
+def test_upload_deadline_rejects_stalls_and_progress(api_server, calls, monkeypatch, chunked, trickle):
+    monkeypatch.setattr(request_bounds, 'TRIAGE_UPLOAD_SECONDS', .3)
+    stopped = Event()
+    sent_chunks = []
+    with socket.create_connection(('127.0.0.1', api_server), timeout=3) as client:
+        framing = 'Transfer-Encoding: chunked' if chunked else 'Content-Length: 1000'
+        client.sendall((f'POST /api/triage HTTP/1.1\r\nHost: localhost\r\n'
+                        f'Content-Type: application/json\r\n{framing}\r\n\r\n').encode())
+
+        def upload():
+            while not stopped.is_set():
+                try:
+                    client.sendall(b'1\r\n \r\n' if chunked else b' ')
+                    sent_chunks.append(1)
+                except OSError:
+                    return
+                if not trickle:
+                    return
+                stopped.wait(.03)
+
+        worker = Thread(target=upload)
+        worker.start()
+        try:
+            reply = bytearray()
+            while block := client.recv(4096):
+                reply.extend(block)
+            head, body = bytes(reply).split(b'\r\n\r\n', 1)
+            assert head.startswith(b'HTTP/1.1 408')
+            assert b'connection: close' in head.lower()
+            assert json.loads(body) == {'detail': 'Triage request upload timed out.'}
+            if trickle:
+                assert len(sent_chunks) >= 2
+            assert calls == []
+        finally:
+            stopped.set()
+            worker.join(timeout=2)
+            assert not worker.is_alive()
+    assert request(api_server, json.dumps({'query': QUERY}).encode())[0] == 200
+
+
+def test_upload_cancellation_propagates_without_response():
+    async def check():
+        entered = asyncio.Event()
+        sent = []
+
+        async def receive():
+            entered.set()
+            await asyncio.Event().wait()
+
+        async def downstream(*args):
+            pytest.fail('Partial upload reached downstream')
+
+        async def send(message):
+            sent.append(message)
+
+        task = asyncio.create_task(TriageBodyLimit(downstream)(
+            {'type': 'http', 'method': 'POST', 'path': '/api/triage', 'headers': []}, receive, send))
+        await entered.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        assert sent == []
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize('oversized', [False, True])
+def test_upload_timer_does_not_cover_analysis_or_rejection_send(monkeypatch, oversized):
+    monkeypatch.setattr(request_bounds, 'TRIAGE_UPLOAD_SECONDS', .01)
+
+    async def check():
+        sent = []
+        delivered = []
+
+        async def receive():
+            return {'type': 'http.request', 'body': b'x' * (MAX_TRIAGE_BYTES + 1 if oversized else 1),
+                    'more_body': False}
+
+        async def send(message):
+            # Backpressure after accepting/rejecting a body is not upload time.
+            await asyncio.sleep(.03)
+            sent.append(message)
+
+        async def downstream(scope, receive, send):
+            delivered.append(await receive())
+            await asyncio.sleep(.03)
+            await send({'type': 'http.response.start', 'status': 200, 'headers': []})
+            await send({'type': 'http.response.body', 'body': b'ok'})
+
+        await TriageBodyLimit(downstream)(
+            {'type': 'http', 'method': 'POST', 'path': '/api/triage', 'headers': []}, receive, send)
+        assert [m['status'] for m in sent if m['type'] == 'http.response.start'] == [413 if oversized else 200]
+        assert len(delivered) == (0 if oversized else 1)
+    asyncio.run(check())
 
 
 @pytest.fixture(scope='module')
