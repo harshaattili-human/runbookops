@@ -58,8 +58,28 @@ clients allows eight more simultaneous partial uploads, with excess work still
 rejected. These are synthetic lifecycle checks, not a throughput benchmark or a
 model-quality evaluation. No model, corpus, threshold or held-out score changes.
 
-Exact-head execution evidence will follow hosted CI. Local pytest was unavailable;
-local syntax and whitespace checks are not a substitute for the Python suite.
+## Observed execution — October 18, 2026
+
+Implementation `e7fc6373861cdb3e0abc549f543b8c33736516b6` passed all five jobs in
+[run 39134584208](https://github.com/harshaattili-human/runbookops/actions/runs/39134584208).
+Verification job `117696397813` passed 140 Python cases (13 new executions), seven
+component cases, the existing validation commands and frontend production build.
+Browser job `117696397898` passed 27 live and 18 recorded executions across the
+existing three-engine/three-width matrix; no new UI behavior was introduced.
+Spring job `117696397883` passed nine Java cases and the live executable walkthrough.
+Container job `117696397892` passed packaged HTTP, non-root read-only operation,
+health, shutdown and restart; its existing checks do not saturate admission.
+
+The image audit still reported 166 finding entries with zero fixable high/critical
+entries. The Java audit inventoried 26 libraries with zero advisory entries in that
+snapshot; dependency job `117696397848` also passed. These are configured advisory
+gates, not vulnerability-free claims. Hosted Python 3.12.15/Node 24.21.0/Java
+17.0.20.1 ran on Ubuntu 24.04. The existing Starlette/httpx and Lucide warnings remain.
+
+Local compileall, relative documentation links and whitespace checks passed;
+pytest was unavailable locally. Existing checked-in evaluation reports remain
+historical artifacts; CI ran validation, not exposed holdouts, on this candidate.
+Final-head CI is retained in [PR 20](https://github.com/harshaattili-human/runbookops/pull/20).
 
 References: [asyncio shielding and cancellation](https://docs.python.org/3.12/library/asyncio-task.html#shielding-from-cancellation),
 [Uvicorn flow control and Expect](https://www.uvicorn.org/server-behavior/).
