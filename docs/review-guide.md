@@ -151,6 +151,10 @@ to the invoking source card.
 
 ## Dependency evidence
 
+[Triage admission](triage-admission.md) bounds concurrent HTTP lifetimes and joins
+cancelled synchronous workers before returning their capacity. It is separate from
+provider admission, phase deadlines and any future measured throughput claim.
+
 [Image/dependency audits](dependency-audits.md) preserve installed inventories,
 unfiltered advisories, scanner/database versions and the local image ID. The
 fixed high/critical image gate permits unresolved OS findings; read the report
