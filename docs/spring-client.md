@@ -68,7 +68,7 @@ data or establish production interoperability.
 
 CI has a separate `spring-client` job. The ordinary Python/frontend/container/browser
 and audit jobs remain separate checks. Existing image/npm audits do not inventory
-the example's Java JAR; a Java dependency audit remains separate work.
+the example's Java JAR; it now has a separate [packaged-library audit](java-audit.md).
 
 On October 17, [run 39012541145](https://github.com/harshaattili-human/runbookops/actions/runs/39012541145),
 job `117337935353`, passed all nine Java cases with zero failures/errors/skips and
