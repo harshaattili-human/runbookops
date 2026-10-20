@@ -127,6 +127,11 @@ validation's unsupported answers from 1/10 to 0/10, but failed to improve the
 already-exposed v2 regression cases and withheld two additional supported answers.
 It remains an experiment; the service behavior did not change.
 
+The next [contrastive answerability dataset](docs/information-type-v3.md) is frozen
+and unscored: 20 validation queries and 20 holdout queries pair documented guidance
+with missing-information requests. CI checks their integrity, not model quality;
+a candidate method and baseline comparison remain future work.
+
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split
 membership. [The first GitHub Actions run](https://github.com/harshaattili-human/runbookops/actions/runs/37152016110)

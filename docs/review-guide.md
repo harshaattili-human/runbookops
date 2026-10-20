@@ -69,6 +69,12 @@ The existing Starlette/httpx deprecation and Lucide bundling warnings remain.
 
 ## Decisions worth examining
 
+The next answerability comparison has [frozen contrastive data](information-type-v3.md)
+and a [tested loader](../tests/test_information_dataset.py), but no candidate or v3
+score yet. Inspect its evidence annotations, paired denominators and no-retuning
+protocol separately from the runtime coverage gate. Integrity checks read labels;
+they do not run retrieval or establish that a question is semantically answerable.
+
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1
 is approximately 0.945 versus 0.067 for a most-frequent-label predictor on the same

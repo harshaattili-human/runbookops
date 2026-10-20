@@ -6,7 +6,9 @@ new dependency or framework without a measured need.
 
 1. Test an information-type or entailment-oriented answerability method. A localized
    passage-coverage gate overfit validation and did not improve exposed v2 regressions.
-   Preserve those failures and freeze a new holdout before another improvement claim.
+   Preserve those failures. The [v3 contrastive inputs](information-type-v3.md) are
+   now frozen and unscored; develop the candidate on validation and publish its
+   configuration before the one-time holdout comparison.
 2. Verify touch/physical-device behavior and perform manual assistive-technology
    checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
    inspection at three widths; see [browser checks](browser-checks.md).

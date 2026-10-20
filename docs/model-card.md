@@ -85,6 +85,13 @@ the JSON envelope before parsing; it does not evaluate generated-answer quality.
 
 ## Known gaps
 
+The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries and
+20 unscored holdout queries, ten supported/unsupported pairs per split. Each pair
+shares one incident context; all use the same ten synthetic runbooks. Source quotes
+and hashes are checked, but annotations are author-visible and not independently
+validated. This is evaluation infrastructure, not a new model or quality result.
+No v3 query has been used for inference in this increment.
+
 - Synthetic English descriptions favor vocabulary represented in training.
 - No public or real operational validation, calibration study, or drift monitoring.
 - No live LLM quality evaluation; adapter behavior is covered with controlled HTTP

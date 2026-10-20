@@ -46,3 +46,12 @@ unchanged.
 
 Runbook text is illustrative investigation guidance, not vendor documentation.
 Verify real systems against current vendor documentation and local procedures.
+
+`evaluation/information-{validation,holdout}-v3.json` each contain ten contrast
+pairs (20 queries): one documented-guidance request and one missing-information
+request per runbook. Supported labels include exact source-line evidence; unsupported
+labels identify the absent information type. Both splits are author-visible and
+AI-assisted, with exact-query/scenario separation but no semantic-independence claim.
+The new holdout is frozen **unscored**. The manifest and
+[one-score protocol](../docs/information-type-v3.md) govern later candidate evaluation.
+`python -m runbookops.information_dataset` only validates integrity; it never scores.
