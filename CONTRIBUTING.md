@@ -10,6 +10,7 @@ Before pushing:
 
 ```sh
 python -m pytest -q
+python -m runbookops.information_dataset
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
@@ -38,6 +39,10 @@ The answerability v2 holdout is also exposed after its first score. Preserve its
 failures and freeze another holdout before tuning or claiming a further improvement.
 The [passage experiment](docs/passage-experiment.md) uses v2 only as an explicitly
 exposed regression check; its negative result is not permission to tune on those cases.
+
+The [v3 contrastive holdout](docs/information-type-v3.md) is frozen and unscored.
+Routine checks may validate its hashes/annotations but must not run inference on it.
+Freeze candidate code/configuration and validation results before its one-time score.
 
 ## Evidence for a change
 

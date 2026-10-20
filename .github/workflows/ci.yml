@@ -50,6 +50,8 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: pip install -e '.[dev]'
       - run: python -m pytest -q
+      - name: Check frozen v3 inputs without scoring
+        run: python -m runbookops.information_dataset
       - run: python -m runbookops.evaluate
       - run: python -m runbookops.benchmark --split validation
       - run: python -m runbookops.answerability --split validation
