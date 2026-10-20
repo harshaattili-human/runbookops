@@ -59,7 +59,7 @@ be reported, not silently edited after results are visible.
 for both new splits, all ten runbooks and five historical data files. It identifies
 baseline commit `deaf323c0419670b5e8f923a47f0cc84e0e1bf26`. Historical manifests and
 reports are untouched. The freeze commit is the first published commit containing
-this manifest; the verification record below identifies it after CI completes.
+this manifest: `00caeec3756875a6aa0867fb99d2bf6b7d81f024`.
 
 ```sh
 PYTHONPATH=backend python -m runbookops.information_dataset
@@ -110,10 +110,28 @@ or semantic label requires a separately versioned experiment, not rehashing this
 
 ## Verification
 
-Local integrity and dataset-contract checks are available without installed ML
-dependencies. Full application, browser, container and Java checks are handled by the
-existing hosted workflow; results will be recorded before merge. These checks do not
-measure v3 answerability.
+Freeze commit `00caeec` passed [run 39431909665](https://github.com/harshaattili-human/runbookops/actions/runs/39431909665)
+on October 20, 2026. All five jobs succeeded:
+
+- Verify: 154 Python cases (14 new dataset-contract cases), integrity-only v3 check,
+  existing classifier/validation evaluations, seven component cases and production build.
+- Browser: 27 live and 18 recorded-replay executions across Chromium, Firefox and
+  WebKit at three widths; these remain three live and two replay workflows, not
+  45 distinct workflows. No UI code changed or new visual-inspection claim is made.
+- Spring client: nine Java cases, executable walkthrough against live FastAPI,
+  four audit-checker fixtures and the packaged-library audit.
+- Container: packaged HTTP, non-root/read-only runtime, health, shutdown and restart;
+  the image audit retained 166 advisory entries, zero fixable high/critical entries.
+- Dependencies: frontend lockfile audit. The Java scan inventoried 26 libraries
+  and returned zero advisory entries in that snapshot; neither audit proves security.
+
+Hosted versions were Python 3.12.15, Node 24.21.0 and Java 17.0.20.1 on Ubuntu 24.04.
+Local Python 3.12.14 passed all 14 stdlib contract cases, integrity, documentation-link
+and whitespace checks; pytest/application dependencies were unavailable locally.
+The existing Starlette/httpx deprecation and Lucide build warnings remain.
+The checker reported zero scored v3 queries; exposed holdouts were not rescored and
+checked-in historical reports were not refreshed. This verifies infrastructure and
+unchanged application behavior, not v3 answerability quality.
 
 Optional interview exercise: explain why correct document retrieval can pass both
 members of a contrast pair while only one is answerable, and why a quote/hash checker
