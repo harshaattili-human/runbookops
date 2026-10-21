@@ -41,9 +41,9 @@ failures and freeze another holdout before tuning or claiming a further improvem
 The [passage experiment](docs/passage-experiment.md) uses v2 only as an explicitly
 exposed regression check; its negative result is not permission to tune on those cases.
 
-The [v3 contrastive holdout](docs/information-type-v3.md) is frozen and unscored.
-Routine checks may validate its hashes/annotations but must not run inference on it.
-Freeze candidate code/configuration and validation results before its one-time score.
+The [v3 contrastive holdout](docs/information-type-v3.md) is exposed after its first
+score. It may be reproduced or used as a regression suite, but it must not select new
+rules, thresholds or features. Freeze another holdout before a fresh improvement claim.
 
 ## Evidence for a change
 

@@ -55,6 +55,7 @@ type Result = {
     status: 'sufficient' | 'insufficient' | 'no-match';
     coverage: number | null;
     threshold: number;
+    request_signal?: string | null;
   };
   duration_ms: number;
 };
@@ -107,7 +108,7 @@ const samples = [
     text: 'How do I bake chocolate brownies for a birthday party?',
   },
 ];
-const label = (v: string) => v.replaceAll('-', ' ');
+const label = (v: string) => v.replaceAll(/[-_]/g, ' ');
 const percent = (v: number) => (v * 100).toFixed(1) + '%';
 const recordedDemo = Boolean((window as Window & { RUNBOOKOPS_DEMO?: boolean }).RUNBOOKOPS_DEMO);
 const focusableSelector = [
@@ -544,6 +545,12 @@ export function App() {
                             </strong>
                           </div>
                         )}
+                        {result.answerability?.request_signal && (
+                          <div className="score-line">
+                            <span>Missing evidence type</span>
+                            <strong>{label(result.answerability.request_signal)}</strong>
+                          </div>
+                        )}
                         <div className="distribution">
                           {result.routing.distribution.map((d) => (
                             <div key={d.category}>
@@ -565,8 +572,8 @@ export function App() {
                         </div>
                         <p className="fine-print">
                           Scores are uncalibrated model outputs, not a measure of real-world
-                          accuracy. Evidence coverage is a lexical threshold, not proof that a
-                          passage answers the question.
+                          accuracy. Evidence coverage and request shape are synthetic heuristics,
+                          not proof that a passage answers the question.
                         </p>
                       </>
                     ) : (

@@ -152,3 +152,17 @@ observation, not a lockfile or a substitute for rescanning a later image.
 Next: recheck the unresolved OS advisories against later base-image fixes, examine
 build-stage/native-library coverage and assess exposure before any deployment.
 The gate policy was not relaxed in response to these findings.
+
+## Vite advisory response — October 21, 2026
+
+The dependency job in [run 39610023279](https://github.com/harshaattili-human/runbookops/actions/runs/39610023279)
+failed after npm's database began reporting a high-severity Windows command-injection
+path for Vite 8.3.2. The audit artifact retained the complete finding. Vite is a direct
+development dependency rather than a package in the Python runtime image, but the
+unchanged high/critical lockfile gate correctly blocked the candidate.
+
+The lockfile now pins Vite 8.3.5. Its resolved Rolldown, PostCSS, Nano ID and platform
+bindings changed with that release; these transitive changes were retained rather
+than manually spliced out. A local clean install reported 148 total dependencies and
+zero npm advisory entries, and passed eight component tests plus the production build.
+This dated advisory result does not establish that the toolchain is vulnerability-free.

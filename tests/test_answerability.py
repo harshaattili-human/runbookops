@@ -74,6 +74,40 @@ def test_supported_source_still_uses_the_extractive_path():
     assert result['answerability']['coverage'] >= result['answerability']['threshold']
 
 
+def test_external_decision_request_withholds_a_related_source(monkeypatch):
+    service = TriageService()
+    called = False
+
+    def fail_if_called(*args, **kwargs):
+        nonlocal called
+        called = True
+        raise AssertionError('generation must not run for an external decision request')
+
+    monkeypatch.setattr(service, '_generate', fail_if_called)
+    result = service.triage(
+        'A signed token fails after an audience change. Decide whether this caller is entitled '
+        'to the requested access scope.',
+        use_llm=True,
+    )
+    assert result['mode'] == 'abstained'
+    assert result['sources'] == []
+    assert result['routing']['needs_review']
+    assert result['answerability']['status'] == 'insufficient'
+    assert result['answerability']['request_signal'] == 'approval_or_decision'
+    assert 'authorized decision' in result['answer']
+    assert not called
+
+
+def test_guidance_request_about_sensitive_values_keeps_supported_evidence():
+    result = TriageService().triage(
+        'AccessGate began rejecting bearer tokens following a signing-key rotation. How should '
+        'we inspect expiry and key discovery without copying secret bearer values into logs?'
+    )
+    assert result['mode'] == 'extractive'
+    assert result['sources'][0]['document'] == 'auth-tokens'
+    assert result['answerability']['request_signal'] is None
+
+
 def test_default_answerability_evaluation_never_scores_v2_holdout(monkeypatch):
     _, suites = load_suites(ROOT)
     allowed = {case['query'] for case in suites['validation']}

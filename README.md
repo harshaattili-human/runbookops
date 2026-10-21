@@ -127,15 +127,14 @@ validation's unsupported answers from 1/10 to 0/10, but failed to improve the
 already-exposed v2 regression cases and withheld two additional supported answers.
 It remains an experiment; the service behavior did not change.
 
-The next [contrastive answerability dataset](docs/information-type-v3.md) is frozen:
-20 validation queries and 20 holdout queries pair documented guidance with
-missing-information requests. The holdout remains unscored; CI separately checks
-input integrity and reproduces the validation experiment.
-
-The first request-shape candidate is still experimental. On the 20-query v3 validation
-split it preserves the baseline's 9/10 expected-top supported answers and changes
-unsupported answers from 8/10 to 0/10. It is not wired into the service; the frozen
-holdout has not been scored, and the same-author wording can favor these rules.
+The [contrastive answerability experiment](docs/information-type-v3.md) uses 20
+validation queries and 20 holdout queries, paired as documented guidance versus
+missing-information requests. The fixed request-shape candidate preserved the
+baseline's expected-top-and-answered supported count on both splits (9/10 validation,
+8/10 holdout), while unsupported answers changed from 8/10 to 0/10 on validation and
+6/10 to 1/10 on the once-scored holdout. It met the preregistered adoption rule and
+now runs after the coverage gate. The holdout is exposed, and these same-author
+synthetic grammar patterns are neither entailment nor production accuracy.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

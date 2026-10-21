@@ -2,11 +2,12 @@
 
 ## Status and purpose
 
-Frozen on October 20, 2026. The **holdout remains unscored**. The freeze increment added data, an integrity
-checker and a guarded case loader. No candidate answerability method is implemented,
-and the production retrieval, 0.33 coverage gate, classifier and corpus are unchanged.
-It made no quality claim. The rejected [passage gate](passage-experiment.md)
-remains outside the service.
+Frozen on October 20, 2026. The **holdout was first scored on October 21 and is now exposed**. The freeze increment added data, an integrity
+checker and a guarded case loader without running inference. A later validation-only
+increment added the experimental request-shape candidate described below; production
+retrieval, the 0.33 coverage gate, classifier and corpus remain unchanged. Neither
+freeze made no improvement claim. The rejected
+[passage gate](passage-experiment.md) remains outside the service.
 
 The unresolved problem is a request that shares incident vocabulary with a runbook
 but asks for information the runbook does not supply. Each v3 pair holds the incident
@@ -127,12 +128,51 @@ supported failure was a Kafka partition-rate investigation withheld by the exist
 coverage gate at 0.3012; the candidate cannot recover an answer that never reaches it.
 See [all cases and denominators](../reports/information-validation-v3.json).
 
-This clean separation is development evidence on 20 authored validation queries,
-not an improvement claim. The rules can reflect the author's request grammar and
+This clean separation was development evidence on 20 authored validation queries,
+not by itself an improvement claim. The rules can reflect the author's request grammar and
 may fail on multi-question, fragmentary or differently phrased incidents. They do
-not prove source entailment. The candidate remains outside `TriageService`. Its code,
-configuration, evaluator and validation report must be published before the holdout
-is scored; no pattern may change in response to that score.
+not prove source entailment. Its code, configuration, evaluator and validation report
+were published before holdout scoring; no pattern changed in response to that score.
+
+## First holdout score and adoption
+
+Candidate commit `2ee4780f5aaf17f16d74e6f2b447e95a3a4104fb` published the rules,
+evaluator and complete validation report before any holdout inference. After its five
+hosted jobs passed (with the separately corrected Vite advisory in descendant commit
+`1e2bdf4af89b2b6cc0c29fb57d5762d279bb5232`), the baseline and unchanged candidate
+were run together once:
+
+```sh
+PYTHONPATH=backend python -m runbookops.information_answerability \
+  --split holdout --allow-holdout
+```
+
+| Holdout metric | Coverage baseline | Request-shape candidate |
+| --- | ---: | ---: |
+| Supported answered | 8/10 | 8/10 |
+| Expected top document and answered | 8/10 | 8/10 |
+| Unsupported answered | 6/10 | 1/10 |
+| Fully correct pairs | 2/10 | 7/10 |
+
+The candidate met the preregistered rule: unsupported answers decreased with no loss
+in expected-top-and-answered supported cases. It was therefore adopted unchanged
+after the score. The service now applies it after document coverage, exposes the
+matched request shape in `answerability.request_signal`, withholds sources and optional
+generation when signaled, and asks for verified evidence or an authorized decision.
+The workbench displays that reason.
+
+All failures remain in the [holdout report](../reports/information-holdout-v3.json).
+API-timeout and database-lock supported requests were already withheld by coverage
+at 0.3006 and 0.2698. The request-shape guard cannot recover them. The unsupported
+database-pool request still passed: “What maximum pool size should each of the four
+replicas use?” received guidance precedence and 0.5351 coverage. This is a concrete
+counterexample to interpreting request shape as entailment. No pattern, threshold,
+label or corpus was changed after observing it.
+
+The 20 holdout queries are ten paired, same-author synthetic contexts—not 20
+independent incidents. The result is no live-LLM, production, safety, calibration or
+real-incident evidence. Future candidate selection requires a new frozen holdout;
+v3 may now be used only for reproduction and regression.
 
 ## Verification
 

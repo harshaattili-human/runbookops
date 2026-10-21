@@ -12,6 +12,7 @@ import httpx
 from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
+from .information_answerability import external_information_signal
 from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))
@@ -71,7 +72,10 @@ class TriageService:
         retriever = self.retriever
         candidates = retriever.search(query)
         coverage = candidates[0]['document_coverage'] if candidates else None
-        sufficient = coverage is not None and coverage >= retriever.minimum_document_coverage
+        request_signal = external_information_signal(query)
+        sufficient = (coverage is not None
+                      and coverage >= retriever.minimum_document_coverage
+                      and request_signal is None)
         sources = candidates if sufficient else []
         answer = 'No sufficiently matching evidence was found. Add the error text, affected component, and recent change.'
         mode = 'abstained'
@@ -86,16 +90,22 @@ class TriageService:
         else:
             routing['category'] = 'needs-review'
             routing['needs_review'] = True
-            if candidates:
+            if candidates and request_signal is not None:
+                answer = ('A related runbook was found, but the request asks for a result that '
+                          'the documented investigation guidance does not establish. Add verified '
+                          'system evidence or an authorized decision before acting.')
+            elif candidates:
                 answer = ('A related runbook was found, but it does not cover enough of the request. '
                           'Add the missing procedure, value, or system context before using guidance.')
         answerability = {
             'status': 'sufficient' if sources else 'insufficient' if candidates else 'no-match',
-            'method': 'idf-weighted query-term coverage in the top document',
+            'method': 'document coverage plus a conservative external-information request guard',
             'coverage': coverage,
             'threshold': retriever.minimum_document_coverage,
+            'request_signal': request_signal,
             'candidate_source_id': candidates[0]['id'] if candidates else None,
-            'note': 'Lexical coverage heuristic selected on synthetic validation data; not a probability.',
+            'note': ('Synthetic lexical and request-shape heuristics; not a probability, '
+                     'entailment model, authorization check, or live-system lookup.'),
         }
         result = {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
                 'answer': answer, 'citations': citations, 'sources': sources,
