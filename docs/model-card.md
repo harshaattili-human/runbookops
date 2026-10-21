@@ -90,7 +90,16 @@ The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries 
 shares one incident context; all use the same ten synthetic runbooks. Source quotes
 and hashes are checked, but annotations are author-visible and not independently
 validated. This is evaluation infrastructure, not a new model or quality result.
-No v3 query has been used for inference in this increment.
+The initial freeze ran no v3 inference. The subsequent candidate development uses
+validation only; the v3 holdout remains unscored.
+
+A later validation-only request-shape experiment now uses the final query sentence
+to detect demands for external values, approvals, sensitive values or unwritten
+artifacts. On 10 supported/10 unsupported v3 validation queries, it retained 9/10
+expected-top supported answers and reduced unsupported answers from 8/10 to 0/10.
+It remains outside the service pending the preregistered holdout comparison. These
+authored grammar patterns are not semantic entailment or a trained information-type
+model; see [the protocol and per-case report](information-type-v3.md).
 
 - Synthetic English descriptions favor vocabulary represented in training.
 - No public or real operational validation, calibration study, or drift monitoring.

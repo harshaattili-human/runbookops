@@ -75,6 +75,12 @@ score yet. Inspect its evidence annotations, paired denominators and no-retuning
 protocol separately from the runtime coverage gate. Integrity checks read labels;
 they do not run retrieval or establish that a question is semantically answerable.
 
+The first request-shape candidate and its complete validation report are now fixed,
+but the candidate remains outside the runtime. It preserves the validation baseline's
+9/10 supported expected-top answers while withholding all 10 unsupported requests.
+Review the ordered regular expressions and final-sentence assumption before the
+one-time holdout result; the small same-author split can reward its own phrasing.
+
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1
 is approximately 0.945 versus 0.067 for a most-frequent-label predictor on the same

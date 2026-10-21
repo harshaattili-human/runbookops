@@ -1,0 +1,543 @@
+{
+  "suite": "information-validation-v3",
+  "status": "validation-development",
+  "provenance": "AI-assisted synthetic pairs, authored from the existing ten synthetic runbooks. Same author can see both splits; not blinded, external, real-incident, or semantically independent data.",
+  "protocol": "docs/information-type-v3.md: develop on validation only; publish candidate/configuration and validation results before one joint baseline/candidate holdout score. Integrity checks read labels without inference. After first scoring, treat holdout as exposed regression data.",
+  "candidate": {
+    "name": "request-shape guard",
+    "input": "final sentence of the incident query; no labels, IDs or retrieved text",
+    "guidance_precedence": [
+      "\\b(?:how|what|which)\\b[^?]*\\b(?:should|must|need to|required|applies|belong)\\b"
+    ],
+    "external_information_shapes": {
+      "approval_or_decision": "^(?:approve|authorize|decide|choose)\\b",
+      "sensitive_value": "^(?:show|print|return|give|provide)\\b[^?]*\\b(?:token|secret|credential|personal|account|payload)\\b",
+      "unwritten_artifact": "^(?:give|provide|write|generate)\\b[^?]*\\b(?:commands?|scripts?|procedure)\\b",
+      "live_or_specific_value": "\\b(?:currently|right now|latest|last hour|exact|precise|maximum|percentage|how many|stored|configured|deployed)\\b"
+    },
+    "decision": "answer only when the existing 0.33 document-coverage policy answers and no external-information request shape is detected",
+    "production_status": "experiment only; TriageService is unchanged"
+  },
+  "frozen_inputs_sha256": {
+    "data/evaluation/answerability-holdout-v2.json": "c20796d70bb07ca10b3c0aa2fb93101bd36f0403e74a9c272946a4c2f7bd6877",
+    "data/evaluation/holdout-v1.json": "6c8f3f4b605722838be852a2f7bb3b61d2b24a2a0601b06c5257f28554e3769d",
+    "data/evaluation/information-holdout-v3.json": "c07c90e0b7d241662a199e53bba56751648c43435311f5f595713a729e488fb3",
+    "data/evaluation/information-validation-v3.json": "ed42d82a94eb8c47539e2038590946255b6361211bcff29d1295f09001b10d7d",
+    "data/evaluation/retrieval.json": "663ec20c057a3192b8f67efe3980643eecedc18e088a7be20c19ab8a18ec4a5a",
+    "data/evaluation/validation-v1.json": "3fca27648f30903b646f7488dc85edb405ee6a47ee26aa82313b2df69bd08c60",
+    "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
+    "data/runbooks/api-timeouts.md": "65b015aa2b529e53ae5529755a66ee78f03b07d8f5d522b2a16d8f994898ddfa",
+    "data/runbooks/auth-tokens.md": "8b4c964005d2306d52f0e7136e4155d782968b2c6cf89f26ae5ed4134bff5868",
+    "data/runbooks/database-locks.md": "201704b074853662e5da8e7616351045de00360e1e54a549bb66ab54948a3d35",
+    "data/runbooks/database-pool.md": "66a3d966fb2e6713507a8dbc933a282bab5cca6cd5f1acb8ae3a86e0f3949e0c",
+    "data/runbooks/kafka-lag.md": "88488de264cafa7a98f5f345fc603d117d60e7ff8c08e07b675d8e7b0b339cdc",
+    "data/runbooks/memory-pressure.md": "e34f5c58a947a851b5efdf97cd9cb35e42c131dce6fbda718a7c015f4bb41c28",
+    "data/runbooks/message-retries.md": "f2ca8b9f6c0f4d87e35d231f516c471426c269995c9ff5d5a838f017603058c8",
+    "data/runbooks/pod-startup.md": "687dc1f36fa9e86fece9556602fc99d51acc14c43cdcf24d72d7b8dd8e317d7b",
+    "data/runbooks/workflow-jobs.md": "b4d9cb3c778b780f9975375a80d78aa63977f6aa5f0088e9613c4b84b1e004b9",
+    "data/runbooks/workflow-routing.md": "be1f623fa90e10b5832a4a145051c1a2b1ac1baeca324caf4bb99158d31dad72"
+  },
+  "code_sha256": {
+    "backend/runbookops/__init__.py": "efea901531adf82c7bbfdd7e3139779605d19d0c291c619f834954b016239be4",
+    "backend/runbookops/admission.py": "652e90461ee949839cb95e9f95de24685090b5abb599bf01dc24d1d0c96a96b3",
+    "backend/runbookops/answerability.py": "10be8e795a450cf4cfc6e8601fc983bd07d2ef23d323afeb15fef7a81034a57c",
+    "backend/runbookops/api.py": "c7ec1d153529d2b28ac16a431ac8c60fd4e45ba213cefabb795f40be2b86753a",
+    "backend/runbookops/benchmark.py": "18023019b165f40d9bb402e6b7aaf2be3a9f49461172a3bff24a087b93b2790d",
+    "backend/runbookops/classifier.py": "db0bb7f5a79888d65181cfc0603b5cb9f18bb49f6f1ed10dbd58b40f75a6f951",
+    "backend/runbookops/evaluate.py": "1bf041dac3b49c6e64fa88e06cf22d7a16dba7e23cbcefc211d330aca436d1aa",
+    "backend/runbookops/information_answerability.py": "e4963bf2992a45e08c44b04a530e416fa8cbeddd2942eb5f0a3bfe4886bd25fe",
+    "backend/runbookops/information_dataset.py": "99f1e701eec4116c8236864738f6d2cd464521dad45df32c05d17eefae7c967b",
+    "backend/runbookops/passage_answerability.py": "a783ec9acdd6cbb1d5ba773a841d912a3dc17ac1afe9d82f533cf210118f70cd",
+    "backend/runbookops/request_bounds.py": "80773f644220c14d5a1758fc96149bcbd9876825dfe59974e8870b71d51cba5f",
+    "backend/runbookops/retrieval.py": "278dd1fcdc50b36aafdde53d2647eae5cfea42ec3dc0f25488ea5d27e63116e9",
+    "backend/runbookops/service.py": "1d57e99284c592297fa3f350c7aceb09009307de82ecc398b9f2cf1b33f89d33"
+  },
+  "baseline": {
+    "supported_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_answered": {
+      "numerator": 8,
+      "denominator": 10,
+      "rate": 0.8
+    },
+    "fully_correct_pairs": {
+      "numerator": 1,
+      "denominator": 10,
+      "rate": 0.1
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      },
+      "configuration_value": {
+        "numerator": 3,
+        "denominator": 3,
+        "rate": 1.0
+      },
+      "live_state": {
+        "numerator": 2,
+        "denominator": 3,
+        "rate": 0.6667
+      },
+      "sensitive_value": {
+        "numerator": 1,
+        "denominator": 1,
+        "rate": 1.0
+      },
+      "unwritten_procedure": {
+        "numerator": 0,
+        "denominator": 1,
+        "rate": 0.0
+      }
+    }
+  },
+  "candidate_result": {
+    "supported_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_answered": {
+      "numerator": 0,
+      "denominator": 10,
+      "rate": 0.0
+    },
+    "fully_correct_pairs": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "configuration_value": {
+        "numerator": 0,
+        "denominator": 3,
+        "rate": 0.0
+      },
+      "live_state": {
+        "numerator": 0,
+        "denominator": 3,
+        "rate": 0.0
+      },
+      "sensitive_value": {
+        "numerator": 0,
+        "denominator": 1,
+        "rate": 0.0
+      },
+      "unwritten_procedure": {
+        "numerator": 0,
+        "denominator": 1,
+        "rate": 0.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "information-validation-01-supported",
+      "pair_id": "information-validation-01",
+      "scenario": "information-v3-timeout-chain-budget",
+      "query": "The gateway starts returning 504 responses after a downstream slowdown. Which timeout and retry settings should we compare across the request chain?",
+      "kind": "supported",
+      "expected_document": "api-timeouts",
+      "topic_document": "api-timeouts",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 11,
+        "quote": "- Compare connection and read timeout settings across the calling chain.\n- Inspect downstream latency, error rate, and circuit-breaker transitions.\n- Check retry count, backoff, and the total request time budget."
+      },
+      "rationale": "The investigation lists connection/read timeouts, retries and the overall request budget.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:2",
+      "document_coverage": 0.4718,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-01-unsupported",
+      "pair_id": "information-validation-01",
+      "scenario": "information-v3-timeout-chain-budget",
+      "query": "The gateway starts returning 504 responses after a downstream slowdown. Give the connection timeout and total request budget currently configured on this gateway.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "api-timeouts",
+      "information_type": "configuration_value",
+      "missing_information": "Current gateway configuration values are not supplied; the runbook only says what to compare.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:2",
+      "document_coverage": 0.3816,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    },
+    {
+      "id": "information-validation-02-supported",
+      "pair_id": "information-validation-02",
+      "scenario": "information-v3-token-metadata-handling",
+      "query": "AccessGate began rejecting bearer tokens following a signing-key rotation. How should we inspect expiry and key discovery without copying secret bearer values into logs?",
+      "kind": "supported",
+      "expected_document": "auth-tokens",
+      "topic_document": "auth-tokens",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 12,
+        "quote": "- Check token expiry and clock skew without recording raw bearer tokens.\n- Inspect signing-key discovery and cache refresh behavior after rotation."
+      },
+      "rationale": "These lines cover expiry/clock skew without raw tokens and key-discovery/cache checks.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:2",
+      "document_coverage": 0.554,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-02-unsupported",
+      "pair_id": "information-validation-02",
+      "scenario": "information-v3-token-metadata-handling",
+      "query": "AccessGate began rejecting bearer tokens following a signing-key rotation. Print a bearer token accepted by AccessGate after this rotation.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "auth-tokens",
+      "information_type": "sensitive_value",
+      "missing_information": "No usable bearer token or credential inventory is present in the corpus.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:2",
+      "document_coverage": 0.4884,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "sensitive_value"
+    },
+    {
+      "id": "information-validation-03-supported",
+      "pair_id": "information-validation-03",
+      "scenario": "information-v3-blocking-session-review",
+      "query": "LedgerFlow updates are waiting behind a long-running database transaction. What evidence and owner contact are required before terminating the blocking session?",
+      "kind": "supported",
+      "expected_document": "database-locks",
+      "topic_document": "database-locks",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 15,
+        "quote": "- Preserve the diagnostic evidence and contact the owning team before terminating sessions."
+      },
+      "rationale": "The runbook explicitly requires preserving diagnostics and contacting the owning team.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:2",
+      "document_coverage": 0.7512,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-03-unsupported",
+      "pair_id": "information-validation-03",
+      "scenario": "information-v3-blocking-session-review",
+      "query": "LedgerFlow updates are waiting behind a long-running database transaction. Authorize terminating the blocking session now, without contacting its owner.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-locks",
+      "information_type": "approval",
+      "missing_information": "The runbook requires owner contact and does not grant incident-specific authorization.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:2",
+      "document_coverage": 0.6053,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "approval_or_decision"
+    },
+    {
+      "id": "information-validation-04-supported",
+      "pair_id": "information-validation-04",
+      "scenario": "information-v3-connection-return-check",
+      "query": "HikariPool has reached its maximum connections while more requests wait. Which request completion paths should be checked for a connection that was not returned?",
+      "kind": "supported",
+      "expected_document": "database-pool",
+      "topic_document": "database-pool",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Check that each request returns its connection after success, failure, and cancellation."
+      },
+      "rationale": "Success, failure and cancellation are explicitly listed.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:1",
+      "document_coverage": 0.4533,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-04-unsupported",
+      "pair_id": "information-validation-04",
+      "scenario": "information-v3-connection-return-check",
+      "query": "HikariPool has reached its maximum connections while more requests wait. Tell me which request currently holds the leaked connection.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-pool",
+      "information_type": "live_state",
+      "missing_information": "No live connection ownership or request trace data is included.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:1",
+      "document_coverage": 0.5504,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    },
+    {
+      "id": "information-validation-05-supported",
+      "pair_id": "information-validation-05",
+      "scenario": "information-v3-partition-imbalance-check",
+      "query": "One Kafka partition falls behind while its neighboring partitions keep up. What rates and processing evidence should we compare to investigate the slow partition?",
+      "kind": "supported",
+      "expected_document": "kafka-lag",
+      "topic_document": "kafka-lag",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Compare incoming message rate, processing rate, and lag per partition.\n- Inspect consumer rebalances, processing time, and downstream dependency latency.\n- Check for a hot partition or a message that repeatedly fails processing.\n- Compare the last committed offset with application processing evidence."
+      },
+      "rationale": "The investigation covers partition rates, latency, hot partitions and offsets.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:2",
+      "document_coverage": 0.3012,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-05-unsupported",
+      "pair_id": "information-validation-05",
+      "scenario": "information-v3-partition-imbalance-check",
+      "query": "One Kafka partition falls behind while its neighboring partitions keep up. What is the slow partition's latest committed offset right now?",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "kafka-lag",
+      "information_type": "live_state",
+      "missing_information": "The runbook recommends inspecting offsets but contains no live offset values.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:2",
+      "document_coverage": 0.3125,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    },
+    {
+      "id": "information-validation-06-supported",
+      "pair_id": "information-validation-06",
+      "scenario": "information-v3-heap-diagnostics-handling",
+      "query": "A container is repeatedly OOMKilled and the JVM heap needs investigation. What restriction applies when inspecting a heap dump that could contain sensitive data?",
+      "kind": "supported",
+      "expected_document": "memory-pressure",
+      "topic_document": "memory-pressure",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Review heap diagnostics only in an approved environment because dumps can contain sensitive data."
+      },
+      "rationale": "Heap diagnostics are restricted to an approved environment because dumps may hold sensitive data.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.4646,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-06-unsupported",
+      "pair_id": "information-validation-06",
+      "scenario": "information-v3-heap-diagnostics-handling",
+      "query": "A container is repeatedly OOMKilled and the JVM heap needs investigation. Give the shell commands to encrypt and upload the heap dump to an approved diagnostic store.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "memory-pressure",
+      "information_type": "unwritten_procedure",
+      "missing_information": "No encryption/upload commands or diagnostic-store procedure are authored.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.3063,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": "unwritten_artifact"
+    },
+    {
+      "id": "information-validation-07-supported",
+      "pair_id": "information-validation-07",
+      "scenario": "information-v3-replay-stop-check",
+      "query": "A corrected message consumer is ready to revisit a growing dead-letter queue. What safeguards should be in the replay plan before processing the failed events?",
+      "kind": "supported",
+      "expected_document": "message-retries",
+      "topic_document": "message-retries",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Preserve the original event and failure reason without exposing personal payload data.\n- Require an owner-reviewed replay plan with a small batch and a stopping condition.\n- Avoid infinite retries; propose bounded backoff for transient failures."
+      },
+      "rationale": "The text requires preserving evidence, owner review, a small batch, a stopping condition and bounded retries.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:4",
+      "document_coverage": 0.4464,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-07-unsupported",
+      "pair_id": "information-validation-07",
+      "scenario": "information-v3-replay-stop-check",
+      "query": "A corrected message consumer is ready to revisit a growing dead-letter queue. Set the precise replay batch size and retry interval that this queue should use.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "message-retries",
+      "information_type": "configuration_value",
+      "missing_information": "The runbook names the controls but gives no exact replay size or interval.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:2",
+      "document_coverage": 0.4932,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    },
+    {
+      "id": "information-validation-08-supported",
+      "pair_id": "information-validation-08",
+      "scenario": "information-v3-rollout-readiness-check",
+      "query": "The new container runs but its readiness probe fails after deployment. Which probe configuration and startup details should we inspect?",
+      "kind": "supported",
+      "expected_document": "pod-startup",
+      "topic_document": "pod-startup",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 12,
+        "quote": "- Check readiness and liveness probe path, port, and startup timing.\n- Verify required configuration references and image pull permissions."
+      },
+      "rationale": "Probe path, port, startup timing and required configuration references are explicit checks.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:2",
+      "document_coverage": 0.5037,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-08-unsupported",
+      "pair_id": "information-validation-08",
+      "scenario": "information-v3-rollout-readiness-check",
+      "query": "The new container runs but its readiness probe fails after deployment. State the readiness path and port configured for this deployed container.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "pod-startup",
+      "information_type": "configuration_value",
+      "missing_information": "The deployed readiness settings are absent from the static runbook.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:2",
+      "document_coverage": 0.5214,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    },
+    {
+      "id": "information-validation-09-supported",
+      "pair_id": "information-validation-09",
+      "scenario": "information-v3-retry-side-effect-review",
+      "query": "A workflow activity exhausted retries after a worker might have performed a side effect. What must be checked and approved before retrying the activity?",
+      "kind": "supported",
+      "expected_document": "workflow-jobs",
+      "topic_document": "workflow-jobs",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Confirm idempotency before proposing a retry of an activity with side effects.\n- Ask the process owner to approve a bounded retry after the underlying failure is understood.\n- Do not modify process variables or retry all failed instances without a reviewed recovery plan."
+      },
+      "rationale": "Idempotency, understanding the failure and a process-owner-approved bounded retry are required.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:2",
+      "document_coverage": 0.4393,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-09-unsupported",
+      "pair_id": "information-validation-09",
+      "scenario": "information-v3-retry-side-effect-review",
+      "query": "A workflow activity exhausted retries after a worker might have performed a side effect. Approve retrying all affected workflow instances immediately.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-jobs",
+      "information_type": "approval",
+      "missing_information": "A review requirement is not approval for a particular set of instances.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:1",
+      "document_coverage": 0.6129,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "approval_or_decision"
+    },
+    {
+      "id": "information-validation-10-supported",
+      "pair_id": "information-validation-10",
+      "scenario": "information-v3-correlation-subscription-check",
+      "query": "A message does not correlate with the approval instance that is waiting for it. Which message and subscription details should we compare?",
+      "kind": "supported",
+      "expected_document": "workflow-routing",
+      "topic_document": "workflow-routing",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Compare the correlation key and message name with the waiting subscription."
+      },
+      "rationale": "The runbook specifies correlation key and message name against the waiting subscription.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:4",
+      "document_coverage": 0.6468,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-10-unsupported",
+      "pair_id": "information-validation-10",
+      "scenario": "information-v3-correlation-subscription-check",
+      "query": "A message does not correlate with the approval instance that is waiting for it. Return the correlation key stored on the waiting instance.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-routing",
+      "information_type": "live_state",
+      "missing_information": "No current process-instance or subscription values are included.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:2",
+      "document_coverage": 0.5825,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_or_specific_value"
+    }
+  ],
+  "limitations": [
+    "Same-author AI-assisted synthetic pairs; not blinded, external or real-incident evidence.",
+    "Rules were developed against validation requests and can reflect their authored grammar.",
+    "The final-sentence proxy can misread multi-question, fragmentary or reordered incident text.",
+    "Request shape does not prove entailment; an answer can still omit or distort requested guidance.",
+    "The candidate does not inspect source propositions and may reject answerable numeric or live-data procedures.",
+    "No live LLM, calibration, production traffic or operational risk study is included."
+  ]
+}

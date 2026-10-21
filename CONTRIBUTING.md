@@ -11,6 +11,7 @@ Before pushing:
 ```sh
 python -m pytest -q
 python -m runbookops.information_dataset
+python -m runbookops.information_answerability --split validation
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation

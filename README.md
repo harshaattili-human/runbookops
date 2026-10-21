@@ -127,10 +127,15 @@ validation's unsupported answers from 1/10 to 0/10, but failed to improve the
 already-exposed v2 regression cases and withheld two additional supported answers.
 It remains an experiment; the service behavior did not change.
 
-The next [contrastive answerability dataset](docs/information-type-v3.md) is frozen
-and unscored: 20 validation queries and 20 holdout queries pair documented guidance
-with missing-information requests. CI checks their integrity, not model quality;
-a candidate method and baseline comparison remain future work.
+The next [contrastive answerability dataset](docs/information-type-v3.md) is frozen:
+20 validation queries and 20 holdout queries pair documented guidance with
+missing-information requests. The holdout remains unscored; CI separately checks
+input integrity and reproduces the validation experiment.
+
+The first request-shape candidate is still experimental. On the 20-query v3 validation
+split it preserves the baseline's 9/10 expected-top supported answers and changes
+unsupported answers from 8/10 to 0/10. It is not wired into the service; the frozen
+holdout has not been scored, and the same-author wording can favor these rules.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

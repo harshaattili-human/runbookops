@@ -2,10 +2,10 @@
 
 ## Status and purpose
 
-Frozen on October 20, 2026, **unscored**. This increment adds data, an integrity
+Frozen on October 20, 2026. The **holdout remains unscored**. The freeze increment added data, an integrity
 checker and a guarded case loader. No candidate answerability method is implemented,
 and the production retrieval, 0.33 coverage gate, classifier and corpus are unchanged.
-There is no new quality result. The rejected [passage gate](passage-experiment.md)
+It made no quality claim. The rejected [passage gate](passage-experiment.md)
 remains outside the service.
 
 The unresolved problem is a request that shares incident vocabulary with a runbook
@@ -107,6 +107,32 @@ or semantic label requires a separately versioned experiment, not rehashing this
    or regression. Further model selection or fresh improvement claims need another
    frozen holdout. Keep the original data/manifest; record the exposure in the report
    and this document rather than overwriting historical provenance.
+
+## Validation candidate
+
+The first candidate is a narrow **request-shape guard** layered after the current
+0.33 document-coverage gate. It examines only the final sentence of the submitted
+query. Guidance forms such as “what should …” take precedence. Otherwise it withholds
+answers for four inspectable forms: approval/decision commands; direct requests for
+sensitive values; direct requests for scripts, commands or procedures; and requests
+marked as live or specific results (for example, exact/current/configured values).
+It uses no case ID, runbook name, expected label or retrieved passage. The rules and
+ordered precedence are serialized in the validation report.
+
+On v3 validation, the current coverage baseline answered 9/10 supported requests
+with the expected top document and 8/10 unsupported requests. The candidate retained
+the same 9/10 supported expected-top-and-answered count, answered 0/10 unsupported
+requests and completed 9/10 pairs correctly versus 1/10 for baseline. The one
+supported failure was a Kafka partition-rate investigation withheld by the existing
+coverage gate at 0.3012; the candidate cannot recover an answer that never reaches it.
+See [all cases and denominators](../reports/information-validation-v3.json).
+
+This clean separation is development evidence on 20 authored validation queries,
+not an improvement claim. The rules can reflect the author's request grammar and
+may fail on multi-question, fragmentary or differently phrased incidents. They do
+not prove source entailment. The candidate remains outside `TriageService`. Its code,
+configuration, evaluator and validation report must be published before the holdout
+is scored; no pattern may change in response to that score.
 
 ## Verification
 
