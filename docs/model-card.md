@@ -60,10 +60,8 @@ The four highest eligible chunks are returned, possibly from the same document.
 Before showing guidance, the service also requires the top document to contain at
 least 0.33 of the query's IDF-weighted terms. Below that threshold it returns no
 source passage and does not call the optional LLM. The threshold was selected on
-the v1 validation set. A later request-shape guard also withholds several forms that
-ask for a live/specific result, decision, sensitive value or unwritten artifact while
-letting guidance forms take precedence. Both are lexical heuristics, not calibrated
-confidence or entailment.
+the v1 validation set; it is a lexical heuristic, not calibrated confidence or
+entailment. A later request-shape guard was evaluated but rejected before adoption.
 
 On the separately frozen v2 synthetic holdout, the original retrieval gate answered
 11/14 unsupported requests and all 12 supported requests. The coverage policy answered
@@ -101,8 +99,10 @@ to detect demands for external values, approvals, sensitive values or unwritten
 artifacts. On 10 supported/10 unsupported v3 validation queries, it retained 9/10
 expected-top supported answers and reduced unsupported answers from 8/10 to 0/10.
 On the once-scored holdout it retained the baseline's 8/10 expected-top supported
-answers and reduced unsupported answers from 6/10 to 1/10, so the unchanged guard was
-adopted. The remaining maximum-pool-size miss and two coverage-withheld positives are
+answers and reduced unsupported answers from 6/10 to 1/10. Existing application tests
+then showed that the word “maximum” in a descriptive incident falsely triggered the
+guard, bypassing optional generation. The candidate was rejected without changing its
+rules; the remaining pool-size miss and two coverage-withheld positives are also
 preserved. These authored grammar patterns are not semantic entailment or a trained
 information-type model; see [the protocol and per-case reports](information-type-v3.md).
 

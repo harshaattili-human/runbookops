@@ -4,12 +4,13 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Continue answerability work only with a newly frozen holdout. The adopted
+1. Continue answerability work only with a newly frozen holdout. The rejected
    [request-shape guard](information-type-v3.md) preserved expected-top-and-answered
    supported counts on v3 validation and holdout while reducing holdout unsupported
-   answers from 6/10 to 1/10. Preserve the remaining pool-size failure and both
-   coverage-withheld supported cases. Do not tune rules on now-exposed v3; a future
-   proposition/entailment comparison needs new data and must test phrasing variation.
+   answers from 6/10 to 1/10, but misclassified an existing descriptive incident that
+   contained “maximum.” Preserve that runtime regression, the pool-size failure and
+   both coverage-withheld supported cases. Do not tune rules on now-exposed v3; a
+   future proposition/entailment comparison needs new data and phrasing variation.
 2. Verify touch/physical-device behavior and perform manual assistive-technology
    checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
    inspection at three widths; see [browser checks](browser-checks.md).
@@ -77,8 +78,9 @@ supported answers from 11/12 to 9/12. The candidate was not adopted. See the
 Completed October 21: a fixed request-shape guard was published after validation,
 then scored once on the frozen v3 holdout. It retained 8/10 expected-top supported
 answers and changed unsupported answers from 6/10 to 1/10, meeting the preregistered
-adoption rule. The service and workbench expose the guard's reason. This remains a
-same-author lexical safeguard, not semantic entailment; v3 is now exposed.
+numeric rule. Runtime integration was rejected after the existing generation-admission
+suite exposed a false signal on a descriptive “maximum connections” sentence. The
+service remains unchanged; v3 is exposed and cannot be used to repair the rule.
 
 Completed October 10: integrated source-snapshot hashes and version-checked citation
 inspection. A changed or removed runbook prompts a fresh analysis instead of opening

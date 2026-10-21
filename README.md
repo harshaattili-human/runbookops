@@ -132,9 +132,11 @@ validation queries and 20 holdout queries, paired as documented guidance versus
 missing-information requests. The fixed request-shape candidate preserved the
 baseline's expected-top-and-answered supported count on both splits (9/10 validation,
 8/10 holdout), while unsupported answers changed from 8/10 to 0/10 on validation and
-6/10 to 1/10 on the once-scored holdout. It met the preregistered adoption rule and
-now runs after the coverage gate. The holdout is exposed, and these same-author
-synthetic grammar patterns are neither entailment nor production accuracy.
+6/10 to 1/10 on the once-scored holdout. It met the preregistered numeric rule, but
+was not adopted: existing concurrency checks showed that a descriptive sentence
+containing “maximum” was misread as a request for an exact value. The holdout is
+exposed, and these same-author synthetic grammar patterns are neither entailment nor
+production accuracy.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

@@ -122,8 +122,7 @@ def evaluate_information_policy(root: Path = ROOT, split: str = 'validation', *,
             },
             'decision': ('answer only when the existing 0.33 document-coverage policy answers '
                          'and no external-information request shape is detected'),
-            'production_status': ('adopted unchanged in TriageService after the preregistered '
-                                  'holdout criterion passed; this evaluator remains separate'),
+            'production_status': 'experiment only; TriageService is unchanged',
         },
         'frozen_inputs_sha256': manifest['sha256'],
         'code_sha256': {str(path.relative_to(root)): sha256(path) for path in code},

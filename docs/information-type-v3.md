@@ -134,7 +134,7 @@ may fail on multi-question, fragmentary or differently phrased incidents. They d
 not prove source entailment. Its code, configuration, evaluator and validation report
 were published before holdout scoring; no pattern changed in response to that score.
 
-## First holdout score and adoption
+## First holdout score and runtime rejection
 
 Candidate commit `2ee4780f5aaf17f16d74e6f2b447e95a3a4104fb` published the rules,
 evaluator and complete validation report before any holdout inference. After its five
@@ -154,12 +154,22 @@ PYTHONPATH=backend python -m runbookops.information_answerability \
 | Unsupported answered | 6/10 | 1/10 |
 | Fully correct pairs | 2/10 | 7/10 |
 
-The candidate met the preregistered rule: unsupported answers decreased with no loss
-in expected-top-and-answered supported cases. It was therefore adopted unchanged
-after the score. The service now applies it after document coverage, exposes the
-matched request shape in `answerability.request_signal`, withholds sources and optional
-generation when signaled, and asks for verified evidence or an authorized decision.
-The workbench displays that reason.
+The candidate met the preregistered **numeric** rule: unsupported answers decreased
+with no loss in expected-top-and-answered supported cases. Eligibility did not override
+application regression checks. The first runtime integration made three existing
+generation-admission cases fail in [run 39612047125](https://github.com/harshaattili-human/runbookops/actions/runs/39612047125):
+“Active connections are at the maximum and pending requests keep rising” was a
+descriptive incident sentence, but `maximum` produced `live_or_specific_value` and
+withheld optional generation. The tests expected both provider slots to remain occupied
+and the third request to receive the established busy fallback; instead no provider
+call was attempted and its warning was null.
+
+Changing the final-sentence or marker rules to repair that newly visible case after
+holdout scoring would violate the no-retuning protocol. Runtime adoption was therefore
+rejected and the service/workbench changes were removed. The candidate remains a
+reproducible experiment. The failure also shows that its validation/holdout format—an
+incident context followed by an explicit request—did not cover ordinary descriptions
+where the final sentence contains no question.
 
 All failures remain in the [holdout report](../reports/information-holdout-v3.json).
 API-timeout and database-lock supported requests were already withheld by coverage
@@ -167,7 +177,7 @@ at 0.3006 and 0.2698. The request-shape guard cannot recover them. The unsupport
 database-pool request still passed: “What maximum pool size should each of the four
 replicas use?” received guidance precedence and 0.5351 coverage. This is a concrete
 counterexample to interpreting request shape as entailment. No pattern, threshold,
-label or corpus was changed after observing it.
+label or corpus was changed after observing either failure.
 
 The 20 holdout queries are ten paired, same-author synthetic contexts—not 20
 independent incidents. The result is no live-LLM, production, safety, calibration or

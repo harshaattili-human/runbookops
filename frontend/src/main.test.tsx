@@ -147,35 +147,6 @@ function analysis(documentHash: string) {
   };
 }
 
-test('shows the request-shape reason for a withheld result', async () => {
-  vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
-    const path = String(input);
-    if (path === '/api/overview') return response(overview);
-    if (path === '/api/triage') {
-      return response({
-        ...analysis(originalHash),
-        answer: 'A related runbook was found, but verified system evidence is missing.',
-        sources: [],
-        citations: [],
-        mode: 'abstained',
-        answerability: {
-          status: 'insufficient',
-          coverage: 0.5,
-          threshold: 0.33,
-          request_signal: 'live_or_specific_value',
-        },
-      });
-    }
-    return response({ detail: 'Unexpected test request' }, 404);
-  });
-  const user = userEvent.setup();
-  render(<App />);
-  await user.click(screen.getByRole('button', { name: 'Connection pool' }));
-  await screen.findByRole('heading', { name: 'More context needed' });
-  expect(screen.getByText('Missing evidence type')).toBeTruthy();
-  expect(screen.getByText('live or specific value')).toBeTruthy();
-});
-
 function versionedApi(status: number, returnedHash = originalHash) {
   let triageCalls = 0;
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
