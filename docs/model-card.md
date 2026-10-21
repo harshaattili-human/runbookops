@@ -60,7 +60,8 @@ The four highest eligible chunks are returned, possibly from the same document.
 Before showing guidance, the service also requires the top document to contain at
 least 0.33 of the query's IDF-weighted terms. Below that threshold it returns no
 source passage and does not call the optional LLM. The threshold was selected on
-the v1 validation set; it is a lexical heuristic, not calibrated confidence.
+the v1 validation set; it is a lexical heuristic, not calibrated confidence or
+entailment. A later request-shape guard was evaluated but rejected before adoption.
 
 On the separately frozen v2 synthetic holdout, the original retrieval gate answered
 11/14 unsupported requests and all 12 supported requests. The coverage policy answered
@@ -86,11 +87,24 @@ the JSON envelope before parsing; it does not evaluate generated-answer quality.
 ## Known gaps
 
 The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries and
-20 unscored holdout queries, ten supported/unsupported pairs per split. Each pair
+20 once-scored holdout queries, ten supported/unsupported pairs per split. Each pair
 shares one incident context; all use the same ten synthetic runbooks. Source quotes
 and hashes are checked, but annotations are author-visible and not independently
-validated. This is evaluation infrastructure, not a new model or quality result.
-No v3 query has been used for inference in this increment.
+validated. The initial freeze ran no v3 inference. Candidate development used
+validation only, and its code/configuration/report were published before the single
+holdout score; v3 is now exposed.
+
+A later validation-only request-shape experiment now uses the final query sentence
+to detect demands for external values, approvals, sensitive values or unwritten
+artifacts. On 10 supported/10 unsupported v3 validation queries, it retained 9/10
+expected-top supported answers and reduced unsupported answers from 8/10 to 0/10.
+On the once-scored holdout it retained the baseline's 8/10 expected-top supported
+answers and reduced unsupported answers from 6/10 to 1/10. Existing application tests
+then showed that the word “maximum” in a descriptive incident falsely triggered the
+guard, bypassing optional generation. The candidate was rejected without changing its
+rules; the remaining pool-size miss and two coverage-withheld positives are also
+preserved. These authored grammar patterns are not semantic entailment or a trained
+information-type model; see [the protocol and per-case reports](information-type-v3.md).
 
 - Synthetic English descriptions favor vocabulary represented in training.
 - No public or real operational validation, calibration study, or drift monitoring.

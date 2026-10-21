@@ -2,11 +2,12 @@
 
 ## Status and purpose
 
-Frozen on October 20, 2026, **unscored**. This increment adds data, an integrity
-checker and a guarded case loader. No candidate answerability method is implemented,
-and the production retrieval, 0.33 coverage gate, classifier and corpus are unchanged.
-There is no new quality result. The rejected [passage gate](passage-experiment.md)
-remains outside the service.
+Frozen on October 20, 2026. The **holdout was first scored on October 21 and is now exposed**. The freeze increment added data, an integrity
+checker and a guarded case loader without running inference. A later validation-only
+increment added the experimental request-shape candidate described below; production
+retrieval, the 0.33 coverage gate, classifier and corpus remain unchanged. Neither
+freeze made no improvement claim. The rejected
+[passage gate](passage-experiment.md) remains outside the service.
 
 The unresolved problem is a request that shares incident vocabulary with a runbook
 but asks for information the runbook does not supply. Each v3 pair holds the incident
@@ -107,6 +108,81 @@ or semantic label requires a separately versioned experiment, not rehashing this
    or regression. Further model selection or fresh improvement claims need another
    frozen holdout. Keep the original data/manifest; record the exposure in the report
    and this document rather than overwriting historical provenance.
+
+## Validation candidate
+
+The first candidate is a narrow **request-shape guard** layered after the current
+0.33 document-coverage gate. It examines only the final sentence of the submitted
+query. Guidance forms such as “what should …” take precedence. Otherwise it withholds
+answers for four inspectable forms: approval/decision commands; direct requests for
+sensitive values; direct requests for scripts, commands or procedures; and requests
+marked as live or specific results (for example, exact/current/configured values).
+It uses no case ID, runbook name, expected label or retrieved passage. The rules and
+ordered precedence are serialized in the validation report.
+
+On v3 validation, the current coverage baseline answered 9/10 supported requests
+with the expected top document and 8/10 unsupported requests. The candidate retained
+the same 9/10 supported expected-top-and-answered count, answered 0/10 unsupported
+requests and completed 9/10 pairs correctly versus 1/10 for baseline. The one
+supported failure was a Kafka partition-rate investigation withheld by the existing
+coverage gate at 0.3012; the candidate cannot recover an answer that never reaches it.
+See [all cases and denominators](../reports/information-validation-v3.json).
+
+This clean separation was development evidence on 20 authored validation queries,
+not by itself an improvement claim. The rules can reflect the author's request grammar and
+may fail on multi-question, fragmentary or differently phrased incidents. They do
+not prove source entailment. Its code, configuration, evaluator and validation report
+were published before holdout scoring; no pattern changed in response to that score.
+
+## First holdout score and runtime rejection
+
+Candidate commit `2ee4780f5aaf17f16d74e6f2b447e95a3a4104fb` published the rules,
+evaluator and complete validation report before any holdout inference. After its five
+hosted jobs passed (with the separately corrected Vite advisory in descendant commit
+`1e2bdf4af89b2b6cc0c29fb57d5762d279bb5232`), the baseline and unchanged candidate
+were run together once:
+
+```sh
+PYTHONPATH=backend python -m runbookops.information_answerability \
+  --split holdout --allow-holdout
+```
+
+| Holdout metric | Coverage baseline | Request-shape candidate |
+| --- | ---: | ---: |
+| Supported answered | 8/10 | 8/10 |
+| Expected top document and answered | 8/10 | 8/10 |
+| Unsupported answered | 6/10 | 1/10 |
+| Fully correct pairs | 2/10 | 7/10 |
+
+The candidate met the preregistered **numeric** rule: unsupported answers decreased
+with no loss in expected-top-and-answered supported cases. Eligibility did not override
+application regression checks. The first runtime integration made three existing
+generation-admission cases fail in [run 39612047125](https://github.com/harshaattili-human/runbookops/actions/runs/39612047125):
+“Active connections are at the maximum and pending requests keep rising” was a
+descriptive incident sentence, but `maximum` produced `live_or_specific_value` and
+withheld optional generation. The tests expected both provider slots to remain occupied
+and the third request to receive the established busy fallback; instead no provider
+call was attempted and its warning was null.
+
+Changing the final-sentence or marker rules to repair that newly visible case after
+holdout scoring would violate the no-retuning protocol. Runtime adoption was therefore
+rejected and the service/workbench changes were removed. The candidate remains a
+reproducible experiment. The failure also shows that its validation/holdout format—an
+incident context followed by an explicit request—did not cover ordinary descriptions
+where the final sentence contains no question.
+
+All failures remain in the [holdout report](../reports/information-holdout-v3.json).
+API-timeout and database-lock supported requests were already withheld by coverage
+at 0.3006 and 0.2698. The request-shape guard cannot recover them. The unsupported
+database-pool request still passed: “What maximum pool size should each of the four
+replicas use?” received guidance precedence and 0.5351 coverage. This is a concrete
+counterexample to interpreting request shape as entailment. No pattern, threshold,
+label or corpus was changed after observing either failure.
+
+The 20 holdout queries are ten paired, same-author synthetic contexts—not 20
+independent incidents. The result is no live-LLM, production, safety, calibration or
+real-incident evidence. Future candidate selection requires a new frozen holdout;
+v3 may now be used only for reproduction and regression.
 
 ## Verification
 

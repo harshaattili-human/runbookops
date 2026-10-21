@@ -12,7 +12,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
 | Source identity | SHA-256 of indexed document text; optional expected-hash check on runbook reads | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
-| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [Frozen holdout](answerability-v2.md) records reduced unsupported answers and supported-answer loss; a [passage candidate](passage-experiment.md) was rejected after regression comparison |
+| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis, citation-ID validation | [v3 contrastive comparison](information-type-v3.md) records a positive paired result and the runtime regression that prevented adoption |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live browser checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; no production deployment or load claim |
 | Java integration | [Spring Boot client](spring-client.md): typed extractive/abstained results, response request IDs and versioned source inspection | Loopback failure fixtures and live FastAPI contract checks; synchronous calls with connect/read inactivity timeouts, no whole-request deadline |
@@ -69,11 +69,15 @@ The existing Starlette/httpx deprecation and Lucide bundling warnings remain.
 
 ## Decisions worth examining
 
-The next answerability comparison has [frozen contrastive data](information-type-v3.md)
-and a [tested loader](../tests/test_information_dataset.py), but no candidate or v3
-score yet. Inspect its evidence annotations, paired denominators and no-retuning
-protocol separately from the runtime coverage gate. Integrity checks read labels;
-they do not run retrieval or establish that a question is semantically answerable.
+The [v3 contrastive comparison](information-type-v3.md) published its candidate,
+configuration, evaluator and validation report before a single holdout score. It
+preserved the baseline expected-top-and-answered supported count (9/10 validation,
+8/10 holdout), while unsupported answers changed from 8/10 to 0/10 on validation and
+6/10 to 1/10 on holdout. It was still rejected after existing generation-admission
+checks showed that “Active connections are at the maximum” triggered the value rule
+even though it described the incident rather than asking a question. Inspect that
+runtime regression alongside the pool-size failure, two coverage-withheld positives,
+ordered expressions and final-sentence assumption. The service remains unchanged.
 
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1
@@ -104,7 +108,9 @@ misrepresent it; entailment and live-model evaluation remain open work.
 The service first checks IDF-weighted query-term coverage across its document. The
 fixed v2 holdout reduced unsupported answers from 11/14 to 3/14 but withheld one of
 12 supported answers. Strong topical overlap still passes some requests for absent
-credentials, numerical guarantees, and business decisions.
+credentials, numerical guarantees, and business decisions. A later request-shape
+guard improved a small paired holdout but also misread an existing descriptive incident,
+so it remains experimental rather than part of the service.
 
 ## What the measurements establish
 
