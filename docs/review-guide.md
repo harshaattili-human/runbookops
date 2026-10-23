@@ -173,5 +173,7 @@ fixed high/critical image gate permits unresolved OS findings; read the report
 before interpreting a green check. npm's separate gate includes build/test tools.
 
 Trusted integrations can now [refresh an index atomically](index-refresh.md).
-The stock HTTP app has no refresh trigger; source writers must be stopped during
-rebuilding, and multiple processes are not coordinated.
+Manifest-pinned, never-overwritten release directories keep a refresh on one declared
+corpus generation and retain the old index on any inventory/hash/build failure. The
+stock HTTP app has no refresh trigger, producer-side multi-file capture still requires
+stopped writers, and multiple processes are not coordinated.

@@ -12,6 +12,7 @@ import httpx
 from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
+from .corpus_release import verify_release
 from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))
@@ -64,6 +65,20 @@ class TriageService:
             with self._snapshot_lock:
                 self._retriever = candidate
             return dict(candidate.document_hashes)
+
+    def refresh_runbooks_release(self, release: Path) -> dict[str, object]:
+        """Publish one complete manifest-pinned release, retaining the old index on error."""
+        with self._refresh_lock:
+            verified = verify_release(release)
+            candidate = Retriever(documents=verified.documents)
+            with self._snapshot_lock:
+                self._retriever = candidate
+            return {
+                'corpus_id': verified.corpus_id,
+                'release_path': str(verified.release_path),
+                'manifest_sha256': verified.manifest_hash,
+                'document_hashes': dict(candidate.document_hashes),
+            }
 
     def triage(self, query: str, use_llm: bool = False) -> dict:
         started = perf_counter()

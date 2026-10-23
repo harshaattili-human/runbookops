@@ -31,9 +31,15 @@ class Retriever:
     # Selected on validation-v1 before answerability-holdout-v2 was scored.
     minimum_document_coverage = 0.33
 
-    def __init__(self, directory: Path):
-        self.documents = {p.stem: p.read_text(encoding='utf-8')
-                          for p in sorted(directory.glob('*.md'))}
+    def __init__(self, directory: Path | None = None, *,
+                 documents: dict[str, str] | None = None):
+        if (directory is None) == (documents is None):
+            raise ValueError('Provide exactly one runbook directory or document snapshot')
+        if documents is None:
+            assert directory is not None
+            documents = {p.stem: p.read_text(encoding='utf-8')
+                         for p in sorted(directory.glob('*.md'))}
+        self.documents = dict(sorted(documents.items()))
         # Hash the indexed text, including trailing newlines, not a later disk read.
         self.document_hashes = {slug: sha256(text.encode('utf-8')).hexdigest()
                                 for slug, text in self.documents.items()}
