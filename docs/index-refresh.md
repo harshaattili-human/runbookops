@@ -99,6 +99,25 @@ cases add creation/round-trip checks, detached receipts, changed/incomplete inve
 rejection with old-index retention, schema/path/symlink rejection and invalid-candidate
 cleanup.
 
+The implementation head `b540d26` passed
+[run 39966209481](https://github.com/harshaattili-human/runbookops/actions/runs/39966209481)
+on October 23, 2026. The verify job ran 174 Python cases plus 11 subtests, including
+the seven release cases, and retained the existing synthetic evaluations, seven
+frontend component cases and production build. The other jobs passed 27 live and
+18 recorded browser executions, nine Spring client cases plus its executable
+walkthrough, packaged container HTTP/non-root/read-only/health/shutdown/restart checks,
+and configured dependency audits. The dated scans reported 164 runtime-image finding
+entries with zero fixable high/critical entries, zero entries for 26 packaged Java
+libraries, and zero npm advisories. These scan results are not a vulnerability-free
+claim.
+
+Hosted versions were Python 3.12.15, Node.js 24.21.0 and Java 17.0.20.1 on Ubuntu
+24.04. Local Python 3.12.14 passed compilation, whitespace checks, a ten-document CLI
+release round trip and deliberate hash-tampering rejection. FastAPI, httpx and pytest
+were unavailable in that local environment, so the complete application evidence is
+hosted. No model, corpus, ranking setting, answerability threshold or exposed holdout
+changed or was rescored.
+
 Interview exercise: why must a request capture the retriever once even though
 replacing a single reference is short, why does a manifest stop refresh-time mixing,
 and why can it neither authenticate the publisher nor coordinate several workers?
