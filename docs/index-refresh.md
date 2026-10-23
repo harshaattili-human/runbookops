@@ -169,6 +169,22 @@ were unavailable in that local environment, so the complete application evidence
 hosted. No model, corpus, ranking setting, answerability threshold or exposed holdout
 changed or was rescored.
 
-Interview exercise: why must a request capture the retriever once even though
-replacing a single reference is short, why does a manifest stop refresh-time mixing,
-and why can it neither authenticate the publisher nor coordinate several workers?
+The startup-selection increment `390d709` passed all five jobs in
+[run 39970345934](https://github.com/harshaattili-human/runbookops/actions/runs/39970345934)
+on October 23, 2026: 184 Python cases plus 11 subtests, including ten new cases for
+pins, configuration, alias changes and process restart. The existing seven component
+cases/build, validation commands, 27 live and 18 recorded browser executions, nine
+Java cases/live walkthrough, container checks and audit gates also passed. The
+runtime-image scan retained 164 finding entries with zero fixable high/critical
+entries; 26 packaged Java libraries and npm had zero advisory entries in that dated
+scan. This is not a vulnerability-free claim.
+
+Hosted execution used Python 3.12.15, Node.js 24.21.0 and Java 17.0.20.1 on Ubuntu
+24.04.5. Local Python 3.12.14 passed compilation, documentation links, whitespace and
+a ten-document release round trip with deliberate manifest/schema rejection; full
+API/process/browser/container/Java execution was hosted. No corpus, model, ranking
+or threshold changed, and no exposed holdout was rescored.
+
+Interview exercise: why does comparing a manifest with a separately supplied hash
+protect restart selection, while recomputing that expected hash at every launch
+defeats the selection check? What still happens during a staggered worker restart?
