@@ -3,6 +3,8 @@
 import asyncio
 from contextlib import asynccontextmanager
 import json
+import os
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse
@@ -29,7 +31,16 @@ class TriageRequest(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.triage = TriageService()
+    release = os.getenv('RUNBOOKOPS_CORPUS_RELEASE')
+    digest = os.getenv('RUNBOOKOPS_CORPUS_SHA256')
+    if release is None and digest is None:
+        app.state.triage = TriageService()
+    else:
+        # Empty or partial configuration must never silently select bundled files.
+        if not release or not digest:
+            raise ValueError('Set both RUNBOOKOPS_CORPUS_RELEASE and RUNBOOKOPS_CORPUS_SHA256')
+        app.state.triage = TriageService(runbook_release=Path(release),
+                                        expected_manifest_hash=digest)
     yield
 
 

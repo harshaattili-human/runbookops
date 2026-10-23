@@ -84,8 +84,12 @@ def _manifest_bytes(payload: dict[str, Any]) -> bytes:
     return (json.dumps(payload, indent=2, sort_keys=True) + '\n').encode('utf-8')
 
 
-def verify_release(path: Path) -> CorpusRelease:
+def verify_release(path: Path, *, expected_manifest_hash: str | None = None) -> CorpusRelease:
     """Resolve one release and return only texts matching its complete manifest."""
+    if expected_manifest_hash is not None and (
+            not isinstance(expected_manifest_hash, str)
+            or not SHA256.fullmatch(expected_manifest_hash)):
+        raise CorpusReleaseError('Expected manifest SHA-256 must be 64 lowercase hex characters')
     try:
         release_path = path.resolve(strict=True)
     except OSError as exc:
@@ -97,13 +101,16 @@ def verify_release(path: Path) -> CorpusRelease:
         raise CorpusReleaseError('Release manifest must be a regular file')
     try:
         manifest_bytes = manifest_path.read_bytes()
+        manifest_hash = sha256(manifest_bytes).hexdigest()
+        if expected_manifest_hash is not None and manifest_hash != expected_manifest_hash:
+            raise CorpusReleaseError('Release manifest does not match expected SHA-256')
         payload = json.loads(manifest_bytes, object_pairs_hook=_reject_duplicate_keys)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise CorpusReleaseError(f'Cannot read release manifest: {exc}') from exc
     if not isinstance(payload, dict) or set(payload) != {
             'schema_version', 'corpus_id', 'documents'}:
         raise CorpusReleaseError('Manifest fields do not match schema version 1')
-    if payload['schema_version'] != SCHEMA_VERSION:
+    if type(payload['schema_version']) is not int or payload['schema_version'] != SCHEMA_VERSION:
         raise CorpusReleaseError('Unsupported release manifest schema')
     corpus_id = payload['corpus_id']
     if not isinstance(corpus_id, str) or not CORPUS_ID.fullmatch(corpus_id):
@@ -140,7 +147,7 @@ def verify_release(path: Path) -> CorpusRelease:
     return CorpusRelease(
         corpus_id=corpus_id,
         release_path=release_path,
-        manifest_hash=sha256(manifest_bytes).hexdigest(),
+        manifest_hash=manifest_hash,
         documents={Path(name).stem: text for name, text in documents.items()},
     )
 
