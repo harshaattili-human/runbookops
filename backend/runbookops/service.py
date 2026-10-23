@@ -39,13 +39,19 @@ async def _read_provider_body(response: httpx.Response) -> bytearray:
 
 
 class TriageService:
-    def __init__(self, data: Path | None = None):
+    def __init__(self, data: Path | None = None, *, runbook_release: Path | None = None,
+                 expected_manifest_hash: str | None = None):
+        if (runbook_release is None) != (expected_manifest_hash is None):
+            raise ValueError('Runbook release and expected manifest SHA-256 must be supplied together')
+        verified = (verify_release(runbook_release, expected_manifest_hash=expected_manifest_hash)
+                    if runbook_release is not None else None)
         self.data = data or ROOT / 'data'
         self.rows = json.loads((self.data / 'incidents.json').read_text())
         self.classifier = IncidentClassifier(self.rows)
         self._refresh_lock = Lock()
         self._snapshot_lock = Lock()
-        self._retriever = Retriever(self.data / 'runbooks')
+        self._retriever = (Retriever(documents=verified.documents) if verified is not None
+                           else Retriever(self.data / 'runbooks'))
 
     @property
     def retriever(self) -> Retriever:
@@ -66,10 +72,11 @@ class TriageService:
                 self._retriever = candidate
             return dict(candidate.document_hashes)
 
-    def refresh_runbooks_release(self, release: Path) -> dict[str, object]:
+    def refresh_runbooks_release(self, release: Path, *,
+                                expected_manifest_hash: str | None = None) -> dict[str, object]:
         """Publish one complete manifest-pinned release, retaining the old index on error."""
         with self._refresh_lock:
-            verified = verify_release(release)
+            verified = verify_release(release, expected_manifest_hash=expected_manifest_hash)
             candidate = Retriever(documents=verified.documents)
             with self._snapshot_lock:
                 self._retriever = candidate

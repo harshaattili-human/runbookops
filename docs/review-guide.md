@@ -175,5 +175,7 @@ before interpreting a green check. npm's separate gate includes build/test tools
 Trusted integrations can now [refresh an index atomically](index-refresh.md).
 Manifest-pinned, never-overwritten release directories keep a refresh on one declared
 corpus generation and retain the old index on any inventory/hash/build failure. The
-stock HTTP app has no refresh trigger, producer-side multi-file capture still requires
-stopped writers, and multiple processes are not coordinated.
+stock HTTP app can select an explicit release plus expected manifest hash at startup
+and rejects invalid selections without falling back. It has no live refresh trigger,
+producer-side multi-file capture still requires stopped writers, and multiple
+processes are not coordinated.

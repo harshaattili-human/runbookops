@@ -1,10 +1,14 @@
 """Manifest-pinned releases prevent mixed runbook generations at refresh."""
 
 import json
+from concurrent.futures import ThreadPoolExecutor
+from hashlib import sha256
 from pathlib import Path
+from threading import Event
 
 import pytest
 
+from runbookops import corpus_release
 from runbookops.corpus_release import (
     CorpusReleaseError, create_release, verify_release)
 from runbookops.service import TriageService
@@ -102,3 +106,92 @@ def test_invalid_candidate_never_creates_release(tmp_path):
         create_release(source, releases, 'invalid')
     assert not (releases / 'invalid').exists()
     assert not list(releases.glob('.invalid.*'))
+
+
+def test_expected_digest_pins_manifest_bytes_before_reading_documents(tmp_path, monkeypatch):
+    release = create_release(_source(tmp_path), tmp_path / 'releases', 'pinned')
+    digest = verify_release(release).manifest_hash
+    assert verify_release(release, expected_manifest_hash=digest).corpus_id == 'pinned'
+    # Even harmless formatting changes require an explicit new manifest pin.
+    manifest = release / 'manifest.json'
+    manifest.write_bytes(manifest.read_bytes() + b'\n')
+
+    def unexpected_read(_):
+        pytest.fail('A rejected manifest must not read runbooks')
+
+    monkeypatch.setattr(corpus_release, '_read_documents', unexpected_read)
+    with pytest.raises(CorpusReleaseError, match='does not match expected'):
+        verify_release(release, expected_manifest_hash=digest)
+    for invalid in ('', 'a' * 63, 'A' * 64, True):
+        with pytest.raises(CorpusReleaseError, match='64 lowercase hex'):
+            verify_release(release, expected_manifest_hash=invalid)
+
+
+def test_schema_requires_an_integer_even_with_a_matching_pin(tmp_path):
+    release = create_release(_source(tmp_path), tmp_path / 'releases', 'schema')
+    manifest = release / 'manifest.json'
+    payload = json.loads(manifest.read_bytes())
+    for invalid in (True, 1.0, '1', 2):
+        payload['schema_version'] = invalid
+        raw = json.dumps(payload).encode()
+        manifest.write_bytes(raw)
+        with pytest.raises(CorpusReleaseError, match='Unsupported release manifest schema'):
+            verify_release(release, expected_manifest_hash=sha256(raw).hexdigest())
+
+
+def test_alias_change_during_refresh_keeps_the_resolved_release(tmp_path, monkeypatch):
+    first = create_release(_source(tmp_path / 'first'), tmp_path / 'releases', 'first')
+    second = create_release(_source(tmp_path / 'second', DOCUMENT.replace('Review', 'Compare')),
+                            tmp_path / 'releases', 'second')
+    first_pin, second_pin = verify_release(first), verify_release(second)
+    alias = tmp_path / 'current'
+    alias.symlink_to(first, target_is_directory=True)
+    service = TriageService(_service_data(tmp_path))
+    entered, resume = Event(), Event()
+    read = corpus_release._read_documents
+
+    def paused(path):
+        assert path == first.resolve()
+        entered.set()
+        assert resume.wait(5)
+        return read(path)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(corpus_release, '_read_documents', paused)
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            pending = pool.submit(service.refresh_runbooks_release, alias,
+                                  expected_manifest_hash=first_pin.manifest_hash)
+            try:
+                assert entered.wait(5)
+                replacement = tmp_path / 'next'
+                replacement.symlink_to(second, target_is_directory=True)
+                replacement.replace(alias)
+            finally:
+                resume.set()
+            receipt = pending.result(timeout=5)
+    assert receipt['corpus_id'] == 'first'
+    assert service.retriever.documents == first_pin.documents
+    original = service.retriever
+    with pytest.raises(CorpusReleaseError, match='does not match expected'):
+        service.refresh_runbooks_release(alias, expected_manifest_hash=first_pin.manifest_hash)
+    assert service.retriever is original
+    service.refresh_runbooks_release(alias, expected_manifest_hash=second_pin.manifest_hash)
+    assert service.retriever.documents == second_pin.documents
+
+
+def test_matching_manifest_cannot_publish_an_unbuildable_index(tmp_path):
+    service = TriageService(_service_data(tmp_path))
+    original = service.retriever
+    release = create_release(_source(tmp_path / 'candidate'), tmp_path / 'releases', 'no-chunks')
+    manifest = release / 'manifest.json'
+    payload = json.loads(manifest.read_bytes())
+    for item in payload['documents']:
+        text = '# Title without sections\n'
+        (release / item['file']).write_text(text, encoding='utf-8')
+        item['sha256'] = sha256(text.encode()).hexdigest()
+    raw = json.dumps(payload).encode()
+    manifest.write_bytes(raw)
+    with pytest.raises(ValueError, match='At least one runbook'):
+        service.refresh_runbooks_release(release, expected_manifest_hash=sha256(raw).hexdigest())
+    assert service.retriever is original
+    assert service.triage(QUERY)['sources'][0]['document_hash'] == original.document_hashes['database']

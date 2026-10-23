@@ -5,9 +5,10 @@ using the published snapshot. Only a successfully constructed index replaces it.
 A failed read or index build propagates its exception and leaves the working index
 available. The classifier and incident training rows are not rebuilt.
 
-This is a trusted Python integration operation. The stock HTTP app still loads its
-index at startup: there is no public refresh endpoint, watcher, signal handler or
-cross-process control channel. A hosting integration that owns the service can run:
+Live refresh is a trusted Python integration operation. The stock HTTP app loads its
+index at startup, optionally from a pinned release as described below. There is no
+public refresh endpoint, watcher, signal handler or cross-process control channel.
+A hosting integration that owns the service can run:
 
 ```python
 # Stop source writers and finish the complete corpus update first.
@@ -39,6 +40,7 @@ publishes that exact release:
 receipt = await asyncio.to_thread(
     service.refresh_runbooks_release,
     Path('/var/lib/runbookops/releases/2026-10-23-a'),
+    expected_manifest_hash=approved_manifest_sha256,
 )
 ```
 
@@ -47,7 +49,43 @@ schema-v1 manifest, rejects duplicate JSON keys, unsafe filenames, symlinked run
 unexpected inventory and text-hash mismatches, and builds the candidate from the
 verified in-memory texts. Its receipt includes the corpus ID, resolved release path,
 manifest hash and a detached copy of every indexed document hash. A failure at any
-point retains the old index.
+point retains the old index. The optional `expected_manifest_hash` pins the raw
+manifest bytes before any runbooks are read. Without it, this trusted method verifies
+the release's internal consistency but does not select a particular manifest in
+advance. Even a manifest-only formatting change needs a new pin.
+
+## Select a release at startup
+
+Copy `manifest_sha256` from the release command's reviewed JSON receipt into the
+launch configuration. Set both values before starting the ordinary API:
+
+```sh
+export RUNBOOKOPS_CORPUS_RELEASE=/var/lib/runbookops/releases/2026-10-23-a
+export RUNBOOKOPS_CORPUS_SHA256='<64 lowercase hex characters from the receipt>'
+python -m uvicorn runbookops.api:app --host 127.0.0.1 --port 8000
+```
+
+Do not recompute the expected hash from the release at every launch: that would
+accept a replacement manifest automatically. Verification checks the expected raw
+manifest hash, strict schema, inventory and normalized document hashes, then builds
+the index solely from those verified texts. A partial/empty configuration, malformed
+hash, missing release, hash mismatch or index-build error prevents startup. There is
+no fallback to bundled runbooks. With neither variable set, startup is unchanged.
+
+Trusted Python callers can use `TriageService(runbook_release=path,
+expected_manifest_hash=digest)`; both arguments are required together. The API reads
+environment settings during its existing [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/)
+startup, before accepting requests. The classifier training data and evaluation
+reports still come from `RUNBOOKOPS_ROOT`; selecting a different runbook release does
+not retrain the classifier or make the bundled evaluation applicable to that corpus.
+
+An alias path is [resolved once](https://docs.python.org/3.12/library/pathlib.html#pathlib.Path.resolve)
+per load. Changing its target does not alter an already running index. Restarting
+against a different manifest with the old pin fails; adopting that release requires
+updating the expected hash too. Retain the old release and its pin for an explicit
+restart rollback. This is a restart-based selection mechanism, not a hot-reload
+trigger or an atomic rollout across workers. Trusted Python refresh calls can still
+replace the index after startup; the startup pin is not a runtime authorization rule.
 
 ## Consistency contract
 
@@ -74,9 +112,11 @@ verification but cannot retroactively change the in-memory snapshot.
 
 Directory rename is atomic only on the release filesystem. This workflow does not
 claim crash durability, authenticity or authorization: the manifest is an integrity
-receipt, not a signature. The stock app still has no HTTP refresh route, signal handler
-or watcher. Each process must be triggered by a trusted integration with the same
-release, and a failed process can remain on the previous generation.
+receipt, not a signature. An expected hash selects that receipt; it does not establish
+who authored it. The stock app still has no HTTP refresh route, signal handler or
+watcher. Each process must be restarted with the same path and pin or triggered by a
+trusted integration with the same release. During a staggered rollout, running
+processes can serve different generations; a failed restart remains unavailable.
 
 Published retrievers are read-only by convention; trusted Python code must not
 mutate their dictionaries, matrices or thresholds. Multiple server processes each
@@ -86,7 +126,7 @@ not freshness, authenticity or answer correctness.
 ## Verification
 
 ```sh
-python -m pytest tests/test_index_refresh.py tests/test_corpus_release.py -q
+python -m pytest tests/test_index_refresh.py tests/test_corpus_release.py tests/test_corpus_startup.py -q
 ```
 
 Four original synthetic regression cases cover live API version conflicts/removal and
@@ -98,6 +138,17 @@ ranking policy, answerability threshold or exposed holdout is changed. The relea
 cases add creation/round-trip checks, detached receipts, changed/incomplete inventory
 rejection with old-index retention, schema/path/symlink rejection and invalid-candidate
 cleanup.
+
+Startup-selection checks add strict manifest pins and integer schema versions,
+an event-controlled alias replacement during refresh, and retention after a
+correctly hashed but unbuildable candidate. A real Uvicorn subprocess check starts
+from a release without any bundled runbooks, keeps serving its original snapshot
+after alias replacement, rejects a restart with the stale pin, accepts an explicitly
+updated pin, returns 409 for the prior source version, and rejects later document
+tampering. Partial configuration is also rejected through the API lifespan. The
+inherited-socket subprocess case targets POSIX and is skipped on non-POSIX platforms.
+Existing packaged container and browser checks continue to exercise default startup;
+they do not verify release selection inside a container or coordinated worker rollout.
 
 The implementation head `b540d26` passed
 [run 39966209481](https://github.com/harshaattili-human/runbookops/actions/runs/39966209481)

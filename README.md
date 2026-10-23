@@ -91,9 +91,10 @@ TF-IDF cosine similarity. Sparse retrieval was chosen to make the first baseline
 fast, reproducible, and easy to inspect. Both indexes are built in memory from the
 local Markdown files when the application starts.
 
-Trusted integrations can publish a validated, manifest-pinned runbook release and
-refresh the in-memory index without mixing files during that refresh. This remains an
-operator-side Python workflow rather than a public API; see the
+Operators can select a manifest-pinned runbook release at startup using
+`RUNBOOKOPS_CORPUS_RELEASE` and `RUNBOOKOPS_CORPUS_SHA256`; invalid releases prevent
+startup instead of falling back to bundled files. Trusted Python integrations can
+also refresh the index while requests retain their captured snapshots. See the
 [refresh contract](docs/index-refresh.md).
 
 ## Evaluation and checks

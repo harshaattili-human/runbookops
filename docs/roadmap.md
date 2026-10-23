@@ -17,11 +17,12 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add an operator refresh trigger and multi-process coordination. The trusted
+5. Add a live operator refresh trigger and multi-process coordination. The trusted
    service supports [atomic in-process index refresh](index-refresh.md), and a
    manifest-pinned release workflow now prevents a refresh from mixing source-file
-   generations. The stock HTTP app still uses its startup snapshot; each worker needs
-   a trusted trigger and rollout coordination.
+   generations. The stock HTTP app can select an explicit release and expected
+   manifest hash at startup; invalid selections fail startup. Workers still require
+   coordinated restarts or a trusted live trigger for a rollout.
 6. Extend the [Spring Boot client example](spring-client.md) when a concrete caller
    needs total deadlines, admission limits or tracing propagation. It now uses
    explicit connect/read timeouts, retains response request IDs and checks source
