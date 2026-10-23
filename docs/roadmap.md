@@ -22,7 +22,10 @@ new dependency or framework without a measured need.
    manifest-pinned release workflow now prevents a refresh from mixing source-file
    generations. The stock HTTP app can select an explicit release and expected
    manifest hash at startup; invalid selections fail startup. Workers still require
-   coordinated restarts or a trusted live trigger for a rollout.
+   coordinated restarts or a trusted live trigger for a rollout. The
+   [container rehearsal](container-checks.md#mounted-corpus-release-rehearsal) exercises
+   explicit selection/rollback and shows coexisting generations; it is not a rollout
+   coordinator.
 6. Extend the [Spring Boot client example](spring-client.md) when a concrete caller
    needs total deadlines, admission limits or tracing propagation. It now uses
    explicit connect/read timeouts, retains response request IDs and checks source
