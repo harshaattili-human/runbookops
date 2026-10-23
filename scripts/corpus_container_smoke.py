@@ -1,6 +1,7 @@
 """Rehearse pinned corpus selection in a built image using disposable bind mounts."""
 
 import argparse
+import errno
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from hashlib import sha256
@@ -81,12 +82,16 @@ def selected_container(image, release, pin, *, failure=None):
             mounts = [m for m in details['Mounts'] if m['Destination'] == '/corpus']
             require(len(mounts) == 1 and not mounts[0]['RW']
                     and mounts[0]['Source'] == str(release.resolve()), 'Wrong release mount')
-            docker('exec', name, 'python', '-c',
-                   'from pathlib import Path\nimport errno\n'
-                   'for name in ("manifest.json", "database-pool.md"):\n'
-                   ' try:\n  with (Path("/corpus") / name).open("a"): pass\n'
-                   ' except OSError as error: assert error.errno == errno.EROFS\n'
-                   ' else: raise AssertionError("Release mount accepted a write")')
+            # API permissions may reject the open before the read-only check.
+            # The owning UID has file write permission and isolates the mount check.
+            for uid, allowed in (('10001', (errno.EACCES, errno.EROFS)),
+                                 (f'{os.getuid()}:{os.getgid()}', (errno.EROFS,))):
+                docker('exec', '--user', uid, name, 'python', '-c',
+                       'from pathlib import Path\n'
+                       'for name in ("manifest.json", "database-pool.md"):\n'
+                       ' try:\n  with (Path("/corpus") / name).open("a"): pass\n'
+                       f' except OSError as error: assert error.errno in {allowed!r}\n'
+                       ' else: raise AssertionError("Release mount accepted a write")')
         yield name
     finally:
         # Only this run's uniquely named containers are removed.

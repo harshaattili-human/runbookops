@@ -101,7 +101,9 @@ Each API launch uses the same image ID, a read-only root, dropped capabilities,
 at `/corpus`. Only that generated release is mounted; application code, frontend,
 training data and reports come from the image. The runner verifies the mount
 configuration and attempts to open both manifest and runbook for writing, requiring
-the filesystem to reject them as read-only.
+writes to fail for the API UID. It repeats those opens with the fixture-owning
+UID, which has file write permission, requiring `EROFS` to isolate the read-only
+mount check from ordinary Unix permission denial.
 
 The HTTP checks distinguish the selected one-document corpus from the ten bundled
 documents, compare source text/hash/line ranges, and require an extractive answer
@@ -126,3 +128,10 @@ manifest/document hashes, fixture denominators and completed checks. Stale recei
 are removed before execution; CI retains a successful receipt for 30 days. Containers
 use unique names and are removed on exit; fixture files live in a temporary directory.
 The existing image audit scans the same built image afterward.
+
+Initial [run 39976528747](https://github.com/harshaattili-human/runbookops/actions/runs/39976528747)
+passed the original packaging check, then stopped at the first new write probe.
+UID 10001 received `EACCES` on the host-owned 0644 files before the read-only check,
+while the probe expected only `EROFS`. The corrected harness checks API write denial
+separately from an owner-UID open that must return `EROFS`. It does not change the
+application UID, fixture permissions or mount configuration.
