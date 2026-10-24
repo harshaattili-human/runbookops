@@ -180,6 +180,7 @@ The lockfile now resolves the existing jsdom range to Undici 8.12.3, beyond the
 affected `<8.12.2` ranges for that advisory and the two moderate findings reported
 in the same artifact. No direct dependency or application code changed. A clean
 local install reported 148 total dependencies and zero npm advisory entries, then
-passed seven component tests and the production build. Hosted verification is
-recorded with the mounted-release container increment. This remains a dated
+passed seven component tests and the production build. The dependency job in
+[run 40099717252](https://github.com/harshaattili-human/runbookops/actions/runs/40099717252)
+also reported zero entries and all five project jobs passed. This remains a dated
 known-advisory scan, not a vulnerability-free claim.
