@@ -164,5 +164,22 @@ unchanged high/critical lockfile gate correctly blocked the candidate.
 The lockfile now pins Vite 8.3.5. Its resolved Rolldown, PostCSS, Nano ID and platform
 bindings changed with that release; these transitive changes were retained rather
 than manually spliced out. A local clean install reported 148 total dependencies and
-zero npm advisory entries, and passed eight component tests plus the production build.
+zero npm advisory entries, and passed seven component tests plus the production build.
 This dated advisory result does not establish that the toolchain is vulnerability-free.
+
+## Undici advisory response — October 24, 2026
+
+The dependency job in [run 40099286088](https://github.com/harshaattili-human/runbookops/actions/runs/40099286088)
+failed after npm reported three new advisories against Undici 8.11.2, including the
+high-severity [excessive content-encoding denial of service](https://github.com/advisories/GHSA-xjj6-f33q-929c).
+Undici is a transitive development dependency of jsdom and is absent from the Python
+runtime image. The unchanged high/critical lockfile gate still blocked the pull
+request.
+
+The lockfile now resolves the existing jsdom range to Undici 8.12.3, beyond the
+affected `<8.12.2` ranges for that advisory and the two moderate findings reported
+in the same artifact. No direct dependency or application code changed. A clean
+local install reported 148 total dependencies and zero npm advisory entries, then
+passed seven component tests and the production build. Hosted verification is
+recorded with the mounted-release container increment. This remains a dated
+known-advisory scan, not a vulnerability-free claim.
