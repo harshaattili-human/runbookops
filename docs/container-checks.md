@@ -135,3 +135,15 @@ UID 10001 received `EACCES` on the host-owned 0644 files before the read-only ch
 while the probe expected only `EROFS`. The corrected harness checks API write denial
 separately from an owner-UID open that must return `EROFS`. It does not change the
 application UID, fixture permissions or mount configuration.
+
+The corrected implementation head `eb0dd4c` passed the container job in
+[run 39976997853](https://github.com/harshaattili-human/runbookops/actions/runs/39976997853).
+The receipt records Docker 28.0.4 and image ID
+`sha256:177275bbf14c3bf0545206b880b35e179ecbb4c985ee5b8f7514be7f0db7b309`.
+Both one-document generations completed all eight declared checks; their manifest
+and document hashes differed as required. The same run passed 184 Python cases plus
+11 subtests, seven frontend component cases, the Spring client check, npm audit and
+the runtime-image audit (164 finding entries, zero fixable high/critical entries).
+The browser job was cancelled while installing engines, so this run is not browser
+evidence; a final-head run must cover that independent job before merge. The audit
+snapshot and gate do not establish a vulnerability-free image.
