@@ -144,6 +144,15 @@ Both one-document generations completed all eight declared checks; their manifes
 and document hashes differed as required. The same run passed 184 Python cases plus
 11 subtests, seven frontend component cases, the Spring client check, npm audit and
 the runtime-image audit (164 finding entries, zero fixable high/critical entries).
-The browser job was cancelled while installing engines, so this run is not browser
-evidence; a final-head run must cover that independent job before merge. The audit
-snapshot and gate do not establish a vulnerability-free image.
+The browser job was cancelled while installing engines, so that run is not browser
+evidence. [Run 40099717252](https://github.com/harshaattili-human/runbookops/actions/runs/40099717252)
+then passed all five jobs after the independently documented Undici lockfile update:
+184 Python cases plus 11 subtests, seven component cases, 27 live and 18 recorded
+browser executions, the Spring client/live JAR walkthrough, both container checks,
+and the configured npm, runtime-image and Java audits. The mounted-release receipt
+again covered two distinct one-document releases and all eight declared checks.
+Hosted versions included Python 3.12.15, Java 17.0.20.1 and Ubuntu 24.04. The
+runtime-image scan inventoried 24 Python package names and retained 164 finding
+entries with zero fixable high/critical entries; the Java scan inventoried 26
+libraries with zero advisory entries. These dated snapshots and gates do not
+establish a vulnerability-free image or toolchain.
