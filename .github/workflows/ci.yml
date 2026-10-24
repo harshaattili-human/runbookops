@@ -76,6 +76,14 @@ jobs:
         run: docker build --pull --tag runbookops:smoke .
       - name: Check the image over HTTP
         run: python scripts/container_smoke.py
+      - name: Rehearse mounted corpus selection and rollback
+        run: python scripts/corpus_container_smoke.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: corpus-container-receipt
+          path: artifacts/corpus-container.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Audit installed OS and Python packages
         run: bash scripts/audit_image.sh
       - uses: actions/upload-artifact@v7

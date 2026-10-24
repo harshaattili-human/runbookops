@@ -147,8 +147,11 @@ after alias replacement, rejects a restart with the stale pin, accepts an explic
 updated pin, returns 409 for the prior source version, and rejects later document
 tampering. Partial configuration is also rejected through the API lifespan. The
 inherited-socket subprocess case targets POSIX and is skipped on non-POSIX platforms.
-Existing packaged container and browser checks continue to exercise default startup;
-they do not verify release selection inside a container or coordinated worker rollout.
+The original packaged container and browser checks exercise default startup. The
+separate [mounted-release container rehearsal](container-checks.md#mounted-corpus-release-rehearsal)
+now covers selected startup, restart, overlapping generations, version conflicts,
+explicit rollback and startup rejection using the actual image. It does not
+coordinate worker rollout.
 
 The implementation head `b540d26` passed
 [run 39966209481](https://github.com/harshaattili-human/runbookops/actions/runs/39966209481)

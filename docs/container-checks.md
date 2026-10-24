@@ -3,7 +3,8 @@
 The container job builds the multi-stage Dockerfile from a fresh checkout and tests
 the packaged application over HTTP. It runs separately from the Python and frontend
 test job, so missing image files cannot be hidden by an editable installation or a
-mounted source directory.
+mounted source directory. A separate second phase rehearses external corpus
+releases with read-only data mounts; it does not replace the no-mount packaging check.
 
 ## Reproduce
 
@@ -12,6 +13,7 @@ Requires a local Linux Docker engine and Python 3.12 on the host. Run from the r
 ```sh
 docker build --pull --tag runbookops:smoke .
 python scripts/container_smoke.py
+python scripts/corpus_container_smoke.py
 ```
 
 For an existing image, pass `--image your-local-tag`. The runner does not pull it.
@@ -80,3 +82,77 @@ comes from hosted CI. No application or Dockerfile fix was needed in this increm
 
 Docker references: [run options](https://docs.docker.com/reference/cli/docker/container/run/)
 and [health checks](https://docs.docker.com/reference/dockerfile/#healthcheck).
+
+## Mounted corpus release rehearsal
+
+`scripts/corpus_container_smoke.py` runs the actual release CLI inside the built
+image, producing two temporary synthetic generations with one runbook each. The
+generations differ in an authored investigation line. The producer runs with the
+host UID/GID so its files remain cleanable; the API containers retain the image's
+default UID 10001, command and working directory. The CLI creates private release
+directories (0700), so this public fixture explicitly grants traversal (0755) and
+file reads (0644) to the different API UID. Operators must arrange appropriate
+ownership/group access for their own release; this fixture permission choice is
+not a recommendation for confidential documents.
+
+Each API launch uses the same image ID, a read-only root, dropped capabilities,
+`no-new-privileges`, a temporary `/tmp`, a loopback-only port and a
+[read-only bind mount](https://docs.docker.com/engine/storage/bind-mounts/#use-a-read-only-bind-mount)
+at `/corpus`. Only that generated release is mounted; application code, frontend,
+training data and reports come from the image. The runner verifies the mount
+configuration and attempts to open both manifest and runbook for writing, requiring
+writes to fail for the API UID. It repeats those opens with the fixture-owning
+UID, which has file write permission, requiring `EROFS` to isolate the read-only
+mount check from ordinary Unix permission denial.
+
+The HTTP checks distinguish the selected one-document corpus from the ten bundled
+documents, compare source text/hash/line ranges, and require an extractive answer
+from the selected version. The runner then checks:
+
+1. A clean stop/start retains release A with the same pin.
+2. A and B can run concurrently with different hashes; each rejects the other's
+   expected document hash with 409 and no document content.
+3. After both are removed, a fresh container explicitly selects retained A again.
+4. B with A's manifest pin exits during startup for the expected mismatch.
+5. Editing B's disposable runbook while retaining its manifest/pin also fails startup.
+
+The two-container overlap deliberately shows why a staggered rollout can serve two
+versions. It implements no load balancer, coordinated rollout, health-based traffic
+switch, automatic rollback or durable release storage. Read-only mounting prevents
+the container from writing through that mount; it does not stop a host writer.
+No registry is pushed, and there is no deployment, crash-recovery, throughput or
+model-quality measurement.
+
+Success writes `artifacts/corpus-container.json` with image ID, Docker version,
+manifest/document hashes, fixture denominators and completed checks. Stale receipts
+are removed before execution; CI retains a successful receipt for 30 days. Containers
+use unique names and are removed on exit; fixture files live in a temporary directory.
+The existing image audit scans the same built image afterward.
+
+Initial [run 39976528747](https://github.com/harshaattili-human/runbookops/actions/runs/39976528747)
+passed the original packaging check, then stopped at the first new write probe.
+UID 10001 received `EACCES` on the host-owned 0644 files before the read-only check,
+while the probe expected only `EROFS`. The corrected harness checks API write denial
+separately from an owner-UID open that must return `EROFS`. It does not change the
+application UID, fixture permissions or mount configuration.
+
+The corrected implementation head `eb0dd4c` passed the container job in
+[run 39976997853](https://github.com/harshaattili-human/runbookops/actions/runs/39976997853).
+The receipt records Docker 28.0.4 and image ID
+`sha256:177275bbf14c3bf0545206b880b35e179ecbb4c985ee5b8f7514be7f0db7b309`.
+Both one-document generations completed all eight declared checks; their manifest
+and document hashes differed as required. The same run passed 184 Python cases plus
+11 subtests, seven frontend component cases, the Spring client check, npm audit and
+the runtime-image audit (164 finding entries, zero fixable high/critical entries).
+The browser job was cancelled while installing engines, so that run is not browser
+evidence. [Run 40099717252](https://github.com/harshaattili-human/runbookops/actions/runs/40099717252)
+then passed all five jobs after the independently documented Undici lockfile update:
+184 Python cases plus 11 subtests, seven component cases, 27 live and 18 recorded
+browser executions, the Spring client/live JAR walkthrough, both container checks,
+and the configured npm, runtime-image and Java audits. The mounted-release receipt
+again covered two distinct one-document releases and all eight declared checks.
+Hosted versions included Python 3.12.15, Java 17.0.20.1 and Ubuntu 24.04. The
+runtime-image scan inventoried 24 Python package names and retained 164 finding
+entries with zero fixable high/critical entries; the Java scan inventoried 26
+libraries with zero advisory entries. These dated snapshots and gates do not
+establish a vulnerability-free image or toolchain.
