@@ -8,7 +8,7 @@ from threading import BoundedSemaphore, Lock
 from time import perf_counter
 from uuid import uuid4
 
-import httpx
+import httpx2
 from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
@@ -22,7 +22,7 @@ GENERATION_DEADLINE_SECONDS = 30.0
 _GENERATION_SLOTS = BoundedSemaphore(2)
 
 
-async def _read_provider_body(response: httpx.Response) -> bytearray:
+async def _read_provider_body(response: httpx2.Response) -> bytearray:
     """Bound the JSON envelope before parsing, without content decompression."""
     response.raise_for_status()
     if response.headers.get('content-encoding', 'identity').strip().lower() != 'identity':
@@ -174,7 +174,7 @@ class TriageService:
             result.update(answer=answer, citations=citations, mode='local-llm')
         except TimeoutError:
             result['warning'] = 'Local generation exceeded its time limit. Showing source text instead.'
-        except (httpx.HTTPError, ValueError, KeyError, TypeError, RecursionError):
+        except (httpx2.HTTPError, ValueError, KeyError, TypeError, RecursionError):
             result['warning'] = 'Local generation was unavailable or returned an invalid response. Showing source text instead.'
         finally:
             # External cancellation propagates after closing the provider contexts.
@@ -200,7 +200,7 @@ class TriageService:
                 {'role': 'user', 'content': json.dumps({'question': query, 'evidence': evidence})},
             ],
         }
-        async with httpx.AsyncClient(timeout=30, follow_redirects=False) as client:
+        async with httpx2.AsyncClient(timeout=30, follow_redirects=False) as client:
             async with client.stream('POST', base + '/api/chat',
                                headers={'Accept-Encoding': 'identity'}, json=payload) as response:
                 envelope = json.loads(await _read_provider_body(response))

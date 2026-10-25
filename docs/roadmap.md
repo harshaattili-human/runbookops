@@ -108,3 +108,8 @@ Completed October 15: optional generation now bounds the provider JSON envelope,
 requires normal completion and retains source text on oversized/incomplete replies.
 Controlled loopback HTTP and stream tests cover the contract; live model quality
 remains unmeasured. See [the boundary and reproduction](ollama-boundary.md).
+
+Completed October 25: the optional provider adapter and controlled HTTP fixtures moved
+from HTTPX to [HTTPX2](httpx2-migration.md). The full provider-boundary suite remains
+the behavior gate, and pytest now rejects Starlette’s deprecated HTTPX test-client path.
+This dependency migration is not a model-quality or deployment result.

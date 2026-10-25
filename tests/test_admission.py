@@ -4,7 +4,7 @@ import asyncio
 import json
 from threading import Event
 
-import httpx
+import httpx2
 import pytest
 
 from runbookops.admission import TriageAdmission
@@ -183,7 +183,7 @@ def test_stock_http_cap_precedes_body_reads_and_recovers_after_disconnect():
                 assert head.startswith(b'HTTP/1.1 503')
                 assert b'connection: close' in head.lower()
                 assert json.loads(await asyncio.wait_for(reader.read(), 3))['detail'].startswith('Triage capacity exhausted')
-                async with httpx.AsyncClient(base_url=f'http://127.0.0.1:{port}', trust_env=False) as client:
+                async with httpx2.AsyncClient(base_url=f'http://127.0.0.1:{port}', trust_env=False) as client:
                     assert (await client.get('/healthz')).status_code == 200
                     for connection in connections:
                         connection.close()

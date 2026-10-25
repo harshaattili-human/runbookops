@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import json
 import socket
 
-import httpx
+import httpx2
 import pytest
 import uvicorn
 
@@ -54,7 +54,7 @@ def test_caller_close_cancels_provider_and_recovers_both_slots(monkeypatch, fram
                 async with asyncio.timeout(4):
                     while state['requests'] < 2:
                         await asyncio.sleep(.01)
-                async with httpx.AsyncClient(base_url=f'http://127.0.0.1:{port}', trust_env=False) as client:
+                async with httpx2.AsyncClient(base_url=f'http://127.0.0.1:{port}', trust_env=False) as client:
                     busy = await client.post('/api/triage', json={'query': QUERY, 'use_llm': True})
                     assert 'busy' in busy.json()['warning'] and state['requests'] == 2
                     assert (await client.get('/healthz')).status_code == 200

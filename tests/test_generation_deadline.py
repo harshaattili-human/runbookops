@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 import json
 from time import perf_counter
 
-import httpx
+import httpx2
 import pytest
 
 from runbookops.api import app
@@ -108,7 +108,7 @@ def test_api_total_deadline_closes_slow_provider_and_preserves_extract(monkeypat
 
     async def exercise():
         async with app.router.lifespan_context(app), provider(monkeypatch, framing) as (state, entered):
-            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),
+            async with httpx2.AsyncClient(transport=httpx2.ASGITransport(app=app),
                                          base_url='http://api.test') as client:
                 baseline = (await client.post('/api/triage', json={'query': QUERY})).json()
                 pending = asyncio.create_task(client.post('/api/triage', json={

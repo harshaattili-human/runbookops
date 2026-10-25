@@ -1,7 +1,7 @@
 import json
 
 from fastapi.testclient import TestClient
-import httpx
+import httpx2
 import pytest
 
 from runbookops.api import app
@@ -61,8 +61,8 @@ def test_bad_llm_citation_is_not_published(service, monkeypatch, local_model):
     async def fake_request(self, request):
         body = {'done': True, 'done_reason': 'stop', 'message': {'content': json.dumps(
             {'answer': 'Unsupported claim', 'citations': ['invented:99']})}}
-        return httpx.Response(200, stream=httpx.ByteStream(json.dumps(body).encode()))
-    monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', fake_request)
+        return httpx2.Response(200, stream=httpx2.ByteStream(json.dumps(body).encode()))
+    monkeypatch.setattr(httpx2.AsyncHTTPTransport, 'handle_async_request', fake_request)
     result = service.triage('Kafka consumer lag increases while producers send more events.', use_llm=True)
     assert result['mode'] == 'extractive'
     assert result['answer'] != 'Unsupported claim'
@@ -76,8 +76,8 @@ def test_valid_llm_adapter_contract(service, monkeypatch, local_model):
         evidence = json.loads(body['messages'][1]['content'])['evidence']
         reply = {'done': True, 'done_reason': 'stop', 'message': {'content': json.dumps(
             {'answer': 'Review the matching passage.', 'citations': [evidence[0]['id']]})}}
-        return httpx.Response(200, stream=httpx.ByteStream(json.dumps(reply).encode()))
-    monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', fake_request)
+        return httpx2.Response(200, stream=httpx2.ByteStream(json.dumps(reply).encode()))
+    monkeypatch.setattr(httpx2.AsyncHTTPTransport, 'handle_async_request', fake_request)
     result = service.triage('Kafka consumer lag increases while producers send more events.', use_llm=True)
     assert result['mode'] == 'local-llm'
     assert result['citations'][0] in {s['id'] for s in result['sources']}
