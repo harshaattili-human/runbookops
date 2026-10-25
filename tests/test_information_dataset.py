@@ -153,7 +153,7 @@ class InformationDatasetTest(unittest.TestCase):
         before = {p.relative_to(self.root): p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
         probe = (
             'import sys; from runbookops.information_dataset import main; main(); '
-            'assert not ({"runbookops.service", "runbookops.retrieval", "sklearn", "httpx"} & set(sys.modules))'
+            'assert not ({"runbookops.service", "runbookops.retrieval", "sklearn", "httpx2"} & set(sys.modules))'
         )
         result = subprocess.run([sys.executable, '-c', probe, '--root', str(self.root)],
                                 capture_output=True, text=True, check=True)

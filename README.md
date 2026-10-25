@@ -173,7 +173,8 @@ the source extract with a busy warning instead of waiting for a provider slot.
 A [30-second generation I/O deadline](docs/generation-deadline.md) also falls back
 when a provider stalls or keeps sending an unfinished reply.
 [Disconnected callers](docs/client-disconnect.md) cancel optional provider I/O
-and release their generation slots.
+and release their generation slots. The adapter and its loopback/ASGI checks use
+[HTTPX2](docs/httpx2-migration.md); the migration preserves these boundary policies.
 
 ## Container
 

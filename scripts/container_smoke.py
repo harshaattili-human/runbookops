@@ -198,7 +198,7 @@ def check_image(image):
         runtime = docker('exec', name, 'python', '-c',
                          'import json,platform; from importlib.metadata import version; '
                          'print(json.dumps({"python":platform.python_version(),"architecture":platform.machine(),'
-                         '"packages":{n:version(n) for n in ["fastapi","uvicorn","scikit-learn","numpy","httpx"]}}))')
+                         '"packages":{n:version(n) for n in ["fastapi","uvicorn","scikit-learn","numpy","httpx2"]}}))')
         print(json.dumps({'image_id': container['Image'],
                           'docker_server': docker('version', '--format', '{{.Server.Version}}'),
                           'runtime': json.loads(runtime)}, indent=2), flush=True)
