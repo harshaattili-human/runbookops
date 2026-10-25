@@ -184,3 +184,13 @@ passed seven component tests and the production build. The dependency job in
 [run 40099717252](https://github.com/harshaattili-human/runbookops/actions/runs/40099717252)
 also reported zero entries and all five project jobs passed. This remains a dated
 known-advisory scan, not a vulnerability-free claim.
+
+## HTTP client migration — October 25, 2026
+
+[Run 40197939275](https://github.com/harshaattili-human/runbookops/actions/runs/40197939275)
+verified the runtime migration from HTTPX 0.28.1 to HTTPX2 2.16.0. The container
+receipt reported HTTPX2 at the pinned version, and the existing inventory gate found
+all direct runtime dependencies among 24 Python package names. The scan retained 164
+finding entries and found zero fixable high/critical entries under the unchanged
+policy. The npm audit reported zero entries. These observations are tied to that run's
+image and advisory databases; they are not a vulnerability-free or reachability claim.
