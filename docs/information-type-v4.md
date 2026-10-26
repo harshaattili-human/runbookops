@@ -77,6 +77,27 @@ control over public JSON.
 Even a passing comparison would be a small paired synthetic result, not production
 accuracy, calibration, live-LLM quality, safety or proof of entailment.
 
+## Freeze verification
+
+Implementation [run 40331717832](https://github.com/harshaattili-human/runbookops/actions/runs/40331717832)
+passed all five jobs on October 26, 2026. Verify ran 187 Python cases plus 11
+subtests, including the three new v4 contract cases, and reported zero scored queries.
+It also passed seven component cases and the production frontend build. The existing
+v3 validation candidate was reproduced; no v3 holdout or v4 query was scored.
+
+The unchanged browser suite passed 27 live and 18 recorded-replay executions across
+Chromium, Firefox and WebKit. The container checks passed packaged and mounted-corpus
+workflows; its dated audit inventoried 24 Python package names and 164 finding entries,
+with zero fixable high/critical entries. The Spring client passed nine Java cases and
+its live walkthrough; 26 packaged libraries had zero advisory entries in that scan.
+The npm audit job passed. These snapshots do not establish vulnerability freedom,
+and the unchanged browser/container checks add no v4 quality evidence.
+
+Local Python 3.12 ran all 17 stdlib v3/v4 dataset cases, both-split integrity,
+bytecode compilation, JSON parsing, documentation links and whitespace checks.
+Full application dependencies were unavailable locally, so application, browser,
+Java and container execution evidence is hosted.
+
 Optional interview exercise: why can a declarative fragment request unavailable
 information, and why should new data cover forms the previous candidate assumed away
 without copying its observed failures into holdout?
