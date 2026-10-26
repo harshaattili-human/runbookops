@@ -1,0 +1,202 @@
+[
+  {
+    "id": "information-validation-v4-01",
+    "scenario": "information-v4-correlation-trace-fragment",
+    "document": "api-timeouts",
+    "context": "Checkout requests cross the gateway and two downstream services before timing out.",
+    "supported": {
+      "request": "Use a representative request ID to trace the chain while keeping payloads out of logs.",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Use correlation identifiers to follow a representative request without logging sensitive bodies."
+      },
+      "rationale": "The runbook explicitly recommends correlation identifiers without logging sensitive bodies."
+    },
+    "unsupported": {
+      "request": "Current five-minute p99 latency and failure rate for every hop.",
+      "information_type": "live_state",
+      "missing_information": "The static runbook contains no live latency or error measurements."
+    }
+  },
+  {
+    "id": "information-validation-v4-02",
+    "scenario": "information-v4-authn-authz-fragment",
+    "document": "auth-tokens",
+    "context": "A signed token reaches AccessGate, but the caller reports a 403 after a permission rollout.",
+    "supported": {
+      "request": "First separate an authentication failure from an authenticated caller lacking permission.",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 10,
+        "quote": "- Distinguish authentication failure from an authenticated request lacking permission.\n- Compare expected issuer and audience with non-secret token metadata."
+      },
+      "rationale": "The investigation distinguishes authentication from authorization and compares issuer/audience metadata."
+    },
+    "unsupported": {
+      "request": "An accepted raw bearer token for this caller.",
+      "information_type": "sensitive_value",
+      "missing_information": "No credential value is present, and the runbook says not to record raw bearer tokens."
+    }
+  },
+  {
+    "id": "information-validation-v4-03",
+    "scenario": "information-v4-lock-order-fragment",
+    "document": "database-locks",
+    "context": "Two LedgerFlow workers repeatedly deadlock when they update the same synthetic batch.",
+    "supported": {
+      "request": "Reproduce the conflict, then consider smaller transactions or a consistent update order with bounded idempotent retry.",
+      "evidence": {
+        "start_line": 16,
+        "end_line": 17,
+        "quote": "- Propose smaller transaction boundaries or consistent update ordering after reproducing the issue.\n- Review retry logic for bounded backoff and idempotency."
+      },
+      "rationale": "The mitigation guidance covers transaction boundaries, ordering, bounded backoff and idempotency."
+    },
+    "unsupported": {
+      "request": "Terminate database session 481 now.",
+      "information_type": "approval",
+      "missing_information": "The runbook requires preserving evidence and contacting the owner; it cannot authorize a specific termination."
+    }
+  },
+  {
+    "id": "information-validation-v4-04",
+    "scenario": "information-v4-pool-maximum-statement",
+    "document": "database-pool",
+    "context": "Active connections sit at the maximum and pending requests continue to rise.",
+    "supported": {
+      "request": "Compare pool state, slow work, traffic changes and connection return paths before proposing capacity changes.",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Compare active, idle, and pending pool connections with the time of the first timeout.\n- Inspect slow queries and long-running transactions using a read-only database view.\n- Compare recent traffic and application changes with the baseline before the incident.\n- Check that each request returns its connection after success, failure, and cancellation."
+      },
+      "rationale": "The runbook lists the pool, query, traffic and lifecycle evidence to inspect."
+    },
+    "unsupported": {
+      "request": "Pool maximum: 80 connections on each replica.",
+      "information_type": "configuration_value",
+      "missing_information": "The corpus supplies no database budget or configured per-replica maximum."
+    }
+  },
+  {
+    "id": "information-validation-v4-05",
+    "scenario": "information-v4-partition-replay-fragment",
+    "document": "kafka-lag",
+    "context": "Partition seven is behind after a replay while the rest of the consumer group is current.",
+    "supported": {
+      "request": "Keep offsets intact while checking concurrency, downstream capacity, idempotency and recovery ownership.",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Do not reset offsets or skip messages merely to make lag disappear.\n- Review consumer concurrency relative to partition count and downstream capacity.\n- Confirm idempotent processing and recovery ownership before replaying events."
+      },
+      "rationale": "The review guidance forbids hiding lag and requires capacity, idempotency and ownership checks."
+    },
+    "unsupported": {
+      "request": "Partition seven current lag, committed offset and on-call owner.",
+      "information_type": "live_state",
+      "missing_information": "Those live values and current ownership are not part of the runbook."
+    }
+  },
+  {
+    "id": "information-validation-v4-06",
+    "scenario": "information-v4-heap-handling-fragment",
+    "document": "memory-pressure",
+    "context": "A WorkflowDesk container was OOMKilled and an engineer captured a heap dump.",
+    "supported": {
+      "request": "Inspect that dump only in an approved environment because it may contain sensitive data.",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Review heap diagnostics only in an approved environment because dumps can contain sensitive data."
+      },
+      "rationale": "The runbook states the required handling restriction and its reason."
+    },
+    "unsupported": {
+      "request": "Encryption and upload command for the approved heap-dump store.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The corpus contains no command, destination or transfer procedure."
+    }
+  },
+  {
+    "id": "information-validation-v4-07",
+    "scenario": "information-v4-retry-classification-fragment",
+    "document": "message-retries",
+    "context": "An EventBridge dead-letter queue mixes dependency timeouts with malformed events.",
+    "supported": {
+      "request": "Separate transient failures from invalid payloads and use bounded backoff only for the transient category.",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Separate transient dependency failures from invalid payloads."
+      },
+      "rationale": "The investigation explicitly separates transient dependency failures from invalid payloads."
+    },
+    "unsupported": {
+      "request": "Production replay for every failed event is approved.",
+      "information_type": "approval",
+      "missing_information": "The runbook requires an owner-reviewed small replay plan; it grants no incident approval."
+    }
+  },
+  {
+    "id": "information-validation-v4-08",
+    "scenario": "information-v4-readiness-config-fragment",
+    "document": "pod-startup",
+    "context": "A new WorkflowDesk image runs but never becomes ready after the rollout.",
+    "supported": {
+      "request": "Check the probe path, port, timing, referenced configuration and image-pull permissions.",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 12,
+        "quote": "- Check readiness and liveness probe path, port, and startup timing.\n- Verify required configuration references and image pull permissions."
+      },
+      "rationale": "Those probe and configuration checks are listed directly."
+    },
+    "unsupported": {
+      "request": "Use /ready on port 9080 with a 45-second initial delay.",
+      "information_type": "configuration_value",
+      "missing_information": "No deployment-specific path, port or delay is supplied."
+    }
+  },
+  {
+    "id": "information-validation-v4-09",
+    "scenario": "information-v4-worker-ack-fragment",
+    "document": "workflow-jobs",
+    "context": "An ApprovalLane worker may have completed a side effect before losing its task acknowledgement.",
+    "supported": {
+      "request": "Inspect the failed activity, worker dependency and whether the side effect completed before acknowledgement failed.",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Inspect the failed activity, exception category, retry count, and incident timestamp.\n- Check external worker availability and the downstream dependency used by that activity.\n- Compare process variables with the documented input contract without exposing private values.\n- Check whether a worker completed a side effect before failing to acknowledge the task."
+      },
+      "rationale": "The investigation covers the activity, worker/dependency and ambiguous side-effect completion."
+    },
+    "unsupported": {
+      "request": "The customer account number stored in the affected process variables.",
+      "information_type": "sensitive_value",
+      "missing_information": "Private process-variable values are absent and should not be exposed."
+    }
+  },
+  {
+    "id": "information-validation-v4-10",
+    "scenario": "information-v4-correlation-repair-fragment",
+    "document": "workflow-routing",
+    "context": "An approval instance waits after a message failed to correlate.",
+    "supported": {
+      "request": "Compare its activity, definition version, gateway variables, correlation fields and timer executor state.",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Inspect the current activity and process-definition version for the affected instance.\n- Check gateway conditions and the presence and types of required variables.\n- Compare the correlation key and message name with the waiting subscription.\n- Inspect timer due dates and the job executor's availability."
+      },
+      "rationale": "The runbook lists each of those routing and subscription checks."
+    },
+    "unsupported": {
+      "request": "Exact API command to repair variables and correlate the message manually.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The corpus supplies neither an API command nor incident-specific repair procedure."
+    }
+  }
+]
