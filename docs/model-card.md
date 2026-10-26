@@ -86,6 +86,11 @@ the JSON envelope before parsing; it does not evaluate generated-answer quality.
 
 ## Known gaps
 
+The [v4 contrastive dataset](information-type-v4.md) freezes another 20 validation
+and 20 holdout queries without retrieval or answer scoring. It covers fragmentary
+and statement-form requests after the v3 runtime regression. The v4 holdout remains
+unscored; same-author construction and semantic overlap remain limitations.
+
 The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries and
 20 once-scored holdout queries, ten supported/unsupported pairs per split. Each pair
 shares one incident context; all use the same ten synthetic runbooks. Source quotes

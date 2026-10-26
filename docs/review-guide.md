@@ -79,6 +79,12 @@ even though it described the incident rather than asking a question. Inspect tha
 runtime regression alongside the pool-size failure, two coverage-withheld positives,
 ordered expressions and final-sentence assumption. The service remains unchanged.
 
+The follow-up [v4 freeze](information-type-v4.md) contains no answerability result.
+Inspect its manifest and integrity-only loader separately from v3's exposed metrics.
+It adds fragments and declarative requests so a future candidate cannot rely only on
+explicit question grammar. Its holdout remains unscored; reading hashes and labels
+for integrity is not inference or model selection.
+
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1
 is approximately 0.945 versus 0.067 for a most-frequent-label predictor on the same

@@ -13,6 +13,15 @@ SPLITS = {split: f'data/evaluation/information-{split}-v3.json'
 HISTORY = ('data/incidents.json', 'data/evaluation/retrieval.json',
            'data/evaluation/validation-v1.json', 'data/evaluation/holdout-v1.json',
            'data/evaluation/answerability-holdout-v2.json')
+DATASETS = {
+    'v3': {'manifest': MANIFEST, 'splits': SPLITS, 'history': HISTORY},
+    'v4': {
+        'manifest': 'data/evaluation/information-manifest-v4.json',
+        'splits': {split: f'data/evaluation/information-{split}-v4.json'
+                   for split in ('validation', 'holdout')},
+        'history': HISTORY + tuple(SPLITS.values()),
+    },
+}
 INFORMATION_TYPES = {'configuration_value', 'live_state', 'approval',
                      'sensitive_value', 'unwritten_procedure'}
 
@@ -44,16 +53,19 @@ def _text(value, label: str) -> None:
     require(isinstance(value, str) and bool(value.strip()), f'Missing text: {label}')
 
 
-def validate_dataset(root: Path = ROOT) -> tuple[dict, dict]:
+def validate_dataset(root: Path = ROOT, *, version: str = 'v3') -> tuple[dict, dict]:
     """Read labels for integrity checks only; no model or retriever is imported."""
-    manifest = _read_json(root / MANIFEST)
+    require(version in DATASETS, 'Select v3 or v4')
+    dataset = DATASETS[version]
+    manifest_name, splits, history = dataset['manifest'], dataset['splits'], dataset['history']
+    manifest = _read_json(root / manifest_name)
     _fields(manifest, {'version', 'created', 'status', 'baseline_commit', 'provenance',
                        'protocol', 'sha256'}, 'manifest')
-    require(manifest.get('version') == 'information-v3', 'Unknown dataset version')
+    require(manifest.get('version') == f'information-{version}', 'Unknown dataset version')
     for field in ('provenance', 'protocol', 'baseline_commit'):
         _text(manifest.get(field), field)
     corpus = {str(p.relative_to(root)) for p in (root / 'data/runbooks').glob('*.md')}
-    expected = corpus | set(HISTORY) | set(SPLITS.values())
+    expected = corpus | set(history) | set(splits.values())
     require(set(manifest.get('sha256', {})) == expected, 'Frozen input inventory differs')
     for name, digest in manifest['sha256'].items():
         require(hashlib.sha256((root / name).read_bytes()).hexdigest() == digest,
@@ -62,14 +74,19 @@ def validate_dataset(root: Path = ROOT) -> tuple[dict, dict]:
     documents = {Path(name).stem: (root / name).read_text(encoding='utf-8').splitlines()
                  for name in corpus}
     seen_ids, seen_scenarios, seen_queries = set(), set(), set()
-    for filename in HISTORY:
+    for filename in history:
         for case in _read_json(root / filename):
             seen_ids.add(case.get('id'))
             seen_scenarios.add(case.get('scenario'))
-            seen_queries.add(normalized(case.get('query', case.get('text', ''))))
+            if {'context', 'supported', 'unsupported'} <= set(case):
+                for kind in ('supported', 'unsupported'):
+                    seen_ids.add(str(case.get('id')) + '-' + kind)
+                    seen_queries.add(normalized(case['context'] + ' ' + case[kind].get('request', '')))
+            else:
+                seen_queries.add(normalized(case.get('query', case.get('text', ''))))
 
     suites = {}
-    for split, filename in SPLITS.items():
+    for split, filename in splits.items():
         pairs = _read_json(root / filename)
         require(isinstance(pairs, list) and bool(pairs), 'Empty or invalid split')
         document_counts = Counter()
@@ -117,11 +134,13 @@ def validate_dataset(root: Path = ROOT) -> tuple[dict, dict]:
     return manifest, suites
 
 
-def load_cases(root: Path = ROOT, split: str = 'validation', *, allow_holdout: bool = False) -> list[dict]:
+def load_cases(root: Path = ROOT, split: str = 'validation', *, allow_holdout: bool = False,
+               version: str = 'v3') -> list[dict]:
     """Default development input is validation; holdout access requires an explicit opt-in."""
-    require(split in SPLITS, 'Select validation or holdout')
+    require(version in DATASETS, 'Select v3 or v4')
+    require(split in DATASETS[version]['splits'], 'Select validation or holdout')
     require(split != 'holdout' or allow_holdout, 'Holdout requires explicit opt-in after candidate freeze')
-    _, suites = validate_dataset(root)
+    _, suites = validate_dataset(root, version=version)
     cases = []
     for pair in suites[split]:
         for kind in ('supported', 'unsupported'):
@@ -137,13 +156,19 @@ def load_cases(root: Path = ROOT, split: str = 'validation', *, allow_holdout: b
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
+    parser.add_argument('--version', choices=('v3', 'v4', 'all'), default='all')
     args = parser.parse_args()
-    _, suites = validate_dataset(args.root)
-    print(json.dumps({'version': 'information-v3', 'operation': 'integrity-check-only',
-        'splits': {split: {'pairs': len(pairs), 'supported': len(pairs), 'unsupported': len(pairs),
-                           'missing_information_types': dict(Counter(p['unsupported']['information_type'] for p in pairs))}
-                   for split, pairs in suites.items()},
-        'scored_queries': 0}, indent=2))
+    versions = ('v3', 'v4') if args.version == 'all' else (args.version,)
+    checked = {}
+    for version in versions:
+        _, suites = validate_dataset(args.root, version=version)
+        checked[version] = {
+            'splits': {split: {'pairs': len(pairs), 'supported': len(pairs), 'unsupported': len(pairs),
+                               'missing_information_types': dict(Counter(
+                                   p['unsupported']['information_type'] for p in pairs))}
+                       for split, pairs in suites.items()}}
+    print(json.dumps({'versions': checked, 'operation': 'integrity-check-only',
+                      'scored_queries': 0}, indent=2))
 
 
 if __name__ == '__main__':

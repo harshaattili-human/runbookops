@@ -144,6 +144,11 @@ containing “maximum” was misread as a request for an exact value. The holdou
 exposed, and these same-author synthetic grammar patterns are neither entailment nor
 production accuracy.
 
+A new [v4 contrastive freeze](docs/information-type-v4.md) adds 20 validation and
+20 holdout queries with fragmentary and statement-form phrasing. Integrity checks
+score zero queries. The holdout remains reserved for one future comparison after
+candidate code, evaluator and validation results are fixed publicly.
+
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split
 membership. [The first GitHub Actions run](https://github.com/harshaattili-human/runbookops/actions/runs/37152016110)
