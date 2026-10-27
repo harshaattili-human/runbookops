@@ -54,6 +54,8 @@ jobs:
         run: python -m runbookops.information_dataset
       - name: Reproduce the v3 validation candidate
         run: python -m runbookops.information_answerability --split validation
+      - name: Evaluate the v4 validation candidate without holdout access
+        run: python -m runbookops.information_answerability_v4
       - run: python -m runbookops.evaluate
       - run: python -m runbookops.benchmark --split validation
       - run: python -m runbookops.answerability --split validation

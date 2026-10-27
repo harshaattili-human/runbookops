@@ -77,6 +77,49 @@ control over public JSON.
 Even a passing comparison would be a small paired synthetic result, not production
 accuracy, calibration, live-LLM quality, safety or proof of entailment.
 
+## Fixed validation candidate
+
+The first v4 candidate is a **request-target guard** layered after the existing 0.33
+document-coverage gate. It inspects only the final sentence or fragment and applies
+five ordered lexical signals: approval or action, an unwritten command or procedure,
+a directly requested sensitive value, current/live state, and literal configuration.
+It does not read labels, IDs, runbook names or retrieved text. In particular,
+`Active connections are at the maximum and pending requests keep rising.` has no
+signal; a numeric statement such as `Pool maximum: 80 connections on each replica.`
+does. This preserves the ordinary incident form that invalidated the v3 runtime
+candidate while addressing the statement and fragment forms introduced in v4.
+
+```sh
+PYTHONPATH=backend python -m runbookops.information_answerability_v4
+```
+
+The evaluator has no split argument or holdout scoring path. The shared integrity
+validator still reads both public splits to verify their hashes, labels and separation;
+only v4 validation is sent to retrieval and the candidate. It writes
+[the validation report](../reports/information-validation-v4.json). On the ten
+supported and ten unsupported validation queries:
+
+| Decision | Existing coverage gate | Request-target candidate |
+| --- | ---: | ---: |
+| Supported answered | 9/10 | 9/10 |
+| Expected-top and answered supported | 9/10 | 9/10 |
+| Unsupported answered | 8/10 | 0/10 |
+| Fully correct pairs | 1/10 | 9/10 |
+
+The one incomplete pair is the supported API-timeout request. The fixed ranking finds
+`api-timeouts` first, but document coverage is 0.2756, below the unchanged 0.33 gate;
+the candidate cannot recover an answer already withheld by the baseline. All ten
+unsupported validation requests are withheld: two each for configuration values,
+live state, approval, sensitive values and unwritten procedures.
+
+These results are development evidence on visible, same-author synthetic validation
+data. The rules can encode its grammar, reject answerable literal requests or miss
+unseen phrasing. Request shape does not establish passage entailment. The service is
+unchanged, and no v4 holdout query has been ranked or scored. Candidate code,
+configuration, evaluator and per-case validation results are now fixed publicly; the
+next eligible step is the single joint baseline/candidate holdout comparison described
+above, without changing this candidate first.
+
 ## Freeze verification
 
 Implementation [run 40331717832](https://github.com/harshaattili-human/runbookops/actions/runs/40331717832)

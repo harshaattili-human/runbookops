@@ -4,15 +4,12 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Continue answerability work against the newly frozen, unscored
-   [v4 contrastive holdout](information-type-v4.md). The rejected
-   [request-shape guard](information-type-v3.md) preserved expected-top-and-answered
-   supported counts on v3 validation and holdout while reducing holdout unsupported
-   answers from 6/10 to 1/10, but misclassified an existing descriptive incident that
-   contained “maximum.” Preserve that runtime regression, the pool-size failure and
-   both coverage-withheld supported cases. Do not tune rules on now-exposed v3.
-   V4 adds fragments, declarative requests and phrasing variation; develop only on
-   validation and publish a fixed candidate and evaluator before the first score.
+1. Complete the preregistered comparison for the frozen
+   [v4 contrastive set](information-type-v4.md). The fixed request-target candidate
+   is now published with its per-case validation report: expected-top-and-answered
+   supported stayed 9/10 and unsupported answers changed from 8/10 to 0/10. The
+   service remains unchanged and the v4 holdout is unscored. Run one joint
+   baseline/candidate holdout comparison next, with no candidate repair afterward.
 2. Verify touch/physical-device behavior and perform manual assistive-technology
    checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
    inspection at three widths; see [browser checks](browser-checks.md).

@@ -1,0 +1,547 @@
+{
+  "suite": "information-validation-v4",
+  "status": "validation-development; holdout unscored",
+  "provenance": "AI-assisted synthetic pairs authored by the project author after v3 exposure; no employer or production data, external annotation, blinding or semantic-independence claim.",
+  "protocol": "Integrity checks may read both splits but score neither. Develop only on validation; publish a fixed candidate and evaluator before one joint baseline/candidate holdout score. Never tune on v1-v3 exposed holdouts or v4 holdout.",
+  "candidate": {
+    "name": "request-target guard",
+    "input": "final sentence or fragment; no labels, IDs, runbook names or retrieved text",
+    "ordered_signals": {
+      "approval_or_action": "^(?:approve|authorize|decide|choose|terminate)\\b|\\b(?:is|are|was|were)\\s+approved\\b",
+      "unwritten_artifact": "\\b(?:exact|encryption|upload|repair|manual)\\b[^?]*\\b(?:commands?|scripts?|procedure)\\b",
+      "sensitive_value": "(?:\\b(?:show|print|return|give|provide)\\b[^?]*\\b(?:tokens?|secrets?|credentials?|payload|account\\s+numbers?)\\b|\\b(?:accepted\\s+raw|stored)\\b[^?]*\\b(?:tokens?|account\\s+numbers?|credentials?)\\b|\\b(?:tokens?|account\\s+numbers?|credentials?)\\b[^?]*\\bstored\\b)",
+      "live_state": "\\b(?:current|latest|right now|last hour|how many)\\b",
+      "literal_configuration": "(?:\\b(?:exact|precise)\\b[^?]*\\b(?:port|timeout|limit|maximum|percentage|value)\\b|\\b(?:port|timeout|delay|maximum)\\b[^?]*\\b\\d+(?:\\.\\d+)?(?:-\\w+)?\\b|/[a-z0-9._~!$&\\'()*+,;=:@%/-]+[^?]*\\b(?:port|delay|timeout)\\b)"
+    },
+    "decision": "answer only when the existing 0.33 document-coverage policy answers and no external-information target is detected",
+    "production_status": "experiment only; TriageService is unchanged",
+    "holdout_status": "integrity-checked only; no holdout query was sent to retrieval or answerability scoring"
+  },
+  "frozen_inputs_sha256": {
+    "data/evaluation/answerability-holdout-v2.json": "c20796d70bb07ca10b3c0aa2fb93101bd36f0403e74a9c272946a4c2f7bd6877",
+    "data/evaluation/holdout-v1.json": "6c8f3f4b605722838be852a2f7bb3b61d2b24a2a0601b06c5257f28554e3769d",
+    "data/evaluation/information-holdout-v3.json": "c07c90e0b7d241662a199e53bba56751648c43435311f5f595713a729e488fb3",
+    "data/evaluation/information-holdout-v4.json": "a85b8ce0bdc4a12eb6e196c987ffd7f6cca3dcde3b4db8864168ef8be46929db",
+    "data/evaluation/information-validation-v3.json": "ed42d82a94eb8c47539e2038590946255b6361211bcff29d1295f09001b10d7d",
+    "data/evaluation/information-validation-v4.json": "ab51a1e84e3c8ec9cc6f6d2db055ce37a88dda53ccc0c3609ffc74e13acac4c1",
+    "data/evaluation/retrieval.json": "663ec20c057a3192b8f67efe3980643eecedc18e088a7be20c19ab8a18ec4a5a",
+    "data/evaluation/validation-v1.json": "3fca27648f30903b646f7488dc85edb405ee6a47ee26aa82313b2df69bd08c60",
+    "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
+    "data/runbooks/api-timeouts.md": "65b015aa2b529e53ae5529755a66ee78f03b07d8f5d522b2a16d8f994898ddfa",
+    "data/runbooks/auth-tokens.md": "8b4c964005d2306d52f0e7136e4155d782968b2c6cf89f26ae5ed4134bff5868",
+    "data/runbooks/database-locks.md": "201704b074853662e5da8e7616351045de00360e1e54a549bb66ab54948a3d35",
+    "data/runbooks/database-pool.md": "66a3d966fb2e6713507a8dbc933a282bab5cca6cd5f1acb8ae3a86e0f3949e0c",
+    "data/runbooks/kafka-lag.md": "88488de264cafa7a98f5f345fc603d117d60e7ff8c08e07b675d8e7b0b339cdc",
+    "data/runbooks/memory-pressure.md": "e34f5c58a947a851b5efdf97cd9cb35e42c131dce6fbda718a7c015f4bb41c28",
+    "data/runbooks/message-retries.md": "f2ca8b9f6c0f4d87e35d231f516c471426c269995c9ff5d5a838f017603058c8",
+    "data/runbooks/pod-startup.md": "687dc1f36fa9e86fece9556602fc99d51acc14c43cdcf24d72d7b8dd8e317d7b",
+    "data/runbooks/workflow-jobs.md": "b4d9cb3c778b780f9975375a80d78aa63977f6aa5f0088e9613c4b84b1e004b9",
+    "data/runbooks/workflow-routing.md": "be1f623fa90e10b5832a4a145051c1a2b1ac1baeca324caf4bb99158d31dad72"
+  },
+  "code_sha256": {
+    "backend/runbookops/__init__.py": "efea901531adf82c7bbfdd7e3139779605d19d0c291c619f834954b016239be4",
+    "backend/runbookops/admission.py": "652e90461ee949839cb95e9f95de24685090b5abb599bf01dc24d1d0c96a96b3",
+    "backend/runbookops/answerability.py": "10be8e795a450cf4cfc6e8601fc983bd07d2ef23d323afeb15fef7a81034a57c",
+    "backend/runbookops/api.py": "88f3864942a661edf696089c91eada9f55f017dd07b5383bb38466008d9f5455",
+    "backend/runbookops/benchmark.py": "18023019b165f40d9bb402e6b7aaf2be3a9f49461172a3bff24a087b93b2790d",
+    "backend/runbookops/classifier.py": "db0bb7f5a79888d65181cfc0603b5cb9f18bb49f6f1ed10dbd58b40f75a6f951",
+    "backend/runbookops/corpus_release.py": "95f25b38056a810b02f9efcc2bf38e42d196ab0d6ed36156a9d8db74a099f2b6",
+    "backend/runbookops/evaluate.py": "1bf041dac3b49c6e64fa88e06cf22d7a16dba7e23cbcefc211d330aca436d1aa",
+    "backend/runbookops/information_answerability.py": "e4963bf2992a45e08c44b04a530e416fa8cbeddd2942eb5f0a3bfe4886bd25fe",
+    "backend/runbookops/information_answerability_v4.py": "b55abd02ac2a5249823b8b4a0b1502faa87fdcd45e46bc22cde47d4fa08f10ce",
+    "backend/runbookops/information_dataset.py": "e1a3f2c2d461a1be32af8f6e6a59279ef709571b0e32824b1b7e366730f773c5",
+    "backend/runbookops/passage_answerability.py": "a783ec9acdd6cbb1d5ba773a841d912a3dc17ac1afe9d82f533cf210118f70cd",
+    "backend/runbookops/request_bounds.py": "80773f644220c14d5a1758fc96149bcbd9876825dfe59974e8870b71d51cba5f",
+    "backend/runbookops/retrieval.py": "789bebbc9f98aec3d10cb10ab97b9b5d49069ead98b88539ccd088f974c73b3b",
+    "backend/runbookops/service.py": "176878500ee2782e1b584ec11c1869cfe37d1a161e0d2ea555264d22ad3a8f86"
+  },
+  "baseline": {
+    "supported_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_answered": {
+      "numerator": 8,
+      "denominator": 10,
+      "rate": 0.8
+    },
+    "fully_correct_pairs": {
+      "numerator": 1,
+      "denominator": 10,
+      "rate": 0.1
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      },
+      "configuration_value": {
+        "numerator": 1,
+        "denominator": 2,
+        "rate": 0.5
+      },
+      "live_state": {
+        "numerator": 1,
+        "denominator": 2,
+        "rate": 0.5
+      },
+      "sensitive_value": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      },
+      "unwritten_procedure": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      }
+    }
+  },
+  "candidate_result": {
+    "supported_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_answered": {
+      "numerator": 0,
+      "denominator": 10,
+      "rate": 0.0
+    },
+    "fully_correct_pairs": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "configuration_value": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "live_state": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "sensitive_value": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "unwritten_procedure": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "information-validation-v4-01-supported",
+      "pair_id": "information-validation-v4-01",
+      "scenario": "information-v4-correlation-trace-fragment",
+      "query": "Checkout requests cross the gateway and two downstream services before timing out. Use a representative request ID to trace the chain while keeping payloads out of logs.",
+      "kind": "supported",
+      "expected_document": "api-timeouts",
+      "topic_document": "api-timeouts",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Use correlation identifiers to follow a representative request without logging sensitive bodies."
+      },
+      "rationale": "The runbook explicitly recommends correlation identifiers without logging sensitive bodies.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:2",
+      "document_coverage": 0.2756,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-01-unsupported",
+      "pair_id": "information-validation-v4-01",
+      "scenario": "information-v4-correlation-trace-fragment",
+      "query": "Checkout requests cross the gateway and two downstream services before timing out. Current five-minute p99 latency and failure rate for every hop.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "api-timeouts",
+      "information_type": "live_state",
+      "missing_information": "The static runbook contains no live latency or error measurements.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:4",
+      "document_coverage": 0.2197,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": "live_state"
+    },
+    {
+      "id": "information-validation-v4-02-supported",
+      "pair_id": "information-validation-v4-02",
+      "scenario": "information-v4-authn-authz-fragment",
+      "query": "A signed token reaches AccessGate, but the caller reports a 403 after a permission rollout. First separate an authentication failure from an authenticated caller lacking permission.",
+      "kind": "supported",
+      "expected_document": "auth-tokens",
+      "topic_document": "auth-tokens",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 10,
+        "quote": "- Distinguish authentication failure from an authenticated request lacking permission.\n- Compare expected issuer and audience with non-secret token metadata."
+      },
+      "rationale": "The investigation distinguishes authentication from authorization and compares issuer/audience metadata.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:2",
+      "document_coverage": 0.5129,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-02-unsupported",
+      "pair_id": "information-validation-v4-02",
+      "scenario": "information-v4-authn-authz-fragment",
+      "query": "A signed token reaches AccessGate, but the caller reports a 403 after a permission rollout. An accepted raw bearer token for this caller.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "auth-tokens",
+      "information_type": "sensitive_value",
+      "missing_information": "No credential value is present, and the runbook says not to record raw bearer tokens.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:2",
+      "document_coverage": 0.449,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "sensitive_value"
+    },
+    {
+      "id": "information-validation-v4-03-supported",
+      "pair_id": "information-validation-v4-03",
+      "scenario": "information-v4-lock-order-fragment",
+      "query": "Two LedgerFlow workers repeatedly deadlock when they update the same synthetic batch. Reproduce the conflict, then consider smaller transactions or a consistent update order with bounded idempotent retry.",
+      "kind": "supported",
+      "expected_document": "database-locks",
+      "topic_document": "database-locks",
+      "evidence": {
+        "start_line": 16,
+        "end_line": 17,
+        "quote": "- Propose smaller transaction boundaries or consistent update ordering after reproducing the issue.\n- Review retry logic for bounded backoff and idempotency."
+      },
+      "rationale": "The mitigation guidance covers transaction boundaries, ordering, bounded backoff and idempotency.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:3",
+      "document_coverage": 0.5856,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-03-unsupported",
+      "pair_id": "information-validation-v4-03",
+      "scenario": "information-v4-lock-order-fragment",
+      "query": "Two LedgerFlow workers repeatedly deadlock when they update the same synthetic batch. Terminate database session 481 now.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-locks",
+      "information_type": "approval",
+      "missing_information": "The runbook requires preserving evidence and contacting the owner; it cannot authorize a specific termination.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:2",
+      "document_coverage": 0.6836,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "approval_or_action"
+    },
+    {
+      "id": "information-validation-v4-04-supported",
+      "pair_id": "information-validation-v4-04",
+      "scenario": "information-v4-pool-maximum-statement",
+      "query": "Active connections sit at the maximum and pending requests continue to rise. Compare pool state, slow work, traffic changes and connection return paths before proposing capacity changes.",
+      "kind": "supported",
+      "expected_document": "database-pool",
+      "topic_document": "database-pool",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Compare active, idle, and pending pool connections with the time of the first timeout.\n- Inspect slow queries and long-running transactions using a read-only database view.\n- Compare recent traffic and application changes with the baseline before the incident.\n- Check that each request returns its connection after success, failure, and cancellation."
+      },
+      "rationale": "The runbook lists the pool, query, traffic and lifecycle evidence to inspect.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:1",
+      "document_coverage": 0.5816,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-04-unsupported",
+      "pair_id": "information-validation-v4-04",
+      "scenario": "information-v4-pool-maximum-statement",
+      "query": "Active connections sit at the maximum and pending requests continue to rise. Pool maximum: 80 connections on each replica.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-pool",
+      "information_type": "configuration_value",
+      "missing_information": "The corpus supplies no database budget or configured per-replica maximum.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:1",
+      "document_coverage": 0.536,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "literal_configuration"
+    },
+    {
+      "id": "information-validation-v4-05-supported",
+      "pair_id": "information-validation-v4-05",
+      "scenario": "information-v4-partition-replay-fragment",
+      "query": "Partition seven is behind after a replay while the rest of the consumer group is current. Keep offsets intact while checking concurrency, downstream capacity, idempotency and recovery ownership.",
+      "kind": "supported",
+      "expected_document": "kafka-lag",
+      "topic_document": "kafka-lag",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Do not reset offsets or skip messages merely to make lag disappear.\n- Review consumer concurrency relative to partition count and downstream capacity.\n- Confirm idempotent processing and recovery ownership before replaying events."
+      },
+      "rationale": "The review guidance forbids hiding lag and requires capacity, idempotency and ownership checks.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:3",
+      "document_coverage": 0.4841,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-05-unsupported",
+      "pair_id": "information-validation-v4-05",
+      "scenario": "information-v4-partition-replay-fragment",
+      "query": "Partition seven is behind after a replay while the rest of the consumer group is current. Partition seven current lag, committed offset and on-call owner.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "kafka-lag",
+      "information_type": "live_state",
+      "missing_information": "Those live values and current ownership are not part of the runbook.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:2",
+      "document_coverage": 0.5088,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_state"
+    },
+    {
+      "id": "information-validation-v4-06-supported",
+      "pair_id": "information-validation-v4-06",
+      "scenario": "information-v4-heap-handling-fragment",
+      "query": "A WorkflowDesk container was OOMKilled and an engineer captured a heap dump. Inspect that dump only in an approved environment because it may contain sensitive data.",
+      "kind": "supported",
+      "expected_document": "memory-pressure",
+      "topic_document": "memory-pressure",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Review heap diagnostics only in an approved environment because dumps can contain sensitive data."
+      },
+      "rationale": "The runbook states the required handling restriction and its reason.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.6866,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-06-unsupported",
+      "pair_id": "information-validation-v4-06",
+      "scenario": "information-v4-heap-handling-fragment",
+      "query": "A WorkflowDesk container was OOMKilled and an engineer captured a heap dump. Encryption and upload command for the approved heap-dump store.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "memory-pressure",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The corpus contains no command, destination or transfer procedure.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.3402,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "unwritten_artifact"
+    },
+    {
+      "id": "information-validation-v4-07-supported",
+      "pair_id": "information-validation-v4-07",
+      "scenario": "information-v4-retry-classification-fragment",
+      "query": "An EventBridge dead-letter queue mixes dependency timeouts with malformed events. Separate transient failures from invalid payloads and use bounded backoff only for the transient category.",
+      "kind": "supported",
+      "expected_document": "message-retries",
+      "topic_document": "message-retries",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Separate transient dependency failures from invalid payloads."
+      },
+      "rationale": "The investigation explicitly separates transient dependency failures from invalid payloads.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:2",
+      "document_coverage": 0.6608,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-07-unsupported",
+      "pair_id": "information-validation-v4-07",
+      "scenario": "information-v4-retry-classification-fragment",
+      "query": "An EventBridge dead-letter queue mixes dependency timeouts with malformed events. Production replay for every failed event is approved.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "message-retries",
+      "information_type": "approval",
+      "missing_information": "The runbook requires an owner-reviewed small replay plan; it grants no incident approval.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:1",
+      "document_coverage": 0.4444,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "approval_or_action"
+    },
+    {
+      "id": "information-validation-v4-08-supported",
+      "pair_id": "information-validation-v4-08",
+      "scenario": "information-v4-readiness-config-fragment",
+      "query": "A new WorkflowDesk image runs but never becomes ready after the rollout. Check the probe path, port, timing, referenced configuration and image-pull permissions.",
+      "kind": "supported",
+      "expected_document": "pod-startup",
+      "topic_document": "pod-startup",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 12,
+        "quote": "- Check readiness and liveness probe path, port, and startup timing.\n- Verify required configuration references and image pull permissions."
+      },
+      "rationale": "Those probe and configuration checks are listed directly.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:2",
+      "document_coverage": 0.7264,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-08-unsupported",
+      "pair_id": "information-validation-v4-08",
+      "scenario": "information-v4-readiness-config-fragment",
+      "query": "A new WorkflowDesk image runs but never becomes ready after the rollout. Use /ready on port 9080 with a 45-second initial delay.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "pod-startup",
+      "information_type": "configuration_value",
+      "missing_information": "No deployment-specific path, port or delay is supplied.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:4",
+      "document_coverage": 0.3273,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": "literal_configuration"
+    },
+    {
+      "id": "information-validation-v4-09-supported",
+      "pair_id": "information-validation-v4-09",
+      "scenario": "information-v4-worker-ack-fragment",
+      "query": "An ApprovalLane worker may have completed a side effect before losing its task acknowledgement. Inspect the failed activity, worker dependency and whether the side effect completed before acknowledgement failed.",
+      "kind": "supported",
+      "expected_document": "workflow-jobs",
+      "topic_document": "workflow-jobs",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Inspect the failed activity, exception category, retry count, and incident timestamp.\n- Check external worker availability and the downstream dependency used by that activity.\n- Compare process variables with the documented input contract without exposing private values.\n- Check whether a worker completed a side effect before failing to acknowledge the task."
+      },
+      "rationale": "The investigation covers the activity, worker/dependency and ambiguous side-effect completion.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:2",
+      "document_coverage": 0.7362,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-09-unsupported",
+      "pair_id": "information-validation-v4-09",
+      "scenario": "information-v4-worker-ack-fragment",
+      "query": "An ApprovalLane worker may have completed a side effect before losing its task acknowledgement. The customer account number stored in the affected process variables.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-jobs",
+      "information_type": "sensitive_value",
+      "missing_information": "Private process-variable values are absent and should not be exposed.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:2",
+      "document_coverage": 0.4568,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "sensitive_value"
+    },
+    {
+      "id": "information-validation-v4-10-supported",
+      "pair_id": "information-validation-v4-10",
+      "scenario": "information-v4-correlation-repair-fragment",
+      "query": "An approval instance waits after a message failed to correlate. Compare its activity, definition version, gateway variables, correlation fields and timer executor state.",
+      "kind": "supported",
+      "expected_document": "workflow-routing",
+      "topic_document": "workflow-routing",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Inspect the current activity and process-definition version for the affected instance.\n- Check gateway conditions and the presence and types of required variables.\n- Compare the correlation key and message name with the waiting subscription.\n- Inspect timer due dates and the job executor's availability."
+      },
+      "rationale": "The runbook lists each of those routing and subscription checks.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:2",
+      "document_coverage": 0.681,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-validation-v4-10-unsupported",
+      "pair_id": "information-validation-v4-10",
+      "scenario": "information-v4-correlation-repair-fragment",
+      "query": "An approval instance waits after a message failed to correlate. Exact API command to repair variables and correlate the message manually.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-routing",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The corpus supplies neither an API command nor incident-specific repair procedure.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:3",
+      "document_coverage": 0.4097,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "unwritten_artifact"
+    }
+  ],
+  "limitations": [
+    "Same-author AI-assisted synthetic validation pairs; not blinded, external or real-incident evidence.",
+    "Rules were developed against v4 validation requests and can reflect their authored grammar.",
+    "The final-clause proxy can misread multi-request, reordered or punctuation-free incident text.",
+    "Request targets do not prove passage entailment or generated-answer correctness.",
+    "Literal and lexical rules can reject answerable requests or miss novel external-information phrasing.",
+    "V4 holdout is read only for integrity; no holdout retrieval or answerability score is included.",
+    "No live LLM, calibration, production traffic or operational risk study is included."
+  ]
+}
