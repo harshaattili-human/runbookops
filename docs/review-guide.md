@@ -84,7 +84,9 @@ freeze from a later validation-only candidate. The request-target guard retained
 expected-top-and-answered supported cases and changed unsupported validation answers
 from 8/10 to 0/10. Inspect its fixed ordered signals and per-case report, especially
 the supported API-timeout case already withheld by document coverage. The service is
-unchanged and the v4 holdout remains unscored.
+unchanged at the evaluation checkpoint. The once-scored holdout preserved 10/10
+supported answers and changed unsupported answers from 9/10 to 5/10. Read the five
+missed targets and distinguish numeric eligibility from tested runtime integration.
 
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1

@@ -4,12 +4,11 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Complete the preregistered comparison for the frozen
-   [v4 contrastive set](information-type-v4.md). The fixed request-target candidate
-   is now published with its per-case validation report: expected-top-and-answered
-   supported stayed 9/10 and unsupported answers changed from 8/10 to 0/10. The
-   service remains unchanged and the v4 holdout is unscored. Run one joint
-   baseline/candidate holdout comparison next, with no candidate repair afterward.
+1. Verify runtime integration of the unchanged [v4 request-target candidate](information-type-v4.md).
+   The once-scored holdout preserved 10/10 expected-top-and-answered supported cases
+   and reduced unsupported answers from 9/10 to 5/10. Numeric eligibility is met,
+   but five unsupported cases still pass. Do not repair rules from this now-exposed
+   holdout; another improvement claim needs a new freeze.
 2. Verify touch/physical-device behavior and perform manual assistive-technology
    checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
    inspection at three widths; see [browser checks](browser-checks.md).

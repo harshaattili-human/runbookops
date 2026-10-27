@@ -91,7 +91,10 @@ and 20 holdout queries and covers fragmentary and statement-form requests after 
 v3 runtime regression. A request-target candidate was developed on validation only.
 It retained 9/10 expected-top-and-answered supported cases and changed unsupported
 answers from 8/10 to 0/10; the remaining supported case was already below the 0.33
-coverage gate. The service is unchanged and the v4 holdout remains unscored.
+coverage gate. The single holdout comparison then preserved 10/10 expected-top-and-answered
+supported cases and reduced unsupported answers from 9/10 to 5/10. Correct pairs
+changed from 1/10 to 5/10; five lexical misses remain. V4 is now exposed and cannot
+select further rules. Runtime is unchanged pending application integration.
 Same-author construction, visible labels and semantic overlap remain limitations.
 
 The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries and
