@@ -4,11 +4,11 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Verify runtime integration of the unchanged [v4 request-target candidate](information-type-v4.md).
-   The once-scored holdout preserved 10/10 expected-top-and-answered supported cases
-   and reduced unsupported answers from 9/10 to 5/10. Numeric eligibility is met,
-   but five unsupported cases still pass. Do not repair rules from this now-exposed
-   holdout; another improvement claim needs a new freeze.
+1. Evaluate a passage-aware answerability method using a new frozen holdout. The
+   [v4 request-target guard](request-target-guard.md) is now integrated without rule
+   changes: the single holdout preserved 10/10 supported answers but still answered
+   5/10 unsupported requests. V4 is exposed and cannot select improvements. Preserve
+   the five misses, final-clause limitations and possible false refusals.
 2. Verify touch/physical-device behavior and perform manual assistive-technology
    checks. Chromium/Firefox/WebKit checks now exercise responsive layout and source
    inspection at three widths; see [browser checks](browser-checks.md).

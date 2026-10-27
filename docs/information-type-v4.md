@@ -4,8 +4,9 @@
 
 Frozen on October 26, 2026 with integrity checks only. The candidate was published
 and validated on October 27 before the single joint holdout score later that day.
-**V4 holdout is now exposed.** Runtime behavior remains unchanged at this evidence
-checkpoint; the candidate and ranking files retain their published hashes.
+**V4 holdout is now exposed.** Runtime behavior was unchanged at the score checkpoint. The subsequent
+[service integration](request-target-guard.md) applies the same candidate; candidate
+and ranking files retain their published hashes.
 
 The exposed v3 experiment missed an ordinary form: a descriptive incident containing
 “maximum” was treated as a request for a specific value. V4 adds fragments,
@@ -185,7 +186,7 @@ Unsupported answers by type changed as follows: approval 1/2 to 0/2,
 configuration 3/3 to 2/3, live state 2/2 to 1/2, sensitive value 2/2 to 1/2,
 and unwritten procedure 1/1 to 1/1. These are ten paired contexts with twenty
 queries, not twenty independent incidents. The numeric adoption criterion is met;
-application integration still needs separate passing checks before adoption.
+application integration is covered separately in the [runtime record](request-target-guard.md).
 
 All five remaining unsupported cases are preserved: yesterday's recovery metrics
 (coverage 0.5476), a 6 GiB heap/8 GiB container statement (0.4829), a 30-second/twelve

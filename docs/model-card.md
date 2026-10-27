@@ -94,7 +94,8 @@ answers from 8/10 to 0/10; the remaining supported case was already below the 0.
 coverage gate. The single holdout comparison then preserved 10/10 expected-top-and-answered
 supported cases and reduced unsupported answers from 9/10 to 5/10. Correct pairs
 changed from 1/10 to 5/10; five lexical misses remain. V4 is now exposed and cannot
-select further rules. Runtime is unchanged pending application integration.
+select further rules. The [runtime guard](request-target-guard.md) applies the unchanged candidate before
+extraction/generation. Its lexical false-answer and false-refusal risks remain.
 Same-author construction, visible labels and semantic overlap remain limitations.
 
 The [v3 contrastive dataset](information-type-v3.md) adds 20 validation queries and

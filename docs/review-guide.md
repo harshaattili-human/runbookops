@@ -83,8 +83,9 @@ The follow-up [v4 experiment](information-type-v4.md) separates its integrity-on
 freeze from a later validation-only candidate. The request-target guard retained 9/10
 expected-top-and-answered supported cases and changed unsupported validation answers
 from 8/10 to 0/10. Inspect its fixed ordered signals and per-case report, especially
-the supported API-timeout case already withheld by document coverage. The service is
-unchanged at the evaluation checkpoint. The once-scored holdout preserved 10/10
+the supported API-timeout case already withheld by document coverage. The service was
+unchanged at the evaluation checkpoint. Its subsequent [integration](request-target-guard.md)
+uses the exact frozen candidate and explains request-target refusals. The once-scored holdout preserved 10/10
 supported answers and changed unsupported answers from 9/10 to 5/10. Read the five
 missed targets and distinguish numeric eligibility from tested runtime integration.
 

@@ -19,14 +19,16 @@ npm run test:browser
 npx playwright show-report
 ```
 
-Three workflows run in Chromium, Firefox and WebKit, each at 1440×900, 390×844
-and 320×640 CSS pixels: 27 executions across nine projects, not 27 distinct workflows.
+Four workflows run in Chromium, Firefox and WebKit, each at 1440×900, 390×844
+and 320×640 CSS pixels: 36 executions across nine projects, not 36 distinct workflows.
 
 - Live analysis, the citation's expected hash in the source request, matching
   content hash, modal focus containment, keyboard scrolling to the end of overflowing source text
   and focus return.
 - Unsupported-query abstention, keyboard page navigation, library filtering and
   evaluation layout without horizontal page overflow.
+- High-coverage request-target abstention with optional generation selected, its
+  explanation and absent source cards, then keyboard recovery to ordinary guidance.
 - An explicitly injected source HTTP 409, focus retention and successful live
   reanalysis/source recovery after removing the injected response.
 

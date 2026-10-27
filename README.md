@@ -150,8 +150,8 @@ score zero queries. A fixed request-target candidate then retained 9/10
 expected-top-and-answered supported validation cases while reducing unsupported
 answers from 8/10 to 0/10. The subsequent single holdout comparison preserved 10/10 supported answers and
 changed unsupported answers from 9/10 to 5/10 (correct pairs 1/10 to 5/10). Five
-failures remain in the full report. V4 is now exposed; runtime is unchanged pending
-application integration, and no candidate repair is allowed from these results.
+failures remain in the full report. V4 is now exposed; the [unchanged candidate is applied before generation](docs/request-target-guard.md),
+and no candidate repair is allowed from these results.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split
