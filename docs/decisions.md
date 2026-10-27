@@ -28,8 +28,9 @@ The later [v4 request-target experiment](information-type-v4.md) keeps that rank
 and threshold fixed. On visible validation it retained 9/10 expected-top-and-answered
 supported cases and withheld all 10 unsupported requests by recognizing direct
 targets for current state, literal configuration, sensitive values, approvals and
-unwritten artifacts. It is not part of the service, and the v4 holdout remains
-unscored pending the preregistered single comparison.
+unwritten artifacts. The subsequent single holdout score preserved 10/10 supported answers while
+unsupported answers changed from 9/10 to 5/10. The remaining five misses are retained
+without rule changes. V4 is now exposed; runtime integration is a separate check.
 
 ## Keep suggestions separate from execution
 

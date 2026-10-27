@@ -60,3 +60,7 @@ rules, thresholds or features. Freeze another holdout before a fresh improvement
 
 Use issue or pull-request discussion when it helps explain a substantial change.
 Keep exploratory work on a branch until it is ready to reproduce from the default branch.
+
+The v4 holdout is also exposed after its single joint score. Its evaluator is an
+explicit regression command, excluded from CI. Do not change the candidate or
+labels using v4 holdout outcomes.

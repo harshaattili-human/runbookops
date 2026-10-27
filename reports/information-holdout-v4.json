@@ -1,0 +1,530 @@
+{
+  "suite": "information-holdout-v4",
+  "status": "exposed after first joint score; never tune on these cases",
+  "candidate_commit": "edcada1089c663aa7466109aa01f4114b43d7a83",
+  "scored_at_utc": "2026-10-27T14:56:52.606124+00:00",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "scikit-learn": "1.8.0",
+    "numpy": "2.3.5"
+  },
+  "command": "PYTHONPATH=backend python -m runbookops.information_holdout_v4 --allow-holdout",
+  "provenance": "AI-assisted synthetic pairs authored by the project author after v3 exposure; no employer or production data, external annotation, blinding or semantic-independence claim.",
+  "protocol": "Integrity checks may read both splits but score neither. Develop only on validation; publish a fixed candidate and evaluator before one joint baseline/candidate holdout score. Never tune on v1-v3 exposed holdouts or v4 holdout.",
+  "frozen_inputs_sha256": {
+    "data/evaluation/answerability-holdout-v2.json": "c20796d70bb07ca10b3c0aa2fb93101bd36f0403e74a9c272946a4c2f7bd6877",
+    "data/evaluation/holdout-v1.json": "6c8f3f4b605722838be852a2f7bb3b61d2b24a2a0601b06c5257f28554e3769d",
+    "data/evaluation/information-holdout-v3.json": "c07c90e0b7d241662a199e53bba56751648c43435311f5f595713a729e488fb3",
+    "data/evaluation/information-holdout-v4.json": "a85b8ce0bdc4a12eb6e196c987ffd7f6cca3dcde3b4db8864168ef8be46929db",
+    "data/evaluation/information-validation-v3.json": "ed42d82a94eb8c47539e2038590946255b6361211bcff29d1295f09001b10d7d",
+    "data/evaluation/information-validation-v4.json": "ab51a1e84e3c8ec9cc6f6d2db055ce37a88dda53ccc0c3609ffc74e13acac4c1",
+    "data/evaluation/retrieval.json": "663ec20c057a3192b8f67efe3980643eecedc18e088a7be20c19ab8a18ec4a5a",
+    "data/evaluation/validation-v1.json": "3fca27648f30903b646f7488dc85edb405ee6a47ee26aa82313b2df69bd08c60",
+    "data/incidents.json": "1f573d761a7e1a404ec94bdda62fd9cc1884a9dadd57b26aa4b2dddb2fade457",
+    "data/runbooks/api-timeouts.md": "65b015aa2b529e53ae5529755a66ee78f03b07d8f5d522b2a16d8f994898ddfa",
+    "data/runbooks/auth-tokens.md": "8b4c964005d2306d52f0e7136e4155d782968b2c6cf89f26ae5ed4134bff5868",
+    "data/runbooks/database-locks.md": "201704b074853662e5da8e7616351045de00360e1e54a549bb66ab54948a3d35",
+    "data/runbooks/database-pool.md": "66a3d966fb2e6713507a8dbc933a282bab5cca6cd5f1acb8ae3a86e0f3949e0c",
+    "data/runbooks/kafka-lag.md": "88488de264cafa7a98f5f345fc603d117d60e7ff8c08e07b675d8e7b0b339cdc",
+    "data/runbooks/memory-pressure.md": "e34f5c58a947a851b5efdf97cd9cb35e42c131dce6fbda718a7c015f4bb41c28",
+    "data/runbooks/message-retries.md": "f2ca8b9f6c0f4d87e35d231f516c471426c269995c9ff5d5a838f017603058c8",
+    "data/runbooks/pod-startup.md": "687dc1f36fa9e86fece9556602fc99d51acc14c43cdcf24d72d7b8dd8e317d7b",
+    "data/runbooks/workflow-jobs.md": "b4d9cb3c778b780f9975375a80d78aa63977f6aa5f0088e9613c4b84b1e004b9",
+    "data/runbooks/workflow-routing.md": "be1f623fa90e10b5832a4a145051c1a2b1ac1baeca324caf4bb99158d31dad72"
+  },
+  "frozen_code_sha256": {
+    "backend/runbookops/information_answerability_v4.py": "b55abd02ac2a5249823b8b4a0b1502faa87fdcd45e46bc22cde47d4fa08f10ce",
+    "backend/runbookops/retrieval.py": "789bebbc9f98aec3d10cb10ab97b9b5d49069ead98b88539ccd088f974c73b3b"
+  },
+  "evaluator_sha256": "da902e23de6955751360474efa857b1a4d58746effbf5e18f5f1ec8ae4b75694",
+  "baseline": {
+    "supported_answered": {
+      "numerator": 10,
+      "denominator": 10,
+      "rate": 1.0
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 10,
+      "denominator": 10,
+      "rate": 1.0
+    },
+    "unsupported_answered": {
+      "numerator": 9,
+      "denominator": 10,
+      "rate": 0.9
+    },
+    "fully_correct_pairs": {
+      "numerator": 1,
+      "denominator": 10,
+      "rate": 0.1
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 1,
+        "denominator": 2,
+        "rate": 0.5
+      },
+      "configuration_value": {
+        "numerator": 3,
+        "denominator": 3,
+        "rate": 1.0
+      },
+      "live_state": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      },
+      "sensitive_value": {
+        "numerator": 2,
+        "denominator": 2,
+        "rate": 1.0
+      },
+      "unwritten_procedure": {
+        "numerator": 1,
+        "denominator": 1,
+        "rate": 1.0
+      }
+    }
+  },
+  "candidate_result": {
+    "supported_answered": {
+      "numerator": 10,
+      "denominator": 10,
+      "rate": 1.0
+    },
+    "supported_expected_top_and_answered": {
+      "numerator": 10,
+      "denominator": 10,
+      "rate": 1.0
+    },
+    "unsupported_answered": {
+      "numerator": 5,
+      "denominator": 10,
+      "rate": 0.5
+    },
+    "fully_correct_pairs": {
+      "numerator": 5,
+      "denominator": 10,
+      "rate": 0.5
+    },
+    "unsupported_by_information_type": {
+      "approval": {
+        "numerator": 0,
+        "denominator": 2,
+        "rate": 0.0
+      },
+      "configuration_value": {
+        "numerator": 2,
+        "denominator": 3,
+        "rate": 0.6667
+      },
+      "live_state": {
+        "numerator": 1,
+        "denominator": 2,
+        "rate": 0.5
+      },
+      "sensitive_value": {
+        "numerator": 1,
+        "denominator": 2,
+        "rate": 0.5
+      },
+      "unwritten_procedure": {
+        "numerator": 1,
+        "denominator": 1,
+        "rate": 1.0
+      }
+    }
+  },
+  "numeric_adoption_criterion_met": true,
+  "runtime_status": "unchanged; passing application integration required in addition to numeric criterion",
+  "cases": [
+    {
+      "id": "information-holdout-v4-01-supported",
+      "pair_id": "information-holdout-v4-01",
+      "scenario": "information-v4-timeout-recovery-statement",
+      "query": "AccessGate latency is recovering after a downstream outage and breaker-open interval. Confirm recovery without letting duplicate requests or downstream load exceed the prior baseline.",
+      "kind": "supported",
+      "expected_document": "api-timeouts",
+      "topic_document": "api-timeouts",
+      "evidence": {
+        "start_line": 20,
+        "end_line": 20,
+        "quote": "Confirm that latency and failure rate recover while duplicate requests and downstream load remain within the expected baseline."
+      },
+      "rationale": "The verification line requires latency/failure recovery plus duplicate and load checks.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:4",
+      "document_coverage": 0.5436,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-01-unsupported",
+      "pair_id": "information-holdout-v4-01",
+      "scenario": "information-v4-timeout-recovery-statement",
+      "query": "AccessGate latency is recovering after a downstream outage and breaker-open interval. Yesterday baseline and the exact recovered p95, error rate and duplicate count.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "api-timeouts",
+      "information_type": "live_state",
+      "missing_information": "The runbook has no measured baseline or incident results.",
+      "top_document": "api-timeouts",
+      "top_source_id": "api-timeouts:1",
+      "document_coverage": 0.5476,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-02-supported",
+      "pair_id": "information-holdout-v4-02",
+      "scenario": "information-v4-token-safeguard-statement",
+      "query": "An audience migration caused 403 responses for one integration. Keep signature checks enabled and have the identity owner review intended scope.",
+      "kind": "supported",
+      "expected_document": "auth-tokens",
+      "topic_document": "auth-tokens",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 16,
+        "quote": "- Never disable authentication or signature validation to restore traffic.\n- Ask the identity owner to review the configuration and intended access scope."
+      },
+      "rationale": "The runbook prohibits disabling validation and assigns scope review to the identity owner.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:3",
+      "document_coverage": 0.4565,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-02-unsupported",
+      "pair_id": "information-holdout-v4-02",
+      "scenario": "information-v4-token-safeguard-statement",
+      "query": "An audience migration caused 403 responses for one integration. Emergency permission grant for the affected integration.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "auth-tokens",
+      "information_type": "approval",
+      "missing_information": "The static guidance cannot grant incident-specific entitlement.",
+      "top_document": "auth-tokens",
+      "top_source_id": "auth-tokens:1",
+      "document_coverage": 0.2425,
+      "baseline_answered": false,
+      "candidate_answered": false,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-03-supported",
+      "pair_id": "information-holdout-v4-03",
+      "scenario": "information-v4-lock-consistency-statement",
+      "query": "A deadlock retry reduced errors, but some reconciliation work may have been skipped. Verify lower lock waits together with consistent records and recovery of skipped work.",
+      "kind": "supported",
+      "expected_document": "database-locks",
+      "topic_document": "database-locks",
+      "evidence": {
+        "start_line": 20,
+        "end_line": 20,
+        "quote": "Confirm that lock waits decline and reconciled records remain consistent. A lower error count alone does not prove that skipped work was recovered."
+      },
+      "rationale": "The verification explicitly requires consistency and warns that error count alone is insufficient.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:4",
+      "document_coverage": 0.7474,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-03-unsupported",
+      "pair_id": "information-holdout-v4-03",
+      "scenario": "information-v4-lock-consistency-statement",
+      "query": "A deadlock retry reduced errors, but some reconciliation work may have been skipped. Current blocking PID, SQL text and transaction age from production.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-locks",
+      "information_type": "live_state",
+      "missing_information": "No live database session or query data is included.",
+      "top_document": "database-locks",
+      "top_source_id": "database-locks:2",
+      "document_coverage": 0.5106,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_state"
+    },
+    {
+      "id": "information-holdout-v4-04-supported",
+      "pair_id": "information-holdout-v4-04",
+      "scenario": "information-v4-pool-budget-fragment",
+      "query": "LedgerFlow has six replicas and its connection acquisition latency rose. Find slow or leaked work, confirm the cross-replica budget, and obtain owner review for a bounded rollbackable change.",
+      "kind": "supported",
+      "expected_document": "database-pool",
+      "topic_document": "database-pool",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Identify the slow query or leaked connection before proposing a larger pool.\n- Confirm the database connection budget across all application replicas.\n- Ask the service owner to review a bounded change and its rollback plan."
+      },
+      "rationale": "The guidance requires root cause, total budget and owner-reviewed rollback.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:3",
+      "document_coverage": 0.4942,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-04-unsupported",
+      "pair_id": "information-holdout-v4-04",
+      "scenario": "information-v4-pool-budget-fragment",
+      "query": "LedgerFlow has six replicas and its connection acquisition latency rose. Per-replica maximum should be 35.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "database-pool",
+      "information_type": "configuration_value",
+      "missing_information": "Replica count alone does not determine the database budget or safe pool maximum.",
+      "top_document": "database-pool",
+      "top_source_id": "database-pool:1",
+      "document_coverage": 0.446,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "literal_configuration"
+    },
+    {
+      "id": "information-holdout-v4-05-supported",
+      "pair_id": "information-holdout-v4-05",
+      "scenario": "information-v4-offset-reset-fragment",
+      "query": "One consumer group is far behind after a poison message was isolated. Do not erase evidence by resetting offsets; review capacity and idempotent recovery ownership first.",
+      "kind": "supported",
+      "expected_document": "kafka-lag",
+      "topic_document": "kafka-lag",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Do not reset offsets or skip messages merely to make lag disappear.\n- Review consumer concurrency relative to partition count and downstream capacity.\n- Confirm idempotent processing and recovery ownership before replaying events."
+      },
+      "rationale": "The runbook forbids hiding lag and requires capacity, idempotency and ownership review.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:3",
+      "document_coverage": 0.5542,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-05-unsupported",
+      "pair_id": "information-holdout-v4-05",
+      "scenario": "information-v4-offset-reset-fragment",
+      "query": "One consumer group is far behind after a poison message was isolated. Authorization to reset every partition to the latest offset.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "kafka-lag",
+      "information_type": "approval",
+      "missing_information": "The runbook provides no incident-specific approval and explicitly warns against this shortcut.",
+      "top_document": "kafka-lag",
+      "top_source_id": "kafka-lag:1",
+      "document_coverage": 0.431,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_state"
+    },
+    {
+      "id": "information-holdout-v4-06-supported",
+      "pair_id": "information-holdout-v4-06",
+      "scenario": "information-v4-memory-sizing-statement",
+      "query": "WorkflowDesk memory peaks during a newly enlarged nightly batch. Compare working set, container and heap settings, workload size, releases and batch peaks.",
+      "kind": "supported",
+      "expected_document": "memory-pressure",
+      "topic_document": "memory-pressure",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 12,
+        "quote": "- Compare working-set memory, configured container limits, and JVM heap settings.\n- Inspect workload size, queue growth, and the timing of recent releases.\n- Review heap diagnostics only in an approved environment because dumps can contain sensitive data.\n- Compare steady-state usage with peaks during batch processing."
+      },
+      "rationale": "The investigation covers capacity settings and workload/release timing.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.7319,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-06-unsupported",
+      "pair_id": "information-holdout-v4-06",
+      "scenario": "information-v4-memory-sizing-statement",
+      "query": "WorkflowDesk memory peaks during a newly enlarged nightly batch. Heap ceiling 6 GiB; container limit 8 GiB.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "memory-pressure",
+      "information_type": "configuration_value",
+      "missing_information": "The runbook contains no measured sizing result or exact limit.",
+      "top_document": "memory-pressure",
+      "top_source_id": "memory-pressure:2",
+      "document_coverage": 0.4829,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-07-supported",
+      "pair_id": "information-holdout-v4-07",
+      "scenario": "information-v4-dlq-verification-statement",
+      "query": "A corrected consumer has replayed a small dead-letter batch. Confirm one intended side effect per record and that growth stopped for the corrected cause.",
+      "kind": "supported",
+      "expected_document": "message-retries",
+      "topic_document": "message-retries",
+      "evidence": {
+        "start_line": 20,
+        "end_line": 20,
+        "quote": "Confirm that replayed records produce one intended side effect and that dead-letter growth stops for the corrected cause."
+      },
+      "rationale": "The verification line requires exactly one intended effect and stopped queue growth.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:4",
+      "document_coverage": 0.7778,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-07-unsupported",
+      "pair_id": "information-holdout-v4-07",
+      "scenario": "information-v4-dlq-verification-statement",
+      "query": "A corrected consumer has replayed a small dead-letter batch. Retry every 30 seconds for exactly twelve attempts.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "message-retries",
+      "information_type": "configuration_value",
+      "missing_information": "No numeric retry interval or count is prescribed.",
+      "top_document": "message-retries",
+      "top_source_id": "message-retries:4",
+      "document_coverage": 0.5395,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-08-supported",
+      "pair_id": "information-holdout-v4-08",
+      "scenario": "information-v4-rollout-identity-statement",
+      "query": "A rollout has unavailable replicas and the prior release still serves traffic. Compare the deployed digest and configuration with the last working release, then inspect redacted startup evidence.",
+      "kind": "supported",
+      "expected_document": "pod-startup",
+      "topic_document": "pod-startup",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 10,
+        "quote": "- Compare the deployed image digest and configuration with the last known working release.\n- Inspect container exit reason and startup logs with secrets redacted."
+      },
+      "rationale": "The investigation identifies release comparison and redacted startup logs.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:2",
+      "document_coverage": 0.6985,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-08-unsupported",
+      "pair_id": "information-holdout-v4-08",
+      "scenario": "information-v4-rollout-identity-statement",
+      "query": "A rollout has unavailable replicas and the prior release still serves traffic. Current failing image digest and secret reference values.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "pod-startup",
+      "information_type": "sensitive_value",
+      "missing_information": "The runbook has no live digest or secret values and says logs should be redacted.",
+      "top_document": "pod-startup",
+      "top_source_id": "pod-startup:1",
+      "document_coverage": 0.4377,
+      "baseline_answered": true,
+      "candidate_answered": false,
+      "candidate_signal": "live_state"
+    },
+    {
+      "id": "information-holdout-v4-09-supported",
+      "pair_id": "information-holdout-v4-09",
+      "scenario": "information-v4-job-retry-fragment",
+      "query": "A process owner is considering a bounded retry after an external worker failure. Confirm idempotency, understand the failure and use an owner-approved bounded recovery plan.",
+      "kind": "supported",
+      "expected_document": "workflow-jobs",
+      "topic_document": "workflow-jobs",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Confirm idempotency before proposing a retry of an activity with side effects.\n- Ask the process owner to approve a bounded retry after the underlying failure is understood.\n- Do not modify process variables or retry all failed instances without a reviewed recovery plan."
+      },
+      "rationale": "The review section requires those safeguards and forbids broad unreviewed repairs.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:3",
+      "document_coverage": 0.5954,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-09-unsupported",
+      "pair_id": "information-holdout-v4-09",
+      "scenario": "information-v4-job-retry-fragment",
+      "query": "A process owner is considering a bounded retry after an external worker failure. Exact private process-variable payload for the failed instance.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-jobs",
+      "information_type": "sensitive_value",
+      "missing_information": "Private values are not supplied; the runbook only describes contract comparison.",
+      "top_document": "workflow-jobs",
+      "top_source_id": "workflow-jobs:3",
+      "document_coverage": 0.5031,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-10-supported",
+      "pair_id": "information-holdout-v4-10",
+      "scenario": "information-v4-route-migration-fragment",
+      "query": "Existing ApprovalLane instances stayed on an older definition after deployment. Reproduce routing with synthetic inputs and review migration compatibility before any manual repair.",
+      "kind": "supported",
+      "expected_document": "workflow-routing",
+      "topic_document": "workflow-routing",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 17,
+        "quote": "- Reproduce the route with synthetic inputs before changing a definition.\n- Review migration compatibility for running process instances.\n- Obtain process-owner approval before repairing variables or correlating a message manually."
+      },
+      "rationale": "The runbook requires synthetic reproduction, compatibility review and owner approval.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:3",
+      "document_coverage": 0.6037,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    },
+    {
+      "id": "information-holdout-v4-10-unsupported",
+      "pair_id": "information-holdout-v4-10",
+      "scenario": "information-v4-route-migration-fragment",
+      "query": "Existing ApprovalLane instances stayed on an older definition after deployment. Executable migration script for all running instances.",
+      "kind": "unsupported",
+      "expected_document": null,
+      "topic_document": "workflow-routing",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The corpus contains no executable migration or bulk repair script.",
+      "top_document": "workflow-routing",
+      "top_source_id": "workflow-routing:3",
+      "document_coverage": 0.469,
+      "baseline_answered": true,
+      "candidate_answered": true,
+      "candidate_signal": null
+    }
+  ],
+  "limitations": [
+    "20 synthetic queries in 10 paired contexts, not 20 independent incidents.",
+    "Same-author AI-assisted public labels; not blinded or externally reviewed.",
+    "Fixed lexical request-target rules; no passage entailment or live LLM evaluation.",
+    "Holdout is now exposed; reproduction is regression evidence, not another fresh evaluation.",
+    "No production accuracy, calibration or operational risk claim."
+  ]
+}

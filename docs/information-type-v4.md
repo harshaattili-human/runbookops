@@ -1,11 +1,11 @@
 # Contrastive answerability dataset: v4
 
-## Frozen, unscored status
+## Freeze history and current status
 
-Frozen on October 26, 2026. This increment adds data, manifest coverage, integrity
-checks and a guarded loader. It runs **no retrieval, answerability decision, LLM call
-or holdout score** and makes no quality-improvement claim. Production routing,
-retrieval, the 0.33 coverage gate, corpus and API behavior are unchanged.
+Frozen on October 26, 2026 with integrity checks only. The candidate was published
+and validated on October 27 before the single joint holdout score later that day.
+**V4 holdout is now exposed.** Runtime behavior remains unchanged at this evidence
+checkpoint; the candidate and ranking files retain their published hashes.
 
 The exposed v3 experiment missed an ordinary form: a descriptive incident containing
 “maximum” was treated as a request for a specific value. V4 adds fragments,
@@ -112,13 +112,10 @@ the candidate cannot recover an answer already withheld by the baseline. All ten
 unsupported validation requests are withheld: two each for configuration values,
 live state, approval, sensitive values and unwritten procedures.
 
-These results are development evidence on visible, same-author synthetic validation
+These validation results are development evidence on visible, same-author synthetic
 data. The rules can encode its grammar, reject answerable literal requests or miss
-unseen phrasing. Request shape does not establish passage entailment. The service is
-unchanged, and no v4 holdout query has been ranked or scored. Candidate code,
-configuration, evaluator and per-case validation results are now fixed publicly; the
-next eligible step is the single joint baseline/candidate holdout comparison described
-above, without changing this candidate first.
+unseen phrasing. Request shape does not establish passage entailment. At candidate publication the service was unchanged and holdout was unscored. The
+subsequent comparison below used those exact candidate and ranking bytes.
 
 ## Freeze verification
 
@@ -168,3 +165,48 @@ link and whitespace checks. Full pytest/application execution used hosted Python
 Optional interview exercise: why can a declarative fragment request unavailable
 information, and why should new data cover forms the previous candidate assumed away
 without copying its observed failures into holdout?
+
+## Single holdout comparison — October 27, 2026
+
+[The complete report](../reports/information-holdout-v4.json) records one joint
+comparison using candidate commit `edcada1089c663aa7466109aa01f4114b43d7a83`.
+The separate evaluator checks SHA-256 pins for the unchanged candidate and retriever
+before loading holdout. CI continues to score validation only; its two new evaluator
+contract tests reject missing opt-in and modified code without loading holdout.
+
+| Decision | Coverage baseline | Fixed request-target candidate |
+| --- | ---: | ---: |
+| Supported answered | 10/10 | 10/10 |
+| Expected-top and answered supported | 10/10 | 10/10 |
+| Unsupported answered | 9/10 | 5/10 |
+| Fully correct pairs | 1/10 | 5/10 |
+
+Unsupported answers by type changed as follows: approval 1/2 to 0/2,
+configuration 3/3 to 2/3, live state 2/2 to 1/2, sensitive value 2/2 to 1/2,
+and unwritten procedure 1/1 to 1/1. These are ten paired contexts with twenty
+queries, not twenty independent incidents. The numeric adoption criterion is met;
+application integration still needs separate passing checks before adoption.
+
+All five remaining unsupported cases are preserved: yesterday's recovery metrics
+(coverage 0.5476), a 6 GiB heap/8 GiB container statement (0.4829), a 30-second/twelve
+attempt retry instruction (0.5395), a private process-variable payload (0.5031), and
+an executable migration script (0.4690). The unchanged lexical signals miss these
+forms. No rule, threshold, corpus, label or ranking was changed after observing them.
+This smaller holdout gain than validation is evidence of grammar sensitivity, not a
+reason to tune on the exposed cases.
+
+First score environment: Python 3.12.14, scikit-learn 1.8.0, NumPy 2.3.5,
+Linux x86_64/glibc 2.39. The report records platform, UTC time, full cases, source/data
+hashes, evaluator hash and published candidate commit. To reproduce as an **exposed
+regression**, choose a new output so the first receipt is never overwritten:
+
+```sh
+PYTHONPATH=backend python -m runbookops.information_holdout_v4 --allow-holdout \
+  --output /tmp/information-holdout-v4-reproduction.json
+```
+
+The earlier validation report's unscored wording describes its publication time.
+The integrity command still prints zero scored queries because that command performs
+no inference; it does not mean no other command has ever evaluated this dataset.
+The result does not establish production accuracy, entailment, independent annotation
+or live-LLM quality. Future model selection requires another frozen holdout.
