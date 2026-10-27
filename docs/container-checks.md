@@ -156,3 +156,9 @@ runtime-image scan inventoried 24 Python package names and retained 164 finding
 entries with zero fixable high/critical entries; the Java scan inventoried 26
 libraries with zero advisory entries. These dated snapshots and gates do not
 establish a vulnerability-free image or toolchain.
+
+The [local operator rehearsal](operator-refresh.md) extends the mounted-corpus
+script with a mode-0700 UID 10001 tmpfs socket directory, a second read-only release
+mount, stale-pin retention, same-process live refresh/rollback and restart selection.
+The production image still defaults to no operator socket. This is one disposable
+container controlled through trusted `docker exec`, not multi-worker coordination.

@@ -52,16 +52,21 @@ def create_fixture(image, root, version):
 
 
 @contextmanager
-def selected_container(image, release, pin, *, failure=None):
+def selected_container(image, release, pin, *, failure=None, next_release=None):
     name = 'runbookops-corpus-' + uuid4().hex[:12]
     try:
+        operator = []
+        if next_release is not None:
+            operator = ['--tmpfs', '/control:rw,noexec,nosuid,size=1m,mode=0700,uid=10001,gid=10001',
+                        '--env', 'RUNBOOKOPS_CONTROL_SOCKET=/control/operator.sock',
+                        '--mount', f'type=bind,src={next_release},dst=/next-corpus,readonly']
         docker('run', '--pull=never', '--detach', '--name', name, '--read-only',
                '--tmpfs', '/tmp:rw,noexec,nosuid,size=64m', '--cap-drop=ALL',
                '--security-opt=no-new-privileges', '--publish', '127.0.0.1::8000',
                '--health-interval=1s', '--health-start-period=30s',
                '--mount', f'type=bind,src={release},dst=/corpus,readonly',
                '--env', 'RUNBOOKOPS_CORPUS_RELEASE=/corpus',
-               '--env', 'RUNBOOKOPS_CORPUS_SHA256=' + pin, '--env', 'OLLAMA_MODEL=', image)
+               '--env', 'RUNBOOKOPS_CORPUS_SHA256=' + pin, '--env', 'OLLAMA_MODEL=', *operator, image)
         if failure:
             deadline = time.monotonic() + 30
             while inspect(name)['State']['Running'] and time.monotonic() < deadline:
@@ -129,6 +134,14 @@ def check_loaded(name, text, corpus_id, pin):
     return digest
 
 
+def operator_refresh(name, release, pin, expected=0):
+    result = subprocess.run(['docker', 'exec', name, 'python', '-m', 'runbookops.corpus_control',
+                             '--socket', '/control/operator.sock', '--release', release, '--sha256', pin],
+                            text=True, capture_output=True, timeout=40)
+    require(result.returncode == expected, 'Packaged operator CLI returned unexpected exit status: ' + result.stderr)
+    return json.loads(result.stdout)
+
+
 def check_releases(image, receipt_path):
     receipt_path.unlink(missing_ok=True)
     image_id = json.loads(docker('image', 'inspect', image))[0]['Id']
@@ -137,7 +150,7 @@ def check_releases(image, receipt_path):
         root = Path(directory)
         a, pin_a, text_a = create_fixture(image, root, 'release-a')
         b, pin_b, text_b = create_fixture(image, root, 'release-b')
-        with selected_container(image, a, pin_a) as first:
+        with selected_container(image, a, pin_a, next_release=b) as first:
             hash_a = check_loaded(first, text_a, 'release-a', pin_a)
             docker('stop', '--timeout', '10', first)
             require(inspect(first)['State']['ExitCode'] == 0, 'Pinned container did not stop cleanly')
@@ -153,6 +166,29 @@ def check_releases(image, receipt_path):
                     body, _ = request(base_url(name), '/api/runbooks/database-pool?expected_hash=' + other,
                                       expected=409)
                     require('content' not in json.loads(body), 'Conflict returned another version')
+            process_id = inspect(first)['State']['Pid']
+            docker('exec', first, 'python', '-c',
+                   'import os,stat\n'
+                   'for path,mode in (("/control",0o700),("/control/operator.sock",0o600)):\n'
+                   ' s=os.stat(path); assert s.st_uid==10001 and stat.S_IMODE(s.st_mode)==mode')
+            require(operator_refresh(first, '/next-corpus', '0' * 64, expected=1)
+                    == {'status': 'refresh_failed'}, 'Stale operator pin did not fail closed')
+            check_loaded(first, text_a, 'release-a', pin_a)
+            refreshed = operator_refresh(first, '/next-corpus', pin_b)
+            require(refreshed['status'] == 'ok' and refreshed['corpus']['manifest_sha256'] == pin_b,
+                    'Operator reply did not identify B')
+            check_loaded(first, text_b, 'release-b', pin_b)
+            request(base_url(first), '/api/runbooks/database-pool?expected_hash=' + hash_a, expected=409)
+            require(operator_refresh(first, '/corpus', pin_a)['status'] == 'ok', 'Live rollback failed')
+            check_loaded(first, text_a, 'release-a', pin_a)
+            require(inspect(first)['State']['Pid'] == process_id, 'Live refresh restarted the process')
+            require(operator_refresh(first, '/next-corpus', pin_b)['status'] == 'ok', 'Second live B refresh failed')
+            docker('stop', '--timeout', '10', first)
+            require(inspect(first)['State']['ExitCode'] == 0, 'Operator-enabled container did not stop cleanly')
+            docker('start', first)
+            wait_healthy(first)
+            # A live refresh does not rewrite the startup selection or its pin.
+            check_loaded(first, text_a, 'release-a', pin_a)
         with selected_container(image, a, pin_a) as rollback:
             require(check_loaded(rollback, text_a, 'release-a', pin_a) == hash_a, 'Explicit rollback did not restore A')
         with selected_container(image, b, pin_a, failure='Release manifest does not match expected SHA-256'):
@@ -170,6 +206,8 @@ def check_releases(image, receipt_path):
         'checks': ['packaged release producer', 'UID 10001 and read-only mount write rejection',
                    'selected inventory/source/triage lines and served corpus identity', 'same-pin clean restart',
                    'two coexisting generations and bidirectional 409', 'explicit rollback to A',
+                   'private UID 10001 operator socket and stale-pin retention',
+                   'same-process live B refresh and live A rollback', 'restart restores configured A after live B',
                    'stale manifest pin startup rejection', 'changed document startup rejection'],
         'limits': 'Synthetic local Linux Docker rehearsal; no coordinator, load, crash recovery or deployment.',
     }

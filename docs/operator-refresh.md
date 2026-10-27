@@ -81,3 +81,12 @@ Reference: [Python 3.12 Unix streams and ownership](https://docs.python.org/3.12
 
 Interview exercise: why can a timed-out operator command still publish an index,
 and why does a successful reply from one worker fail to establish a complete rollout?
+
+The mounted-corpus container rehearsal now also enables the channel on a private
+UID 10001 tmpfs and mounts a second release read-only. It checks socket/parent
+permissions, stale-pin retention, live A-to-B refresh and B-to-A rollback without
+changing the container process ID, old-source hash rejection, and a clean restart
+that restores startup-configured A after a live B refresh. It invokes the shipped
+CLI through `docker exec`; Docker access is trusted, not a remote operator API.
+No host socket is exposed. This extends the default container checks; it does not
+establish a coordinated rollout or host/container UID mapping policy.
