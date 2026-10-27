@@ -24,6 +24,13 @@ The threshold was selected on validation before the v2 holdout was scored. The
 [experiment](answerability-v2.md) records both fewer unsupported answers and the
 supported case it suppresses. This lexical check does not establish entailment.
 
+The later [v4 request-target experiment](information-type-v4.md) keeps that ranking
+and threshold fixed. On visible validation it retained 9/10 expected-top-and-answered
+supported cases and withheld all 10 unsupported requests by recognizing direct
+targets for current state, literal configuration, sensitive values, approvals and
+unwritten artifacts. It is not part of the service, and the v4 holdout remains
+unscored pending the preregistered single comparison.
+
 ## Keep suggestions separate from execution
 
 The application retrieves investigation steps. It never runs shell commands,

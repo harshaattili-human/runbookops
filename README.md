@@ -146,8 +146,11 @@ production accuracy.
 
 A new [v4 contrastive freeze](docs/information-type-v4.md) adds 20 validation and
 20 holdout queries with fragmentary and statement-form phrasing. Integrity checks
-score zero queries. The holdout remains reserved for one future comparison after
-candidate code, evaluator and validation results are fixed publicly.
+score zero queries. A fixed request-target candidate then retained 9/10
+expected-top-and-answered supported validation cases while reducing unsupported
+answers from 8/10 to 0/10. It remains an experiment: the service is unchanged and
+the v4 holdout is still unscored, reserved for one joint comparison now that the
+candidate code, evaluator and per-case validation results are public.
 
 Read [the model card](docs/model-card.md) and inspect
 [the complete evaluation](reports/evaluation.json), including failures and split

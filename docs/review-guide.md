@@ -79,11 +79,12 @@ even though it described the incident rather than asking a question. Inspect tha
 runtime regression alongside the pool-size failure, two coverage-withheld positives,
 ordered expressions and final-sentence assumption. The service remains unchanged.
 
-The follow-up [v4 freeze](information-type-v4.md) contains no answerability result.
-Inspect its manifest and integrity-only loader separately from v3's exposed metrics.
-It adds fragments and declarative requests so a future candidate cannot rely only on
-explicit question grammar. Its holdout remains unscored; reading hashes and labels
-for integrity is not inference or model selection.
+The follow-up [v4 experiment](information-type-v4.md) separates its integrity-only
+freeze from a later validation-only candidate. The request-target guard retained 9/10
+expected-top-and-answered supported cases and changed unsupported validation answers
+from 8/10 to 0/10. Inspect its fixed ordered signals and per-case report, especially
+the supported API-timeout case already withheld by document coverage. The service is
+unchanged and the v4 holdout remains unscored.
 
 **A small, inspectable classifier.** TF-IDF and logistic regression establish a
 baseline that can train locally and expose influential terms. Its grouped macro F1
