@@ -141,6 +141,30 @@ bytecode compilation, JSON parsing, documentation links and whitespace checks.
 Full application dependencies were unavailable locally, so application, browser,
 Java and container execution evidence is hosted.
 
+## Candidate verification — October 27, 2026
+
+Candidate commit `edcada1089c663aa7466109aa01f4114b43d7a83` was published before
+any v4 holdout inference. [Run 40515935642](https://github.com/harshaattili-human/runbookops/actions/runs/40515935642)
+then passed all five jobs. Verify ran 202 Python cases plus 11 subtests, including the
+15 new request-target executions, and reproduced the validation metrics above. The
+integrity command again reported zero scored queries. Seven frontend component cases
+and the production build passed.
+
+The unchanged browser suite passed 27 live and 18 recorded-replay executions across
+Chromium 151.0.7922.34, Firefox 153.0 and WebKit 26.5. The Spring client passed nine
+Java cases and its live executable walkthrough; its audit inventoried 26 packaged
+libraries with zero advisory entries in that scan. Packaged and mounted-corpus
+container checks passed. The runtime-image audit inventoried 24 Python package names
+and 164 finding entries with zero fixable high/critical entries. The npm audit job
+also passed. These dated known-advisory scans do not establish vulnerability freedom,
+and the unchanged browser, Java and container checks add no answerability-quality
+evidence.
+
+Local Python 3.12 ran the 17 stdlib dataset cases, generated and checked the 20-case
+validation report, compiled the changed Python files, and passed JSON, documentation
+link and whitespace checks. Full pytest/application execution used hosted Python
+3.12.15 because pytest and HTTPX2 were unavailable locally.
+
 Optional interview exercise: why can a declarative fragment request unavailable
 information, and why should new data cover forms the previous candidate assumed away
 without copying its observed failures into holdout?
