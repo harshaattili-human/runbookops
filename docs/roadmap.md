@@ -15,13 +15,14 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add a live operator refresh trigger and multi-process coordination. The trusted
+5. Add multi-process rollout coordination beyond the optional
+   [local operator refresh channel](operator-refresh.md). The trusted
    service supports [atomic in-process index refresh](index-refresh.md), and a
    manifest-pinned release workflow now prevents a refresh from mixing source-file
    generations. The stock HTTP app can select an explicit release and expected
    manifest hash at startup; invalid selections fail startup. [Served corpus identity](corpus-identity.md)
    now makes the sampled generation explicit on responses. Workers still require
-   coordinated restarts or a trusted live trigger for a rollout. The
+   coordinated restarts or explicit refreshes through their separate private sockets. The
    [container rehearsal](container-checks.md#mounted-corpus-release-rehearsal) exercises
    explicit selection/rollback and shows coexisting generations; it is not a rollout
    coordinator.
