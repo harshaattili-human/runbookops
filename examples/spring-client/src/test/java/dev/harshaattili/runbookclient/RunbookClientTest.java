@@ -199,6 +199,40 @@ class RunbookClientTest {
         assertEquals("abstained", client.triage("Synthetic recovery").mode());
     }
 
+    @ParameterizedTest @ValueSource(ints = {404, 500})
+    void preservesStatusForAnEmptyErrorBody(int status) {
+        handler = e -> e.sendResponseHeaders(status, -1);
+        var error = assertThrows(RunbookClient.ClientFailure.class, () -> client.inspect(SOURCE));
+        assertEquals(status, error.status());
+        assertEquals(1, calls.get());
+    }
+
+    @Test void rejectsPrematureEofEvenWhenTheBodyParsesAsValidJson() throws Exception {
+        try (var listener = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            var serving = executor.submit(() -> {
+                try (var peer = listener.accept()) {
+                    var reader = new java.io.BufferedReader(new java.io.InputStreamReader(
+                            peer.getInputStream(), StandardCharsets.US_ASCII));
+                    for (String line; (line = reader.readLine()) != null && !line.isEmpty();) { }
+                    // inspect() is a GET, so the fixture has no request body to consume.
+                    String json = new ObjectMapper().writeValueAsString(Map.of(
+                            "id", "database", "content", CONTENT, "content_hash", HASH));
+                    byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+                    peer.getOutputStream().write(("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n"
+                            + "Content-Length: " + (bytes.length + 10) + "\r\nConnection: close\r\n\r\n")
+                            .getBytes(StandardCharsets.US_ASCII));
+                    peer.getOutputStream().write(bytes);
+                    peer.getOutputStream().flush();
+                }
+                return null;
+            });
+            var truncated = new RunbookClient(URI.create("http://127.0.0.1:" + listener.getLocalPort()), 500, 500);
+            var error = assertThrows(RunbookClient.ClientFailure.class, () -> truncated.inspect(SOURCE));
+            assertEquals("Response ended before declared length", error.getMessage());
+            serving.get(2, TimeUnit.SECONDS);
+        }
+    }
+
     @Test void rejectsUnsafeOriginAndUnboundedTimeoutConfiguration() {
         for (String invalid : new String[]{"/relative", "file:///tmp/x", "http://user:pass@localhost", "http://localhost/api", "http://localhost?q=x"}) {
             assertThrows(IllegalArgumentException.class, () -> new RunbookClient(URI.create(invalid), 500, 500));
