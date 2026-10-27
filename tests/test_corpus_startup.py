@@ -122,6 +122,7 @@ def test_restart_requires_the_manifest_pin_for_the_new_alias_target(data, tmp_pa
     old_hash = sha256(a.documents['database'].encode()).hexdigest()
     new_hash = sha256(b.documents['database'].encode()).hexdigest()
     with _server(env) as base:
+        assert _http(base, '/healthz')['corpus']['manifest_sha256'] == a.manifest_hash
         assert _http(base, '/api/runbooks/database')['content_hash'] == old_hash
         replacement = tmp_path / 'replacement'
         replacement.symlink_to(second, target_is_directory=True)
@@ -132,6 +133,7 @@ def test_restart_requires_the_manifest_pin_for_the_new_alias_target(data, tmp_pa
         pass
     env['RUNBOOKOPS_CORPUS_SHA256'] = b.manifest_hash
     with _server(env) as base:
+        assert _http(base, '/healthz')['corpus']['manifest_sha256'] == b.manifest_hash
         assert _http(base, '/api/runbooks/database')['content_hash'] == new_hash != old_hash
         assert _http(base, '/api/triage', {'query': QUERY})['sources'][0]['document_hash'] == new_hash
         _http(base, '/api/runbooks/database?expected_hash=' + old_hash, expected=409)

@@ -84,6 +84,7 @@ def test_rebuild_does_not_block_reads_and_refreshes_serialize(data, monkeypatch)
 def test_inflight_answer_keeps_old_search_and_threshold(data, monkeypatch):
     service = TriageService(data)
     original = service.retriever
+    old_identity = service.snapshot.identity()
     entered, release = Event(), Event()
     search = original.search
 
@@ -104,6 +105,8 @@ def test_inflight_answer_keeps_old_search_and_threshold(data, monkeypatch):
         finally:
             release.set()
         result = answer.result(timeout=5)
+    assert result['corpus'] == old_identity
+    assert service.snapshot.identity() != old_identity
     assert result['mode'] == 'extractive'
     assert result['answerability']['threshold'] == original.minimum_document_coverage
     assert result['sources'][0]['document_hash'] == original.document_hashes['database']

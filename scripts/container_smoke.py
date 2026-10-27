@@ -110,8 +110,15 @@ class Assets(HTMLParser):
 def check_http(base):
     expected_documents = {p.stem: p.read_text() for p in (ROOT / 'data/runbooks').glob('*.md')}
     health = get_json(base, '/healthz')
-    require(health == {'status': 'ok', 'documents': len(expected_documents)}, 'Wrong health payload')
+    hashes = {slug: sha256(content.encode('utf-8')).hexdigest()
+              for slug, content in expected_documents.items()}
+    identity = {'schema_version': 1, 'source': 'directory', 'corpus_id': None,
+                'manifest_sha256': None, 'documents_sha256': sha256(json.dumps(
+                    hashes, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode()).hexdigest()}
+    require(health == {'status': 'ok', 'documents': len(expected_documents), 'corpus': identity},
+            'Wrong health payload')
     overview = get_json(base, '/api/overview')
+    require(overview['corpus'] == identity, 'Overview corpus identity differs')
     require({r['id'] for r in overview['runbooks']} == set(expected_documents), 'Packaged runbooks differ')
     require(overview['incidents'] == len(json.loads((ROOT / 'data/incidents.json').read_text())),
             'Packaged incident count differs')
@@ -120,7 +127,7 @@ def check_http(base):
     for slug, content in expected_documents.items():
         require(get_json(base, '/api/runbooks/' + slug) == {
                     'id': slug, 'content': content,
-                    'content_hash': sha256(content.encode('utf-8')).hexdigest()},
+                    'content_hash': sha256(content.encode('utf-8')).hexdigest(), 'corpus': identity},
                 f'Packaged source differs: {slug}')
 
     html, content_type = request(base, '/')
@@ -135,6 +142,7 @@ def check_http(base):
         require(content and content_type in expected_type, f'Missing or incorrect asset: {path}')
 
     result = get_json(base, '/api/triage', {'query': QUERY})
+    require(result['corpus'] == identity, 'Triage corpus identity differs')
     require(result['mode'] == 'extractive' and result['routing']['category'] == 'database',
             'Supported database incident did not return an extractive route')
     require(result['sources'][0]['document'] == 'database-pool', 'Wrong top runbook')

@@ -105,14 +105,22 @@ def base_url(name):
     return 'http://127.0.0.1:' + binding[0]['HostPort']
 
 
-def check_loaded(name, text):
+def check_loaded(name, text, corpus_id, pin):
     base, digest = base_url(name), sha256(text.encode('utf-8')).hexdigest()
-    require(get_json(base, '/healthz') == {'status': 'ok', 'documents': 1}, 'Bundled corpus loaded')
+    identity = {'schema_version': 1, 'source': 'release', 'corpus_id': corpus_id,
+                'manifest_sha256': pin, 'documents_sha256': sha256(json.dumps(
+                    {'database-pool': digest}, sort_keys=True, separators=(',', ':'),
+                    ensure_ascii=True).encode()).hexdigest()}
+    require(get_json(base, '/healthz') == {'status': 'ok', 'documents': 1, 'corpus': identity},
+            'Selected health identity differs')
+    require(get_json(base, '/api/overview')['corpus'] == identity, 'Overview identity differs')
     require([r['id'] for r in get_json(base, '/api/overview')['runbooks']] == ['database-pool'],
             'Selected inventory differs')
     source = get_json(base, '/api/runbooks/database-pool?expected_hash=' + digest)
+    require(source['corpus'] == identity, 'Source identity differs')
     require(source['content'] == text and source['content_hash'] == digest, 'Selected source differs')
     result = get_json(base, '/api/triage', {'query': QUERY})
+    require(result['corpus'] == identity, 'Triage identity differs')
     require(result['mode'] == 'extractive' and result['sources'], 'Selected corpus did not answer')
     for evidence in result['sources']:
         require(evidence['document_hash'] == digest, 'Triage used a different snapshot')
@@ -130,23 +138,23 @@ def check_releases(image, receipt_path):
         a, pin_a, text_a = create_fixture(image, root, 'release-a')
         b, pin_b, text_b = create_fixture(image, root, 'release-b')
         with selected_container(image, a, pin_a) as first:
-            hash_a = check_loaded(first, text_a)
+            hash_a = check_loaded(first, text_a, 'release-a', pin_a)
             docker('stop', '--timeout', '10', first)
             require(inspect(first)['State']['ExitCode'] == 0, 'Pinned container did not stop cleanly')
             docker('start', first)
             wait_healthy(first)
-            require(check_loaded(first, text_a) == hash_a, 'Restart changed selected release')
+            require(check_loaded(first, text_a, 'release-a', pin_a) == hash_a, 'Restart changed selected release')
             with selected_container(image, b, pin_b) as second:
-                hash_b = check_loaded(second, text_b)
+                hash_b = check_loaded(second, text_b, 'release-b', pin_b)
                 require(hash_a != hash_b, 'Fixture releases must differ')
                 # Coexistence exposes a staggered rollout's two snapshots explicitly.
-                check_loaded(first, text_a)
+                check_loaded(first, text_a, 'release-a', pin_a)
                 for name, other in ((first, hash_b), (second, hash_a)):
                     body, _ = request(base_url(name), '/api/runbooks/database-pool?expected_hash=' + other,
                                       expected=409)
                     require('content' not in json.loads(body), 'Conflict returned another version')
         with selected_container(image, a, pin_a) as rollback:
-            require(check_loaded(rollback, text_a) == hash_a, 'Explicit rollback did not restore A')
+            require(check_loaded(rollback, text_a, 'release-a', pin_a) == hash_a, 'Explicit rollback did not restore A')
         with selected_container(image, b, pin_a, failure='Release manifest does not match expected SHA-256'):
             pass
         # Deliberately mutate only the disposable fixture after all successful loads.
@@ -160,7 +168,7 @@ def check_releases(image, receipt_path):
         'manifest_sha256': {'release-a': pin_a, 'release-b': pin_b},
         'document_sha256': {'release-a': hash_a, 'release-b': hash_b},
         'checks': ['packaged release producer', 'UID 10001 and read-only mount write rejection',
-                   'selected inventory/source/triage lines', 'same-pin clean restart',
+                   'selected inventory/source/triage lines and served corpus identity', 'same-pin clean restart',
                    'two coexisting generations and bidirectional 409', 'explicit rollback to A',
                    'stale manifest pin startup rejection', 'changed document startup rejection'],
         'limits': 'Synthetic local Linux Docker rehearsal; no coordinator, load, crash recovery or deployment.',
