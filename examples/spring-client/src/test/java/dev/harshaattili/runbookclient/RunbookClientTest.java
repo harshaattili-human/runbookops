@@ -20,6 +20,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.web.client.ResourceAccessException;
 
 @Timeout(10)
@@ -160,6 +162,41 @@ class RunbookClientTest {
                 assertEquals(before + 1, calls.get());
             } finally { release.countDown(); }
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"error", "redirect", "encoding", "type", "declared", "chunked"})
+    void rejectsWithoutDrainingAHeldResponse(String kind) throws Exception {
+        client = new RunbookClient(origin(), 500, 5_000);
+        var entered = new CountDownLatch(1);
+        var release = new CountDownLatch(1);
+        handler = e -> {
+            e.getResponseHeaders().set("Content-Type", kind.equals("type") ? "text/plain" : "application/json");
+            if (kind.equals("encoding")) e.getResponseHeaders().set("Content-Encoding", "gzip");
+            if (kind.equals("redirect")) e.getResponseHeaders().set("Location", origin() + "/never-follow");
+            int status = kind.equals("error") ? 500 : kind.equals("redirect") ? 307 : 200;
+            e.sendResponseHeaders(status, kind.equals("chunked") ? 0 : RunbookClient.MAX_RESPONSE_BYTES + 1L);
+            if (kind.equals("chunked")) e.getResponseBody().write(new byte[RunbookClient.MAX_RESPONSE_BYTES + 1]);
+            else e.getResponseBody().write(' ');
+            e.getResponseBody().flush();
+            entered.countDown();
+            release.await(4, TimeUnit.SECONDS);
+        };
+        try {
+            var result = executor.submit(() -> {
+                try {
+                    if (kind.equals("error") || kind.equals("redirect")) client.inspect(SOURCE);
+                    else client.triage("Synthetic query");
+                    return null;
+                } catch (RunbookClient.ClientFailure rejected) { return rejected; }
+            });
+            assertTrue(entered.await(2, TimeUnit.SECONDS));
+            assertNotNull(result.get(1, TimeUnit.SECONDS));
+            assertEquals(1, release.getCount(), "Reject while the endpoint still holds its response open");
+            assertEquals(1, calls.get(), "No follow or automatic retry");
+        } finally { release.countDown(); }
+        json(ABSTAINED);
+        assertEquals("abstained", client.triage("Synthetic recovery").mode());
     }
 
     @Test void rejectsUnsafeOriginAndUnboundedTimeoutConfiguration() {
