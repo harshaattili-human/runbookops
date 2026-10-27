@@ -124,3 +124,19 @@ links and whitespace checks passed; browser execution was hosted. Narrow Firefox
 WebKit replay source-dialog screenshots from the passing run were also inspected.
 These results
 extend engine coverage, not physical-device or assistive-technology coverage.
+
+## Hosted package mirror — October 27, 2026
+
+Runs `40527981916` (browser `122272651607`) and `40530484434` (browser
+`122281597038`) were cancelled at the 15-minute job limit while Playwright was
+installing Ubuntu dependencies. Logs showed continued slow package downloads from
+`azure.archive.ubuntu.com`, before the build or browser tests. They are setup
+cancellations, not passing browser results. An unchanged-job retry was attempted.
+
+The browser job now replaces that exact Ubuntu archive URL with
+[Ubuntu's archive](https://archive.ubuntu.com/), using HTTPS, on its disposable
+runner before the existing Playwright installation. Suites, components, signing
+keys, third-party repositories, browser versions, tests and timeout remain unchanged.
+APT verification is retained; installation errors still fail the job. This selects
+another official package source, not a measured download-speed or availability
+promise. Local browser installation instructions do not modify the user's APT setup.
