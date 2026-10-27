@@ -90,3 +90,33 @@ that restores startup-configured A after a live B refresh. It invokes the shippe
 CLI through `docker exec`; Docker access is trusted, not a remote operator API.
 No host socket is exposed. This extends the default container checks; it does not
 establish a coordinated rollout or host/container UID mapping policy.
+
+## Hosted evidence — October 27, 2026
+
+Initial implementation `adde7597e46e4fbf41f73f381f7aead3930eaec1`,
+[run 40579723192](https://github.com/harshaattili-human/runbookops/actions/runs/40579723192),
+passed all five jobs. The container extension
+`bde73254ab230c6acc12b47ab3471692c6be657c`,
+[run 40580141296](https://github.com/harshaattili-human/runbookops/actions/runs/40580141296),
+also passed all five: verify 122457014694, container 122457014654, browser
+122457014349, Spring 122457014121 and dependencies 122457014532.
+
+The suite passed 218 Python cases plus 11 subtests, including eight new POSIX
+operator cases/executions (the shutdown case runs for worker success and failure).
+The existing seven component tests/build, 18 Java executions plus live JAR,
+36 live and 18 recorded browser executions, validation commands and both container
+rehearsals passed. Frozen-dataset integrity scored zero holdout queries. No model,
+ranking, threshold or benchmark corpus changed; checked-in evaluation reports
+remain their dated historical records. Local execution limitations above remain.
+
+The operator container used Docker 28.0.4, UID 10001, read-only root, dropped
+capabilities, no-new-privileges, a private tmpfs socket and read-only releases.
+Its two synthetic one-document generations and 11 declared checks are preserved in
+[the receipt](../reports/operator-container-2026-10-27.json), including image and
+manifest/document hashes. The image is identified, not published to a registry or
+claimed reproducible byte-for-byte. Hosted Python 3.12.15, Node 24.21.0, Java
+17.0.20.1 and Ubuntu 24.04 were used. The image audit inventoried 24 Python package
+names and 164 finding entries, with zero fixable high/critical entries; the Java
+audit inventoried 26 libraries with zero entries, and npm reported zero in that
+snapshot. These dated gates do not establish absence of vulnerabilities. Existing
+Lucide build warnings remain.
