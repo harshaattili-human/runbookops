@@ -82,17 +82,26 @@ public final class RunbookClient {
 
     private <T> T decode(ClientHttpResponse response, Class<T> type) throws IOException {
         int status = response.getStatusCode().value();
-        // Do not buffer error pages or turn an unavailable backend into abstention.
-        if (status != 200) throw new ClientFailure("RunbookOps returned HTTP " + status, status);
-        String encoding = response.getHeaders().getFirst("Content-Encoding");
-        require(encoding == null || encoding.equalsIgnoreCase("identity"), "Encoded response rejected");
-        MediaType contentType = response.getHeaders().getContentType();
-        require(contentType != null && MediaType.APPLICATION_JSON.isCompatibleWith(contentType),
-                "Expected a JSON response");
-        require(response.getHeaders().getContentLength() <= MAX_RESPONSE_BYTES, "Response exceeds byte limit");
-        byte[] body = response.getBody().readNBytes(MAX_RESPONSE_BYTES + 1);
-        require(body.length <= MAX_RESPONSE_BYTES, "Response exceeds byte limit");
-        return json.readValue(body, type);
+        // Close the live stream before RestClient attempts its response-close drain.
+        try (var input = response.getBody()) {
+            // Do not buffer error pages or turn an unavailable backend into abstention.
+            if (status != 200) throw new ClientFailure("RunbookOps returned HTTP " + status, status);
+            String encoding = response.getHeaders().getFirst("Content-Encoding");
+            require(encoding == null || encoding.equalsIgnoreCase("identity"), "Encoded response rejected");
+            MediaType contentType = response.getHeaders().getContentType();
+            require(contentType != null && MediaType.APPLICATION_JSON.isCompatibleWith(contentType),
+                    "Expected a JSON response");
+            long declared = response.getHeaders().getContentLength();
+            require(declared <= MAX_RESPONSE_BYTES, "Response exceeds byte limit");
+            byte[] body = input.readNBytes(MAX_RESPONSE_BYTES + 1);
+            require(body.length <= MAX_RESPONSE_BYTES, "Response exceeds byte limit");
+            require(declared < 0 || body.length == declared, "Response ended before declared length");
+            return json.readValue(body, type);
+        } catch (IOException failure) {
+            // URLConnection can throw while opening an empty error stream. Retain the HTTP status.
+            if (status != 200) throw new ClientFailure("RunbookOps returned HTTP " + status, status);
+            throw failure;
+        }
     }
 
     private static void validateSource(Source source) {

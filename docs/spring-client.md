@@ -36,7 +36,8 @@ Do not expose the unauthenticated Python demo publicly.
   authenticity or answer entailment.
 - Each successful JSON response is limited to 128 KiB before parsing, including
   trailing whitespace. Declared excess is rejected before reading; unknown lengths
-  read at most cap+1 bytes. Compression and redirects are rejected. The bounded
+  read at most cap+1 bytes. A body shorter than its declared length is rejected,
+  even if the partial JSON parses. Compression and redirects are rejected. The bounded
   buffer does not bound socket buffers, parser copies or aggregate process memory.
 - The example uses `SimpleClientHttpRequestFactory` with a one-second connect
   timeout and two-second read inactivity timeout. A continuously progressing reply
@@ -47,18 +48,22 @@ Do not expose the unauthenticated Python demo publicly.
 Using a synchronous client keeps this one-call integration small, but blocks its
 calling thread. A server adopting it must separately budget worker concurrency and
 request lifetime. Error response bodies are not copied into exceptions or logs.
+The adapter closes the network stream before Spring performs response cleanup;
+otherwise Spring's close operation can drain the unread body after a rejection.
+Empty error responses still preserve their HTTP status. See the
+[held-response regression evidence](#response-cleanup-verification--october-27-2026).
 
 ## Checks
 
 ```sh
-# Seven loopback HTTP/configuration tests; two live cases are explicitly skipped.
+# Sixteen loopback HTTP/configuration executions; two live cases are explicitly skipped.
 mvn -f examples/spring-client/pom.xml verify
 
-# Owns a Uvicorn process, runs all nine Java cases, then the executable JAR.
+# Owns a Uvicorn process, runs all eighteen Java executions, then the executable JAR.
 python scripts/check_spring_client.py
 ```
 
-The seven fixture cases cover request serialization, abstention, Unicode source
+The original seven fixture cases cover request serialization, abstention, Unicode source
 hashes, changed content, HTTP errors/redirects without retry, exact/over-limit fixed
 and chunked replies, malformed/inconsistent/encoded responses, stalled headers/body
 and configuration bounds. Fixtures use synthetic JSON and local sockets. The two
@@ -97,3 +102,38 @@ References: [Spring REST clients](https://docs.spring.io/spring-framework/refere
 
 Interview exercise: why must a caller distinguish an answerability abstention from
 an unavailable service, and why does a read inactivity timeout not bound total time?
+
+## Response cleanup verification — October 27, 2026
+
+Six added fixtures hold open an HTTP error, redirect, encoded response, non-JSON
+response, declared oversized response or chunked oversized response. With a
+five-second configured read timeout, each requires rejection within a one-second
+outer guard after the endpoint signals entry, while the server's release latch
+remains closed; the same client then recovers. Request counts detect retry/follow.
+These are lifecycle assertions, not a one-second production latency promise.
+
+Test-only commit `0fbe7bcb21eafdb5af6f4086278f1f9e65ae645d` reproduced all six
+cleanup stalls in [run 40573472283](https://github.com/harshaattili-human/runbookops/actions/runs/40573472283),
+job `122433545617`: nine existing cases passed and six new cases timed out. Spring
+6.2's response close drains the unread stream. Explicit stream closure before
+that cleanup made all 15 cases pass at `2e7c8b58a51b88663de518ef11f53e7072ded807`
+in run `40573718317`, job `122434427877`.
+
+The refinement `adb84763827f81599098e6d6ea513a3e86c25b19` also checks empty 404/500
+status preservation and a raw-socket source reply that contains valid JSON but
+ends before its declared length. In [run 40574314854](https://github.com/harshaattili-human/runbookops/actions/runs/40574314854),
+job `122436512284`, all 18 Java executions passed with zero failures/errors/skips,
+the live FastAPI executable walkthrough passed, and the packaged audit inventoried
+26 libraries with zero advisory entries in that dated snapshot. This is not a
+vulnerability-free claim. The final full-job results are linked in
+[PR 32](https://github.com/harshaattili-human/runbookops/pull/32).
+
+The byte/inactivity policies remain distinct from a total request deadline. Stream
+closure is not proof of remote computation cancellation or a hard memory bound.
+No Python model, corpus, thresholds or exposed evaluation data changed. Java and
+live integration ran on hosted CI because the local parent POM is uncached;
+local whitespace and documentation links passed.
+
+Optional exercise: how can a callback reject before parsing yet the framework
+continue reading, and why must a valid JSON prefix still fail when the response
+promises more bytes than it delivers?
