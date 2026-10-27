@@ -10,7 +10,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | --- | --- | --- |
 | Incident routing | [Classifier](../backend/runbookops/classifier.py): TF-IDF plus logistic regression, term contributions, and heuristic abstention | [Grouped evaluation](../backend/runbookops/evaluate.py); model scores are not calibrated confidence |
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
-| Source identity | SHA-256 of indexed document text; optional expected-hash check on runbook reads | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
+| Source identity | SHA-256 of indexed document text; optional expected-hash check; [served corpus identity](corpus-identity.md) | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
 | Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage and fixed request-target gates, exact source extraction, optional Ollama synthesis over HTTPX2, citation-ID validation | [v3 contrastive comparison](information-type-v3.md) records a positive paired result and the runtime regression that prevented adoption; the [transport migration](httpx2-migration.md) preserves the provider boundary |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live browser checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
@@ -186,6 +186,8 @@ Trusted integrations can now [refresh an index atomically](index-refresh.md).
 Manifest-pinned, never-overwritten release directories keep a refresh on one declared
 corpus generation and retain the old index on any inventory/hash/build failure. The
 stock HTTP app can select an explicit release plus expected manifest hash at startup
-and rejects invalid selections without falling back. It has no live refresh trigger,
+and rejects invalid selections without falling back. Responses now identify their
+[served corpus snapshot](corpus-identity.md), including optional manifest identity
+and a content-inventory digest without filesystem paths. It has no live refresh trigger,
 producer-side multi-file capture still requires stopped writers, and multiple
 processes are not coordinated.

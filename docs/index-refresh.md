@@ -87,6 +87,14 @@ restart rollback. This is a restart-based selection mechanism, not a hot-reload
 trigger or an atomic rollout across workers. Trusted Python refresh calls can still
 replace the index after startup; the startup pin is not a runtime authorization rule.
 
+## Observe the served generation
+
+Health, overview, triage and successful source responses expose a detached
+[corpus identity](corpus-identity.md) captured with their own index. It includes
+the verified release ID/manifest digest when applicable and a digest of indexed
+document hashes. It omits local paths. This identifies a sampled process's served
+snapshot; it does not coordinate workers or authenticate the publisher.
+
 ## Consistency contract
 
 A refresh lock serializes complete rebuilds, preventing an earlier candidate from

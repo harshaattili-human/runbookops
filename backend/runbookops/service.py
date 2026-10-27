@@ -13,6 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
 from .corpus_release import verify_release
+from .corpus_snapshot import CorpusSnapshot
 from .request_target import external_information_signal
 from .retrieval import Retriever
 
@@ -51,14 +52,21 @@ class TriageService:
         self.classifier = IncidentClassifier(self.rows)
         self._refresh_lock = Lock()
         self._snapshot_lock = Lock()
-        self._retriever = (Retriever(documents=verified.documents) if verified is not None
-                           else Retriever(self.data / 'runbooks'))
+        retriever = (Retriever(documents=verified.documents) if verified is not None
+                     else Retriever(self.data / 'runbooks'))
+        self._snapshot = CorpusSnapshot.capture(retriever,
+            corpus_id=verified.corpus_id if verified else None,
+            manifest_sha256=verified.manifest_hash if verified else None)
+
+    @property
+    def snapshot(self) -> CorpusSnapshot:
+        """Capture one published index and identity; callers must not mutate the index."""
+        with self._snapshot_lock:
+            return self._snapshot
 
     @property
     def retriever(self) -> Retriever:
-        """Capture one published index; callers must not mutate it."""
-        with self._snapshot_lock:
-            return self._retriever
+        return self.snapshot.retriever
 
     def refresh_runbooks(self) -> dict[str, str]:
         """Rebuild from operator-managed files, retaining the old index on failure.
@@ -69,8 +77,9 @@ class TriageService:
         # Serialize the complete rebuild so an older candidate cannot publish last.
         with self._refresh_lock:
             candidate = Retriever(self.data / 'runbooks')
+            snapshot = CorpusSnapshot.capture(candidate)
             with self._snapshot_lock:
-                self._retriever = candidate
+                self._snapshot = snapshot
             return dict(candidate.document_hashes)
 
     def refresh_runbooks_release(self, release: Path, *,
@@ -79,8 +88,10 @@ class TriageService:
         with self._refresh_lock:
             verified = verify_release(release, expected_manifest_hash=expected_manifest_hash)
             candidate = Retriever(documents=verified.documents)
+            snapshot = CorpusSnapshot.capture(candidate, corpus_id=verified.corpus_id,
+                                               manifest_sha256=verified.manifest_hash)
             with self._snapshot_lock:
-                self._retriever = candidate
+                self._snapshot = snapshot
             return {
                 'corpus_id': verified.corpus_id,
                 'release_path': str(verified.release_path),
@@ -91,7 +102,8 @@ class TriageService:
     def triage(self, query: str, use_llm: bool = False) -> dict:
         started = perf_counter()
         routing = self.classifier.predict(query)
-        retriever = self.retriever
+        snapshot = self.snapshot
+        retriever = snapshot.retriever
         candidates = retriever.search(query)
         coverage = candidates[0]['document_coverage'] if candidates else None
         sufficient = coverage is not None and coverage >= retriever.minimum_document_coverage
@@ -131,6 +143,7 @@ class TriageService:
         result = {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
                 'answer': answer, 'citations': citations, 'sources': sources,
                 'mode': mode, 'warning': warning, 'answerability': answerability,
+                'corpus': snapshot.identity(),
                 'duration_ms': round((perf_counter() - started) * 1000, 1)}
 
         if use_llm and sources:

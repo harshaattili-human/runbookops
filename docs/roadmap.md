@@ -19,7 +19,8 @@ new dependency or framework without a measured need.
    service supports [atomic in-process index refresh](index-refresh.md), and a
    manifest-pinned release workflow now prevents a refresh from mixing source-file
    generations. The stock HTTP app can select an explicit release and expected
-   manifest hash at startup; invalid selections fail startup. Workers still require
+   manifest hash at startup; invalid selections fail startup. [Served corpus identity](corpus-identity.md)
+   now makes the sampled generation explicit on responses. Workers still require
    coordinated restarts or a trusted live trigger for a rollout. The
    [container rehearsal](container-checks.md#mounted-corpus-release-rehearsal) exercises
    explicit selection/rollback and shows coexisting generations; it is not a rollout

@@ -52,7 +52,9 @@ app.add_middleware(TriageAdmission)
 
 @app.get('/healthz')
 def health():
-    return {'status': 'ok', 'documents': len(app.state.triage.retriever.documents)}
+    snapshot = app.state.triage.snapshot
+    return {'status': 'ok', 'documents': len(snapshot.retriever.documents),
+            'corpus': snapshot.identity()}
 
 
 @app.post('/api/triage')
@@ -85,9 +87,10 @@ async def triage(body: TriageRequest, request: Request):
 @app.get('/api/overview')
 def overview():
     service = app.state.triage
-    retriever = service.retriever
+    snapshot = service.snapshot
+    retriever = snapshot.retriever
     report = ROOT / 'reports' / 'evaluation.json'
-    return {'documents': len(retriever.documents),
+    return {'corpus': snapshot.identity(), 'documents': len(retriever.documents),
             'chunks': len(retriever.chunks), 'incidents': len(service.rows),
             'categories': sorted({r['category'] for r in service.rows}),
             'evaluation': json.loads(report.read_text()) if report.exists() else None,
@@ -97,14 +100,16 @@ def overview():
 
 @app.get('/api/runbooks/{slug}')
 def runbook(slug: str, expected_hash: str | None = None):
-    retriever = app.state.triage.retriever
+    snapshot = app.state.triage.snapshot
+    retriever = snapshot.retriever
     text = retriever.documents.get(slug)
     if text is None:
         raise HTTPException(404, 'Runbook not found')
     content_hash = retriever.document_hashes[slug]
     if expected_hash is not None and expected_hash != content_hash:
         raise HTTPException(409, 'Runbook version changed; run triage again.')
-    return {'id': slug, 'content': text, 'content_hash': content_hash}
+    return {'id': slug, 'content': text, 'content_hash': content_hash,
+            'corpus': snapshot.identity()}
 
 
 # Only the compiled frontend is served. No source tree or data directory mount.
