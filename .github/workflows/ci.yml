@@ -55,7 +55,7 @@ jobs:
       - name: Reproduce the v3 validation candidate
         run: python -m runbookops.information_answerability --split validation
       - name: Evaluate the v4 validation candidate without holdout access
-        run: python -m runbookops.information_answerability_v4
+        run: python -m runbookops.request_target
       - run: python -m runbookops.evaluate
       - run: python -m runbookops.benchmark --split validation
       - run: python -m runbookops.answerability --split validation
@@ -110,6 +110,23 @@ jobs:
       - run: pip install -e .
       - run: npm ci
         working-directory: frontend
+      - name: Use the Ubuntu archive for browser system packages
+        run: |
+          sudo python3 - <<'PYTHON'
+          from pathlib import Path
+          files = [Path("/etc/apt/sources.list")]
+          files += list(Path("/etc/apt/sources.list.d").glob("*.sources"))
+          files += list(Path("/etc/apt/sources.list.d").glob("*.list"))
+          for path in files:
+              if not path.is_file():
+                  continue
+              before = path.read_text()
+              after = before.replace("http://azure.archive.ubuntu.com/ubuntu", "https://archive.ubuntu.com/ubuntu")
+              after = after.replace("https://azure.archive.ubuntu.com/ubuntu", "https://archive.ubuntu.com/ubuntu")
+              if after != before:
+                  path.write_text(after)
+                  print(f"Selected Ubuntu archive in {path.name}; suites and signing settings unchanged")
+          PYTHON
       - run: npx playwright install --with-deps chromium firefox webkit
         working-directory: frontend
       - run: npm run build

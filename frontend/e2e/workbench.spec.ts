@@ -128,3 +128,37 @@ test('a source version conflict preserves focus and reanalysis clears the alert'
   await page.locator('.source-card').first().click();
   await expect(page.getByRole('dialog')).toBeVisible();
 });
+
+test('an external value is withheld despite coverage and ordinary guidance still works', async ({
+  page,
+}, info) => {
+  await page.getByRole('textbox', { name: 'Incident description' }).fill(
+    'Database pool connections are exhausted. Pool maximum: 80 connections on each replica.',
+  );
+  await page.getByRole('checkbox', { name: 'Use configured local LLM' }).check();
+  const response = page.waitForResponse('/api/triage');
+  await page.getByRole('button', { name: 'Analyze incident', exact: true }).click();
+  const result = await (await response).json();
+  expect(result.mode).toBe('abstained');
+  expect(result.answerability.coverage).toBeGreaterThanOrEqual(result.answerability.threshold);
+  expect(result.answerability.external_information_signal).toBe('literal_configuration');
+  expect(result.warning).toBeNull();
+  expect(result.sources).toEqual([]);
+  expect(result.citations).toEqual([]);
+  await expect(page.getByRole('heading', { name: 'More context needed' })).toBeVisible();
+  await expect(page.getByText(/this request appears to require an external value/)).toBeVisible();
+  await expect(page.locator('.source-card')).toHaveCount(0);
+  await fitsViewport(page);
+  await snapshot(page, info, 'request-target-abstention');
+
+  await page.getByRole('checkbox', { name: 'Use configured local LLM' }).uncheck();
+  await page.getByRole('textbox', { name: 'Incident description' }).fill(
+    'Active connections are at the maximum and pending requests keep rising.',
+  );
+  const recovery = page.waitForResponse('/api/triage');
+  await page.getByRole('button', { name: 'Analyze incident', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  expect((await (await recovery).json()).mode).toBe('extractive');
+  await expect(page.getByRole('heading', { name: 'Suggested investigation' })).toBeVisible();
+  await expect(page.locator('.source-card').first()).toBeVisible();
+});

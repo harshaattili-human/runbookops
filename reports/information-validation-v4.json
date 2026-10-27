@@ -1,6 +1,6 @@
 {
   "suite": "information-validation-v4",
-  "status": "validation-development; holdout unscored",
+  "status": "validation regression; v4 holdout exposed after the single joint score",
   "provenance": "AI-assisted synthetic pairs authored by the project author after v3 exposure; no employer or production data, external annotation, blinding or semantic-independence claim.",
   "protocol": "Integrity checks may read both splits but score neither. Develop only on validation; publish a fixed candidate and evaluator before one joint baseline/candidate holdout score. Never tune on v1-v3 exposed holdouts or v4 holdout.",
   "candidate": {
@@ -14,8 +14,9 @@
       "literal_configuration": "(?:\\b(?:exact|precise)\\b[^?]*\\b(?:port|timeout|limit|maximum|percentage|value)\\b|\\b(?:port|timeout|delay|maximum)\\b[^?]*\\b\\d+(?:\\.\\d+)?(?:-\\w+)?\\b|/[a-z0-9._~!$&\\'()*+,;=:@%/-]+[^?]*\\b(?:port|delay|timeout)\\b)"
     },
     "decision": "answer only when the existing 0.33 document-coverage policy answers and no external-information target is detected",
-    "production_status": "experiment only; TriageService is unchanged",
-    "holdout_status": "integrity-checked only; no holdout query was sent to retrieval or answerability scoring"
+    "production_status": "integrated in TriageService; local prototype, not deployed",
+    "holdout_status": "exposed after first score; this command only integrity-checks holdout, with no holdout inference",
+    "published_commit": "edcada1089c663aa7466109aa01f4114b43d7a83"
   },
   "frozen_inputs_sha256": {
     "data/evaluation/answerability-holdout-v2.json": "c20796d70bb07ca10b3c0aa2fb93101bd36f0403e74a9c272946a4c2f7bd6877",
@@ -50,10 +51,12 @@
     "backend/runbookops/information_answerability.py": "e4963bf2992a45e08c44b04a530e416fa8cbeddd2942eb5f0a3bfe4886bd25fe",
     "backend/runbookops/information_answerability_v4.py": "b55abd02ac2a5249823b8b4a0b1502faa87fdcd45e46bc22cde47d4fa08f10ce",
     "backend/runbookops/information_dataset.py": "e1a3f2c2d461a1be32af8f6e6a59279ef709571b0e32824b1b7e366730f773c5",
+    "backend/runbookops/information_holdout_v4.py": "da902e23de6955751360474efa857b1a4d58746effbf5e18f5f1ec8ae4b75694",
     "backend/runbookops/passage_answerability.py": "a783ec9acdd6cbb1d5ba773a841d912a3dc17ac1afe9d82f533cf210118f70cd",
     "backend/runbookops/request_bounds.py": "80773f644220c14d5a1758fc96149bcbd9876825dfe59974e8870b71d51cba5f",
+    "backend/runbookops/request_target.py": "eb03dd3cebb25902df994db59ab243fe398a3ae44eff35124bcf747190f53511",
     "backend/runbookops/retrieval.py": "789bebbc9f98aec3d10cb10ab97b9b5d49069ead98b88539ccd088f974c73b3b",
-    "backend/runbookops/service.py": "176878500ee2782e1b584ec11c1869cfe37d1a161e0d2ea555264d22ad3a8f86"
+    "backend/runbookops/service.py": "9745810e916d2392694720a644d42ec767ebefe824c1dcaa3527c3fb77fb5d7b"
   },
   "baseline": {
     "supported_answered": {

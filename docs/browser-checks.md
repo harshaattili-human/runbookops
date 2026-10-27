@@ -19,14 +19,16 @@ npm run test:browser
 npx playwright show-report
 ```
 
-Three workflows run in Chromium, Firefox and WebKit, each at 1440×900, 390×844
-and 320×640 CSS pixels: 27 executions across nine projects, not 27 distinct workflows.
+Four workflows run in Chromium, Firefox and WebKit, each at 1440×900, 390×844
+and 320×640 CSS pixels: 36 executions across nine projects, not 36 distinct workflows.
 
 - Live analysis, the citation's expected hash in the source request, matching
   content hash, modal focus containment, keyboard scrolling to the end of overflowing source text
   and focus return.
 - Unsupported-query abstention, keyboard page navigation, library filtering and
   evaluation layout without horizontal page overflow.
+- High-coverage request-target abstention with optional generation selected, its
+  explanation and absent source cards, then keyboard recovery to ordinary guidance.
 - An explicitly injected source HTTP 409, focus retention and successful live
   reanalysis/source recovery after removing the injected response.
 
@@ -122,3 +124,19 @@ links and whitespace checks passed; browser execution was hosted. Narrow Firefox
 WebKit replay source-dialog screenshots from the passing run were also inspected.
 These results
 extend engine coverage, not physical-device or assistive-technology coverage.
+
+## Hosted package mirror — October 27, 2026
+
+Runs `40527981916` (browser `122272651607`) and `40530484434` (browser
+`122281597038`) were cancelled at the 15-minute job limit while Playwright was
+installing Ubuntu dependencies. Logs showed continued slow package downloads from
+`azure.archive.ubuntu.com`, before the build or browser tests. They are setup
+cancellations, not passing browser results. An unchanged-job retry was attempted.
+
+The browser job now replaces that exact Ubuntu archive URL with
+[Ubuntu's archive](https://archive.ubuntu.com/), using HTTPS, on its disposable
+runner before the existing Playwright installation. Suites, components, signing
+keys, third-party repositories, browser versions, tests and timeout remain unchanged.
+APT verification is retained; installation errors still fail the job. This selects
+another official package source, not a measured download-speed or availability
+promise. Local browser installation instructions do not modify the user's APT setup.

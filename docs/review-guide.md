@@ -12,7 +12,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
 | Source identity | SHA-256 of indexed document text; optional expected-hash check on runbook reads | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
-| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage gate, exact source extraction, optional Ollama synthesis over HTTPX2, citation-ID validation | [v3 contrastive comparison](information-type-v3.md) records a positive paired result and the runtime regression that prevented adoption; the [transport migration](httpx2-migration.md) preserves the provider boundary |
+| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage and fixed request-target gates, exact source extraction, optional Ollama synthesis over HTTPX2, citation-ID validation | [v3 contrastive comparison](information-type-v3.md) records a positive paired result and the runtime regression that prevented adoption; the [transport migration](httpx2-migration.md) preserves the provider boundary |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live browser checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; the separate mounted-release rehearsal checks selection, version conflicts and explicit rollback; no deployment or load claim |
 | Java integration | [Spring Boot client](spring-client.md): typed extractive/abstained results, response request IDs and versioned source inspection | Loopback failure fixtures and live FastAPI contract checks; synchronous calls with connect/read inactivity timeouts, no whole-request deadline |
@@ -83,8 +83,9 @@ The follow-up [v4 experiment](information-type-v4.md) separates its integrity-on
 freeze from a later validation-only candidate. The request-target guard retained 9/10
 expected-top-and-answered supported cases and changed unsupported validation answers
 from 8/10 to 0/10. Inspect its fixed ordered signals and per-case report, especially
-the supported API-timeout case already withheld by document coverage. The service is
-unchanged at the evaluation checkpoint. The once-scored holdout preserved 10/10
+the supported API-timeout case already withheld by document coverage. The service was
+unchanged at the evaluation checkpoint. Its subsequent [integration](request-target-guard.md)
+uses the exact frozen candidate and explains request-target refusals. The once-scored holdout preserved 10/10
 supported answers and changed unsupported answers from 9/10 to 5/10. Read the five
 missed targets and distinguish numeric eligibility from tested runtime integration.
 

@@ -13,6 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
 from .corpus_release import verify_release
+from .request_target import external_information_signal
 from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))
@@ -94,6 +95,9 @@ class TriageService:
         candidates = retriever.search(query)
         coverage = candidates[0]['document_coverage'] if candidates else None
         sufficient = coverage is not None and coverage >= retriever.minimum_document_coverage
+        # Use the published candidate unchanged. Its lexical signals are not entailment.
+        external_target = external_information_signal(query)
+        sufficient = sufficient and external_target is None
         sources = candidates if sufficient else []
         answer = 'No sufficiently matching evidence was found. Add the error text, affected component, and recent change.'
         mode = 'abstained'
@@ -111,13 +115,18 @@ class TriageService:
             if candidates:
                 answer = ('A related runbook was found, but it does not cover enough of the request. '
                           'Add the missing procedure, value, or system context before using guidance.')
+                if external_target is not None:
+                    answer = ('A related runbook was found, but this request appears to require an '
+                              'external value, decision, or procedure. Verify that information with '
+                              'an authorized source; the runbook match alone cannot supply it.')
         answerability = {
             'status': 'sufficient' if sources else 'insufficient' if candidates else 'no-match',
-            'method': 'idf-weighted query-term coverage in the top document',
+            'method': 'document coverage with the fixed v4 request-target guard',
             'coverage': coverage,
             'threshold': retriever.minimum_document_coverage,
             'candidate_source_id': candidates[0]['id'] if candidates else None,
-            'note': 'Lexical coverage heuristic selected on synthetic validation data; not a probability.',
+            'external_information_signal': external_target,
+            'note': 'Lexical heuristics evaluated on small synthetic pairs; not a probability or entailment check.',
         }
         result = {'request_id': uuid4().hex[:12], 'query': query, 'routing': routing,
                 'answer': answer, 'citations': citations, 'sources': sources,

@@ -30,7 +30,8 @@ supported cases and withheld all 10 unsupported requests by recognizing direct
 targets for current state, literal configuration, sensitive values, approvals and
 unwritten artifacts. The subsequent single holdout score preserved 10/10 supported answers while
 unsupported answers changed from 9/10 to 5/10. The remaining five misses are retained
-without rule changes. V4 is now exposed; runtime integration is a separate check.
+without rule changes. V4 is now exposed. The [service integration](request-target-guard.md) reuses the
+same candidate, exposes its signal and bypasses optional generation when it abstains.
 
 ## Keep suggestions separate from execution
 
