@@ -13,7 +13,7 @@ remain available, so callers can distinguish a request-target rejection from low
 coverage. The existing dashboard shows the explanation even with high evidence
 coverage. A later ordinary incident can still return guidance.
 
-The service imports the same candidate function used by the frozen evaluator; there
+The runtime module re-exports the same candidate function used by the frozen evaluator; there
 is no second runtime copy of its patterns. Importing it performs no dataset load or
 evaluation. Candidate and ranking file hashes remain those published in
 `edcada1089c663aa7466109aa01f4114b43d7a83`. No rule was changed after holdout scoring.
@@ -38,6 +38,7 @@ ordinary incident. It uses the live API at all nine engine/viewport combinations
 with optional generation selected on the withheld request; no live LLM is invoked.
 
 ```sh
+python -m runbookops.request_target
 python -m pytest -q tests/test_request_target_service.py
 cd frontend
 npm run test:browser -- --grep 'external value'
@@ -50,3 +51,8 @@ prepared. Final integration/browser evidence is recorded below after execution.
 
 Exercise: why can high document coverage coexist with abstention, and why does a
 passing synthetic paired holdout still leave both false answers and false refusals?
+
+The current validation command is `python -m runbookops.request_target`. It refreshes
+lifecycle metadata to describe runtime adoption and the now-exposed holdout without
+editing the pinned candidate module. Its metrics still use validation only. The
+original frozen evaluator retains publication-time wording for auditability.

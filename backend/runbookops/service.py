@@ -13,7 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
 from .corpus_release import verify_release
-from .information_answerability_v4 import external_information_signal
+from .request_target import external_information_signal
 from .retrieval import Retriever
 
 ROOT = Path(os.getenv('RUNBOOKOPS_ROOT', Path(__file__).resolve().parents[2]))

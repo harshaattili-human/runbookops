@@ -12,7 +12,7 @@ Before pushing:
 python -m pytest -q
 python -m runbookops.information_dataset
 python -m runbookops.information_answerability --split validation
-python -m runbookops.information_answerability_v4
+python -m runbookops.request_target
 python -m runbookops.evaluate
 python -m runbookops.benchmark --split validation
 python -m runbookops.answerability --split validation
