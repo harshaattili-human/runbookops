@@ -5,9 +5,10 @@ using the published snapshot. Only a successfully constructed index replaces it.
 A failed read or index build propagates its exception and leaves the working index
 available. The classifier and incident training rows are not rebuilt.
 
-Live refresh is a trusted Python integration operation. The stock HTTP app loads its
+Live refresh is available through trusted Python integration or the optional
+[local operator socket](operator-refresh.md). The stock HTTP app loads its
 index at startup, optionally from a pinned release as described below. There is no
-public refresh endpoint, watcher, signal handler or cross-process control channel.
+public refresh endpoint, watcher, signal handler or cross-process rollout coordinator.
 A hosting integration that owns the service can run:
 
 ```python
@@ -84,7 +85,8 @@ per load. Changing its target does not alter an already running index. Restartin
 against a different manifest with the old pin fails; adopting that release requires
 updating the expected hash too. Retain the old release and its pin for an explicit
 restart rollback. This is a restart-based selection mechanism, not a hot-reload
-trigger or an atomic rollout across workers. Trusted Python refresh calls can still
+trigger or an atomic rollout across workers. The optional local operator channel and
+trusted Python refresh calls can still
 replace the index after startup; the startup pin is not a runtime authorization rule.
 
 ## Observe the served generation
@@ -123,7 +125,7 @@ claim crash durability, authenticity or authorization: the manifest is an integr
 receipt, not a signature. An expected hash selects that receipt; it does not establish
 who authored it. The stock app still has no HTTP refresh route, signal handler or
 watcher. Each process must be restarted with the same path and pin or triggered by a
-trusted integration with the same release. During a staggered rollout, running
+trusted integration or its local operator socket with the same release. During a staggered rollout, running
 processes can serve different generations; a failed restart remains unavailable.
 
 Published retrievers are read-only by convention; trusted Python code must not

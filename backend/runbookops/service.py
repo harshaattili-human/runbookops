@@ -97,6 +97,7 @@ class TriageService:
                 'release_path': str(verified.release_path),
                 'manifest_sha256': verified.manifest_hash,
                 'document_hashes': dict(candidate.document_hashes),
+                'corpus': snapshot.identity(),
             }
 
     def triage(self, query: str, use_llm: bool = False) -> dict:

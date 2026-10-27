@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from .service import ROOT, TriageService
 from .request_bounds import TriageBodyLimit
 from .admission import TriageAdmission
+from .corpus_control import serve_control
 
 
 class TriageRequest(BaseModel):
@@ -41,7 +42,12 @@ async def lifespan(app: FastAPI):
             raise ValueError('Set both RUNBOOKOPS_CORPUS_RELEASE and RUNBOOKOPS_CORPUS_SHA256')
         app.state.triage = TriageService(runbook_release=Path(release),
                                         expected_manifest_hash=digest)
-    yield
+    control_socket = os.getenv('RUNBOOKOPS_CONTROL_SOCKET')
+    if control_socket is None:
+        yield
+    else:
+        async with serve_control(app.state.triage, control_socket):
+            yield
 
 
 app = FastAPI(title='RunbookOps', version='0.1.0', lifespan=lifespan)

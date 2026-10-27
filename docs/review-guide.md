@@ -188,6 +188,6 @@ corpus generation and retain the old index on any inventory/hash/build failure. 
 stock HTTP app can select an explicit release plus expected manifest hash at startup
 and rejects invalid selections without falling back. Responses now identify their
 [served corpus snapshot](corpus-identity.md), including optional manifest identity
-and a content-inventory digest without filesystem paths. It has no live refresh trigger,
+and a content-inventory digest without filesystem paths. Its optional [local operator channel](operator-refresh.md) refreshes one process;
 producer-side multi-file capture still requires stopped writers, and multiple
 processes are not coordinated.

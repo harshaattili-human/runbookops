@@ -95,7 +95,8 @@ Operators can select a manifest-pinned runbook release at startup using
 `RUNBOOKOPS_CORPUS_RELEASE` and `RUNBOOKOPS_CORPUS_SHA256`; invalid releases prevent
 startup instead of falling back to bundled files. Trusted Python integrations can
 also refresh the index while requests retain their captured snapshots. See the
-[refresh contract](docs/index-refresh.md).
+[refresh contract](docs/index-refresh.md) and opt-in
+[local operator channel](docs/operator-refresh.md).
 
 ## Evaluation and checks
 

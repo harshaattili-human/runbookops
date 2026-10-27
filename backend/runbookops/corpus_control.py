@@ -1,0 +1,198 @@
+"""Opt-in local operator channel; filesystem ownership is the authorization boundary."""
+
+import argparse
+import asyncio
+from contextlib import asynccontextmanager
+import json
+import os
+from pathlib import Path
+import re
+import socket
+import stat
+
+MAX_REQUEST_BYTES = 4096  # Includes the terminating newline, not transport buffers.
+READ_SECONDS = 5.0
+WRITE_SECONDS = 1.0
+
+
+def _unique(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('Duplicate field')
+        result[key] = value
+    return result
+
+
+def _request(raw):
+    if len(raw) > MAX_REQUEST_BYTES or not raw.endswith(b'\n'):
+        raise ValueError('Invalid request framing')
+    value = json.loads(raw, object_pairs_hook=_unique)
+    if not isinstance(value, dict) or set(value) != {'release', 'manifest_sha256'}:
+        raise ValueError('Expected release and manifest_sha256')
+    release, digest = value['release'], value['manifest_sha256']
+    if not isinstance(release, str) or '\x00' in release or not Path(release).is_absolute():
+        raise ValueError('Release must be an absolute path')
+    if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{64}', digest) is None:
+        raise ValueError('Expected a lowercase SHA-256 pin')
+    return Path(release), digest
+
+
+def _socket_path(value):
+    if os.name != 'posix' or not hasattr(socket, 'AF_UNIX'):
+        raise ValueError('Corpus control requires POSIX Unix sockets')
+    path = Path(value)
+    if not value or not path.is_absolute() or path.parent.resolve() != path.parent:
+        raise ValueError('Control socket requires an absolute path without parent aliases')
+    parent = path.parent.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.getuid()
+            or stat.S_IMODE(parent.st_mode) != 0o700):
+        raise ValueError('Control socket parent must be owned by this UID with mode 0700')
+    # bind(), rather than unlinking an existing path, decides whether it is unused.
+    return path
+
+
+async def _joined_worker(function, *args, **kwargs):
+    worker = asyncio.create_task(asyncio.to_thread(function, *args, **kwargs))
+    try:
+        return await asyncio.shield(worker)
+    except asyncio.CancelledError:
+        # A cancelled await cannot kill an index-building Python thread. Keep the
+        # operator lease until it finishes, even after repeated cancellation.
+        while not worker.done():
+            try:
+                await asyncio.shield(worker)
+            except asyncio.CancelledError:
+                continue
+            except Exception:
+                break
+        if not worker.cancelled():
+            worker.exception()
+        raise
+
+
+class CorpusControl:
+    def __init__(self, service):
+        self.service = service
+        self.active = False
+        self.closing = False
+        self.tasks = set()
+
+    def connected(self, reader, writer):
+        task = asyncio.create_task(self.handle(reader, writer))
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+
+    async def respond(self, writer, value):
+        writer.write(json.dumps(value, separators=(',', ':')).encode() + b'\n')
+        async with asyncio.timeout(WRITE_SECONDS):
+            await writer.drain()
+
+    async def handle(self, reader, writer):
+        acquired = False
+        try:
+            if self.active or self.closing:
+                await self.respond(writer, {'status': 'busy'})
+                return
+            self.active = acquired = True  # No await between check and acquisition.
+            try:
+                async with asyncio.timeout(READ_SECONDS):
+                    raw = await reader.readuntil(b'\n')
+                release, digest = _request(raw)
+            except (ValueError, UnicodeError, RecursionError, TimeoutError,
+                    asyncio.IncompleteReadError, asyncio.LimitOverrunError):
+                await self.respond(writer, {'status': 'invalid_request'})
+                return
+            try:
+                receipt = await _joined_worker(self.service.refresh_runbooks_release, release,
+                                               expected_manifest_hash=digest)
+            except Exception:
+                # Do not send filesystem paths or exception text to the socket.
+                await self.respond(writer, {'status': 'refresh_failed'})
+                return
+            await self.respond(writer, {'status': 'ok', 'corpus': receipt['corpus']})
+        except (OSError, TimeoutError):
+            pass  # A lost reply does not roll back an accepted refresh.
+        finally:
+            writer.close()
+            try:
+                async with asyncio.timeout(WRITE_SECONDS):
+                    await writer.wait_closed()
+            except (OSError, TimeoutError):
+                pass
+            finally:
+                if acquired:
+                    self.active = False
+
+
+@asynccontextmanager
+async def serve_control(service, value):
+    path = _socket_path(value)
+    listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    owned = None
+    server = None
+    control = CorpusControl(service)
+    try:
+        listener.bind(str(path))  # Never replaces or unlinks an existing path.
+        info = path.lstat()
+        owned = (info.st_dev, info.st_ino)
+        path.chmod(0o600)
+        listener.setblocking(False)
+        server = await asyncio.start_unix_server(control.connected, sock=listener,
+                                                 limit=MAX_REQUEST_BYTES, backlog=8)
+        yield control
+    finally:
+        control.closing = True
+        if server is not None:
+            server.close()
+            await server.wait_closed()
+        else:
+            listener.close()
+        tasks = list(control.tasks)
+        for task in tasks:
+            task.cancel()
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        if owned is not None:
+            try:
+                current = path.lstat()
+                if stat.S_ISSOCK(current.st_mode) and (current.st_dev, current.st_ino) == owned:
+                    path.unlink()
+            except FileNotFoundError:
+                pass
+
+
+def refresh(socket_path, release, digest, *, timeout=30.0):
+    """One request, no retry. A timeout/lost reply leaves the result ambiguous."""
+    raw = json.dumps({'release': str(release), 'manifest_sha256': digest}).encode() + b'\n'
+    _request(raw)
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+        client.settimeout(timeout)
+        client.connect(str(socket_path))
+        client.sendall(raw)
+        with client.makefile('rb') as stream:
+            reply = stream.readline(MAX_REQUEST_BYTES + 1)
+    if len(reply) > MAX_REQUEST_BYTES or not reply.endswith(b'\n'):
+        raise ValueError('Invalid control response')
+    value = json.loads(reply, object_pairs_hook=_unique)
+    if not isinstance(value, dict) or value.get('status') not in {'ok', 'busy', 'invalid_request', 'refresh_failed'}:
+        raise ValueError('Invalid control response')
+    return value
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--socket', required=True, type=Path)
+    parser.add_argument('--release', required=True, type=Path)
+    parser.add_argument('--sha256', required=True)
+    args = parser.parse_args()
+    try:
+        result = refresh(args.socket, args.release, args.sha256)
+    except (OSError, ValueError):
+        parser.exit(2, 'Control request failed; inspect served corpus identity before retrying.\n')
+    print(json.dumps(result, sort_keys=True))
+    raise SystemExit(0 if result['status'] == 'ok' else 1)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-27",
+  "implementation_commit": "bde73254ab230c6acc12b47ab3471692c6be657c",
+  "workflow_run": 40580141296,
+  "protocol": "docs/operator-refresh.md",
+  "receipt": {
+    "checked_at_utc": "2026-10-27T20:42:03.348628+00:00",
+    "image_id": "sha256:8b45b2a59447d5cc187ee60d8be4dfeb1cc4663614c9d25bb2ff50fb5238c319",
+    "docker_server": "28.0.4",
+    "synthetic_generations": 2,
+    "documents_per_generation": 1,
+    "manifest_sha256": {
+      "release-a": "1fd879eb181bffc5d8e82255d47bb805d67ac69d6af7206c225fa2ce23b104df",
+      "release-b": "3068b9198c05776e1db86e31c5a1bb6f972ea5b6194c939d46fa4cd476ef797f"
+    },
+    "document_sha256": {
+      "release-a": "92109bfd7f67616c082479c3816339baf613507cbc460918d2de94b0823e4506",
+      "release-b": "8477900a6c7488b9da51b476b5dc7742ae70eab7a1a0f63b3af9d6fa18a6ccdb"
+    },
+    "checks": [
+      "packaged release producer",
+      "UID 10001 and read-only mount write rejection",
+      "selected inventory/source/triage lines and served corpus identity",
+      "same-pin clean restart",
+      "two coexisting generations and bidirectional 409",
+      "explicit rollback to A",
+      "private UID 10001 operator socket and stale-pin retention",
+      "same-process live B refresh and live A rollback",
+      "restart restores configured A after live B",
+      "stale manifest pin startup rejection",
+      "changed document startup rejection"
+    ],
+    "limits": "Synthetic local Linux Docker rehearsal; no coordinator, load, crash recovery or deployment."
+  }
+}
