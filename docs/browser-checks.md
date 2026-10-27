@@ -125,18 +125,24 @@ WebKit replay source-dialog screenshots from the passing run were also inspected
 These results
 extend engine coverage, not physical-device or assistive-technology coverage.
 
-## Hosted package mirror — October 27, 2026
+## Hosted package-download cancellations — October 27, 2026
 
 Runs `40527981916` (browser `122272651607`) and `40530484434` (browser
 `122281597038`) were cancelled at the 15-minute job limit while Playwright was
 installing Ubuntu dependencies. Logs showed continued slow package downloads from
-`azure.archive.ubuntu.com`, before the build or browser tests. They are setup
+`azure.archive.ubuntu.com`, before the build or browser tests. These are setup
 cancellations, not passing browser results. An unchanged-job retry was attempted.
 
-The browser job now replaces that exact Ubuntu archive URL with
-[Ubuntu's archive](https://archive.ubuntu.com/), using HTTPS, on its disposable
-runner before the existing Playwright installation. Suites, components, signing
-keys, third-party repositories, browser versions, tests and timeout remain unchanged.
-APT verification is retained; installation errors still fail the job. This selects
-another official package source, not a measured download-speed or availability
-promise. Local browser installation instructions do not modify the user's APT setup.
+A proposed workaround edited direct APT source files. Inspection of the passing
+[run 40535516021](https://github.com/harshaattili-human/runbookops/actions/runs/40535516021)
+showed that it changed no file: this runner obtained its mirrors through
+`file:/etc/apt/apt-mirrors.txt` and still downloaded from `azure.archive.ubuntu.com`.
+The successful run therefore does not demonstrate a mirror fix. The ineffective
+step was removed; the runner's package configuration and existing Playwright
+installation remain unchanged. No latency or future availability claim follows.
+
+The passing run verified 207 Python cases plus 11 subtests, seven component cases,
+36 live and 18 recorded browser executions, nine Java cases plus the live JAR,
+default/mounted-release container checks, and the configured audits. Browser job
+`122299573081` passed all workflows; the earlier setup cancellations remain part
+of the evidence. Source and test code were identical across the mirror-step removal.
