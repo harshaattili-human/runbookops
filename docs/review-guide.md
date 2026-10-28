@@ -194,3 +194,6 @@ processes are not coordinated.
 
 Trusted operator refreshes can now [compare an observed corpus identity](guarded-refresh.md)
 before publication, including commands queued behind other trusted refresh paths.
+
+The [local rollout rehearsal](local-rollout.md) exercises three real processes,
+partial conflict, journals and explicit recovery without claiming atomic deployment.

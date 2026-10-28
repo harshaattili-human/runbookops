@@ -96,7 +96,9 @@ Operators can select a manifest-pinned runbook release at startup using
 startup instead of falling back to bundled files. Trusted Python integrations can
 also refresh the index while requests retain their captured snapshots. See the
 [refresh contract](docs/index-refresh.md) and opt-in
-[local operator channel](docs/operator-refresh.md).
+[local operator channel](docs/operator-refresh.md). An explicit
+[local rollout plan](docs/local-rollout.md) can update several process sockets, stop
+on partial failures and record verification results.
 
 ## Evaluation and checks
 

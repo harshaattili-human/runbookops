@@ -121,3 +121,8 @@ names and 164 finding entries, with zero fixable high/critical entries; the Java
 audit inventoried 26 libraries with zero entries, and npm reported zero in that
 snapshot. These dated gates do not establish absence of vulnerabilities. Existing
 Lucide build warnings remain.
+
+The channel also accepts exactly `{"operation":"inspect"}` (CLI `--inspect`) to
+read this process identity. It uses the same non-queued operator lease and may
+return `busy` during a refresh. The [local rollout tool](local-rollout.md) composes
+guarded updates and exact-socket observations across an explicit process list.
