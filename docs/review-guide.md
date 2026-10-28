@@ -153,8 +153,10 @@ The [model card](model-card.md) describes thresholds and limitations.
 2. Touch/physical-device and manual assistive-technology checks.
    [Browser workflows](browser-checks.md) run on Chromium, Firefox and WebKit at
    three viewport sizes and include screenshots for review.
-3. Measured latency/concurrency behavior with a stated environment; the container
-   smoke check and individual request timing are not load tests.
+3. Open-arrival load and deployment-capacity evidence beyond the
+   [closed-loop HTTP characterization](http-characterization.md). Its raw samples
+   separate successful responses from rejection latency under explicit image limits;
+   the container smoke check and individual request timing are not load tests.
 4. Live LLM evaluation before making generation-quality claims. Authentication,
    abuse controls, and tenant boundaries before exposing a live public API.
 
