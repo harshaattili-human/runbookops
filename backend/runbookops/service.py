@@ -13,7 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from .classifier import IncidentClassifier
 from .corpus_release import verify_release
-from .corpus_snapshot import CorpusSnapshot
+from .corpus_snapshot import CorpusConflict, CorpusSnapshot, validate_identity
 from .request_target import external_information_signal
 from .retrieval import Retriever
 
@@ -83,9 +83,16 @@ class TriageService:
             return dict(candidate.document_hashes)
 
     def refresh_runbooks_release(self, release: Path, *,
-                                expected_manifest_hash: str | None = None) -> dict[str, object]:
+                                expected_manifest_hash: str | None = None,
+                                expected_corpus: dict | None = None) -> dict[str, object]:
         """Publish one complete manifest-pinned release, retaining the old index on error."""
+        expected = validate_identity(expected_corpus) if expected_corpus is not None else None
         with self._refresh_lock:
+            # Compare inside the same lock used by ALL trusted refresh paths, before
+            # filesystem reads/building. A queued older command cannot overwrite a
+            # publication that completed while it waited for this lock.
+            if expected is not None and self.snapshot.identity() != expected:
+                raise CorpusConflict('Served corpus changed')
             verified = verify_release(release, expected_manifest_hash=expected_manifest_hash)
             candidate = Retriever(documents=verified.documents)
             snapshot = CorpusSnapshot.capture(candidate, corpus_id=verified.corpus_id,

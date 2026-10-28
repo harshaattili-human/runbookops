@@ -191,3 +191,6 @@ and rejects invalid selections without falling back. Responses now identify thei
 and a content-inventory digest without filesystem paths. Its optional [local operator channel](operator-refresh.md) refreshes one process;
 producer-side multi-file capture still requires stopped writers, and multiple
 processes are not coordinated.
+
+Trusted operator refreshes can now [compare an observed corpus identity](guarded-refresh.md)
+before publication, including commands queued behind other trusted refresh paths.
