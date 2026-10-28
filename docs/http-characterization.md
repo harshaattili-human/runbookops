@@ -62,3 +62,59 @@ will be added after the run, before any measured-performance claim.
 
 Interview exercise: why can attempted requests/second increase while successful
 responses/second falls, and what does closed-loop traffic hide about an overloaded API?
+
+## Observed evidence — October 28, 2026
+
+The first 64-attempt-per-cell pilot (`1d14e0e`, run 40701090296) passed but its cells
+lasted fractions of a second. Inspection also showed that the original modulo
+assignment pinned clients to one query type at concurrency four or above. The
+measurement protocol was revised to 1,024 attempts per cell and a complete rotating
+query mix in every client. This is a protocol refinement, not an application speedup.
+The [pilot raw data](../reports/http-characterization-pilot-2026-10-28.json.gz) is retained;
+do not pool it with or present it as a controlled baseline for the revised protocol.
+
+Revised implementation `06561405603e37afb37537660dc7a5dda90d1af2` passed all five
+jobs in [run 40703077735](https://github.com/harshaattili-human/runbookops/actions/runs/40703077735).
+All 25 cells completed. Every 200 response matched its sequential decision/evidence
+hash, every 503 matched the admission contract, there were no transport errors,
+and all four final recovery responses matched. Measured cells lasted 2.12–3.76 seconds;
+these remain brief observations, not a long soak or stable tail-latency estimate.
+
+Each row below has five trials and **5,120 attempted requests**. Ranges preserve the
+lowest/highest per-trial value rather than pool samples or select a best run:
+
+| Concurrent clients | HTTP 200 / 503 totals | Successful responses/s range | Successful-response p95 ms range |
+| ---: | ---: | ---: | ---: |
+| 1 | 5120 / 0 | 272.06–292.33 | 3.79–5.33 |
+| 2 | 5120 / 0 | 287.85–298.28 | 8.55–8.97 |
+| 4 | 5120 / 0 | 289.76–302.61 | 17.53–18.54 |
+| 8 | 5120 / 0 | 298.11–299.57 | 34.64–35.44 |
+| 16 | 2843 / 2277 | 255.87–265.73 | 55.10–57.44 |
+
+Increasing clients did not yield proportional successful throughput on this fixture.
+At 16 clients, 2,277 of 5,120 attempts were rejected while successful latency rose.
+These outcomes do not select a new default admission capacity: query mix among
+successful requests can differ after rejection, and the shared driver/server host,
+new connections, warm caches and two-CPU quota remain confounders. Profile those
+costs and test representative workloads/open arrivals before deployment sizing.
+
+The [complete compressed JSON](../reports/http-characterization-2026-10-28.json.gz)
+preserves 25,600 request samples, all per-query outcome counts and environment data.
+Decompressed SHA-256 is
+`a0706b28fa0c0c96ef4c6ffd1bce82e388e1c1f2e79e76e695da2a2dc3809508`.
+The measured image was `sha256:e20c3a83318f674e43a2a94f30ce4dd2323ff9a800a81b650b47996849526b6d`,
+at GitHub test-merge checkout `674359f40f2622580968fced240b343c9db878d6` with no tracked
+changes. Host: four available CPUs, AMD EPYC 7763 model string, Linux amd64/Docker
+28.0.4/Python 3.12.15; container: Python 3.12.16, FastAPI 0.142.2, Uvicorn 0.54.0,
+scikit-learn 1.8.0, NumPy 2.3.5, HTTPX2 2.16.0. Enforced container limits were two CPU
+quota units and 536,870,912 bytes of memory with no additional swap.
+
+```sh
+python scripts/summarize_http_characterization.py reports/http-characterization-2026-10-28.json.gz
+```
+
+The same run passed 231 Python cases plus 11 subtests, seven component cases/build,
+18 Java executions/live JAR, 36 live plus 18 recorded browser executions, default
+and mounted-release container checks and configured audits. No runtime, model,
+ranking, threshold or holdout decision changed. Full application/browser/container
+execution was hosted; the three measurement-contract cases ran locally as well.
