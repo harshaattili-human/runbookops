@@ -49,3 +49,22 @@ application test dependencies are absent. Hosted results are recorded separately
 
 Interview exercise: why must the precondition be checked after acquiring the build
 lock, and why does content equality fail to detect an A-to-B-to-A publication history?
+
+## Hosted evidence — October 28, 2026
+
+Implementation `3def2490c4e096184705cb359a7b7767776355c0` passed all five jobs in
+[run 40694019996](https://github.com/harshaattili-human/runbookops/actions/runs/40694019996):
+verify 122835881490, browser 122835881365, container 122835881588, Spring client
+122835881511 and dependencies 122835881191. There were 222 Python cases plus
+11 subtests (four new cases), seven component tests/build, 18 Java executions and
+the live JAR walkthrough, 36 live plus 18 recorded browser executions, validation
+commands, default/mounted-release containers and audit gates. No holdout was scored.
+The new CLI race/recovery evidence is in Python's POSIX tests; existing container
+checks still exercise unguarded operator commands.
+
+The runtime audit inventoried 24 Python names and 164 finding entries, with zero
+fixable high/critical entries. The Java audit inventoried 26 libraries with zero
+entries. These dated scan results do not mean vulnerability-free. Java was
+17.0.21; the hosted job used the configured Python 3.12 / Node 24 / Ubuntu 24.04
+matrix. Local identity/parser probes, compilation and whitespace checks passed;
+full application execution remained hosted because of the local restrictions above.
