@@ -20,7 +20,7 @@ from container_smoke import docker, inspect, wait_healthy
 
 ROOT = Path(__file__).resolve().parents[1]
 LEVELS = (1, 2, 4, 8, 16)
-REQUESTS = 64
+REQUESTS = 1024
 QUERIES = (
     'HikariPool timeout waiting for a database connection; pending connections are rising.',
     'Workflow jobs are stuck pending and the queue backlog is growing. How can I investigate?',
@@ -70,6 +70,10 @@ def summarize(samples, seconds):
                                      'p95_ms': percentile(values, .95), 'max_ms': max(values)}
     result['successful_responses_per_second'] = sum(row['status'] == 200 for row in samples) / seconds
     result['invalid_responses'] = sum(not row['valid'] for row in samples)
+    result['per_query'] = {
+        str(query): {status: sum(row['query'] == query and str(row['status']) == status for row in samples)
+                    for status in result['outcomes']}
+        for query in sorted({row['query'] for row in samples})}
     return result
 
 
@@ -82,7 +86,8 @@ def cell(port, concurrency, expected):
         barrier.wait(timeout=30)
         rows = []
         for index in range(worker, REQUESTS, concurrency):
-            query = index % len(QUERIES)
+            # Each client cycles all query types, including at 4/8/16 clients.
+            query = (index // concurrency + worker) % len(QUERIES)
             offset = (perf_counter() - origin[0]) * 1000
             response = request(port, QUERIES[query])
             payload = response.pop('payload', None)
@@ -121,6 +126,8 @@ def run(image, output):
                            'selection': 'four authored synthetic smoke descriptions; no held-out data'},
               'host': {'python': platform.python_version(), 'platform': platform.platform(),
                        'cpu_count': os.cpu_count(), 'affinity': sorted(os.sched_getaffinity(0)),
+                       'cpu_models': sorted({line.split(':', 1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines()
+                                             if line.startswith('model name')}),
                        'docker': docker('version', '--format', '{{.Server.Version}}')},
               'cells': []}
     try:

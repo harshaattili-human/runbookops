@@ -27,11 +27,13 @@ fixtures, not a held-out quality dataset. No model generation or holdout scoring
 Twelve sequential warmups establish stable response hashes. Only request ID and
 duration are excluded; all routing, answerability, evidence and corpus fields remain.
 
-Five client counts (1, 2, 4, 8, 16) each run five times, with 64 attempts in every
-cell: 25 cells and 1,600 measured attempts. A cyclic Latin square puts each client
+Five client counts (1, 2, 4, 8, 16) each run five times, with 1,024 attempts in every
+cell: 25 cells and 25,600 measured attempts. A cyclic Latin square puts each client
 count in each order position once. Every client issues one request at a time with
 no think delay, no application retry and a new HTTP/1 connection. Clients synchronize
-at the start of a cell, not before each request. Each cell uses the same query mix.
+at the start of a cell, not before each request. Each client cycles all four query
+types equally; each cell uses the same attempted query mix. Per-query status counts
+retain the successful mix, which can change when the service rejects some requests.
 Four final sequential requests verify recovery against the initial hashes.
 
 Record start offsets, client/query IDs, complete-response latency and outcome for
