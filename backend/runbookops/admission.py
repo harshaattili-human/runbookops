@@ -1,5 +1,7 @@
 """Non-queuing admission around the complete triage HTTP lifecycle."""
 
+import os
+import re
 from threading import BoundedSemaphore
 
 from starlette.responses import JSONResponse
@@ -7,7 +9,14 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 
 
 class TriageAdmission:
-    def __init__(self, app: ASGIApp, capacity: int = 8):
+    def __init__(self, app: ASGIApp, capacity: int | None = None):
+        # Read once when the ASGI middleware is built, never from a request.
+        # Explicit embedding configuration takes precedence over the environment.
+        if capacity is None:
+            value = os.environ.get('RUNBOOKOPS_TRIAGE_CAPACITY', '8')
+            if not re.fullmatch(r'[1-9][0-9]{0,3}', value):
+                raise ValueError('RUNBOOKOPS_TRIAGE_CAPACITY must be an integer in 1..1000')
+            capacity = int(value)
         if type(capacity) is not int or not 1 <= capacity <= 1000:
             raise ValueError('Triage capacity must be an integer in 1..1000')
         self.app = app
