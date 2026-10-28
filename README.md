@@ -172,7 +172,7 @@ called by default.
 
 The triage API [limits request bodies](docs/request-bounds.md) to 32 KiB before
 JSON parsing; the existing 2,000-character query validation still applies.
-An [eight-request admission cap](docs/triage-admission.md) bounds concurrent triage
+A [configurable admission cap](docs/triage-admission.md), defaulting to eight requests, bounds concurrent triage
 lifetimes through upload, analysis and response sending; excess work receives 503.
 
 Generation requires citation IDs from the retrieved evidence and a completed

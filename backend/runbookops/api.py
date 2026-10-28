@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .service import ROOT, TriageService
 from .request_bounds import TriageBodyLimit
-from .admission import TriageAdmission
+from .admission import TriageAdmission, capacity_from_environment
 from .corpus_control import serve_control
 
 
@@ -53,7 +53,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title='RunbookOps', version='0.1.0', lifespan=lifespan)
 app.add_middleware(TriageBodyLimit)
 # Last added is outermost: admission precedes buffering, parsing and worker work.
-app.add_middleware(TriageAdmission)
+# Validate while importing the stock application. A middleware-construction
+# failure can be treated as unsupported lifespan by servers using auto detection.
+app.add_middleware(TriageAdmission, capacity=capacity_from_environment())
 
 
 @app.get('/healthz')

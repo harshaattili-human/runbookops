@@ -120,3 +120,5 @@ Completed October 25: the optional provider adapter and controlled HTTP fixtures
 from HTTPX to [HTTPX2](httpx2-migration.md). The full provider-boundary suite remains
 the behavior gate, and pytest now rejects Starlette’s deprecated HTTPX test-client path.
 This dependency migration is not a model-quality or deployment result.
+
+- Trusted startup admission capacity is configurable with strict validation; see [admission](triage-admission.md). Default eight is unchanged; per-workload sizing and process coordination remain operator concerns.

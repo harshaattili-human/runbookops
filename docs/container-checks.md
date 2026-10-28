@@ -162,3 +162,13 @@ script with a mode-0700 UID 10001 tmpfs socket directory, a second read-only rel
 mount, stale-pin retention, same-process live refresh/rollback and restart selection.
 The production image still defaults to no operator socket. This is one disposable
 container controlled through trusted `docker exec`, not multi-worker coordination.
+
+
+## Configured admission rehearsal
+
+`python scripts/admission_smoke.py --image runbookops:smoke` owns a separate hardened
+container and verifies `RUNBOOKOPS_TRIAGE_CAPACITY=2` before and after restart.
+Fixed/chunked partial uploads occupy both slots; excess work receives 503 before
+body reading, health remains reachable, and disconnect cleanup restores exactly
+two slots. See [the configuration contract and measured execution](triage-admission.md#operator-configuration--october-28-2026).
+This lifecycle check does not measure a recommended operating capacity.

@@ -1,6 +1,6 @@
 # Triage admission and cancellation ownership
 
-The HTTP app admits at most eight concurrent `POST /api/triage` lifetimes per
+By default the HTTP app admits at most eight concurrent `POST /api/triage` lifetimes per
 application process, including its trailing-slash redirect path. Admission is
 outside the body limiter: a slot covers upload, JSON validation, classifier/retrieval
 work, optional generation and response sending. The ninth request receives JSON
@@ -9,8 +9,13 @@ HTTP/1 connections are closed on rejection rather than reused with unread bodies
 There is no queue, retry loop or `Retry-After` promise.
 
 The default eight slots are an illustrative safety bound, not measured capacity.
-Trusted embedders can pass `capacity=1..1000` to `TriageAdmission`; the stock app
-uses eight with no request-controlled override. It has no per-caller map. Health,
+Operators can set `RUNBOOKOPS_TRIAGE_CAPACITY` at process startup to an integer
+from 1 through 1000. Unset selects eight; empty, whitespace, signed, fractional,
+non-ASCII, leading-zero and out-of-range values prevent startup. The value is
+read once when the stock application module is loaded; changing an environment or config file
+does not resize a running process. Restart with the new setting. Trusted embedders
+can pass `capacity=1..1000` to `TriageAdmission`, which takes precedence over the
+environment. There is no request-controlled override. It has no per-caller map. Health,
 source/overview reads, assets and direct Python service calls are outside this cap.
 The independent two-slot provider admission and source-text busy fallback are
 unchanged: triage saturation is a 503, not an abstention or a fabricated answer.
@@ -33,8 +38,8 @@ deadlines remain phase-specific, not a whole-request CPU deadline or hard SLA.
 
 This bounds admitted triage lifetimes, not total memory, connections, framework
 queues, headers, rejected response work or all application CPU. Proxies can buffer
-outside this boundary; workers/replicas multiply the allowance. Eight slow uploads
-can occupy all slots until their upload deadline/disconnect. Response backpressure
+outside this boundary; workers/replicas multiply the allowance. Enough slow uploads
+can occupy all configured slots until their upload deadline/disconnect. Response backpressure
 also holds a slot. There is no tenant fairness, authentication, rate limit or
 production-load claim, and direct service callers need their own admission policy.
 
@@ -86,3 +91,52 @@ References: [asyncio shielding and cancellation](https://docs.python.org/3.12/li
 
 Interview exercise: why can releasing a semaphore in an async `finally` still return
 capacity too early when the awaited operation runs in a synchronous worker thread?
+
+## Operator configuration — October 28, 2026
+
+```sh
+RUNBOOKOPS_TRIAGE_CAPACITY=2 uvicorn runbookops.api:app --host 127.0.0.1 --port 8000
+python -m pytest -q tests/test_admission_configuration.py tests/test_admission.py
+python scripts/admission_smoke.py --image runbookops:smoke
+```
+
+Two is an illustrative override, not a recommended production value. The
+[HTTP characterization](http-characterization.md) showed increasing response
+latency without proportional success-throughput scaling on one constrained image.
+It does not justify choosing a universal replacement for eight. Select a value
+using the intended hardware, worker count, request mix and observed rejection and
+latency behavior. This change does not add fairness, queuing, autoscaling or a
+memory/CPU guarantee. Multiple processes still multiply the configured allowance.
+
+Configuration cases cover rejected spellings, both range endpoints, the default,
+read-once selection and explicit-constructor precedence. A POSIX subprocess starts
+the actual stock Uvicorn app with two slots, holds fixed/chunked uploads, checks
+503 before body reads, health availability, disconnect cleanup and simultaneous
+recovery, then verifies invalid configuration prevents a new process from starting.
+The container rehearsal repeats the same HTTP contract with the actual non-root,
+read-only image before and after a container restart. It records the immutable
+image ID and Docker version. These are lifecycle fixtures, not throughput tests.
+Existing default-eight coverage remains. The first hosted run, [40706446872](https://github.com/harshaattili-human/runbookops/actions/runs/40706446872), passed the two-slot HTTP check but exposed that Uvicorn auto-lifespan handling did not exit after middleware-construction validation failed. Configuration is now validated while importing the stock app, before lifespan detection. The startup-exit assertion is retained. Correction `739e7125698b82c559f5ba72b2489c33aae5a453` then passed all five jobs in
+[run 40707066142](https://github.com/harshaattili-human/runbookops/actions/runs/40707066142).
+Verification `122881933127` passed 248 Python cases plus 11 subtests (17 added
+configuration/process executions), seven component cases and the frontend build.
+Spring client `122881932995` passed 18 cases plus the live JAR walkthrough. Browser
+`122881932384` passed 36 live and 18 recorded executions; these existing browser
+checks use the default capacity. Container `122881932960` passed the new two-slot
+rehearsal and existing default/mounted-release checks and HTTP characterization.
+Dependencies `122881932978` passed its configured gate.
+
+The new container receipt records image
+`sha256:15dff1ff65ddc9b3c9ab93ae8b9251d47e1cf1edc0b65518d9110ff70696c96c`,
+Docker 28.0.4 and both two-slot cycles across restart. Its
+[artifact](https://github.com/harshaattili-human/runbookops/actions/runs/40707066142/artifacts/12824273383)
+is retained 30 days; the committed script reproduces the check afterward. The same
+image audit inventoried 24 Python package names, 164 advisory finding entries and
+zero fixable high/critical entries. This is dated advisory evidence, not a
+vulnerability-free image. Hosted Python was 3.12.15 on Ubuntu 24.04. Local Python
+compilation, documentation links and whitespace checks passed; application
+dependencies and Docker are unavailable locally. No holdout was rescored and the
+model, corpus, ranking and answerability policies are unchanged.
+
+Optional interview exercise: why can lowering admission improve successful-request
+latency while increasing rejections, and why do four workers not share one budget?

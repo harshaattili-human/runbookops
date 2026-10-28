@@ -80,6 +80,14 @@ jobs:
         run: python scripts/container_smoke.py
       - name: Rehearse mounted corpus selection and rollback
         run: python scripts/corpus_container_smoke.py
+      - name: Verify configured admission and restart in the packaged image
+        run: python scripts/admission_smoke.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: admission-container-receipt
+          path: artifacts/admission-container.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Characterize closed-loop HTTP concurrency
         run: python scripts/http_characterization.py
       - uses: actions/upload-artifact@v7
