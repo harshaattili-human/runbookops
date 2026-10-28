@@ -116,9 +116,27 @@ recovery, then verifies invalid configuration prevents a new process from starti
 The container rehearsal repeats the same HTTP contract with the actual non-root,
 read-only image before and after a container restart. It records the immutable
 image ID and Docker version. These are lifecycle fixtures, not throughput tests.
-Existing default-eight coverage remains. The first hosted run, [40706446872](https://github.com/harshaattili-human/runbookops/actions/runs/40706446872), passed the two-slot HTTP check but exposed that Uvicorn auto-lifespan handling did not exit after middleware-construction validation failed. Configuration is now validated while importing the stock app, before lifespan detection. The startup-exit assertion is retained. Revised hosted execution is pending; local
-Python compilation and whitespace checks passed, but application dependencies and
-Docker are unavailable in this execution environment.
+Existing default-eight coverage remains. The first hosted run, [40706446872](https://github.com/harshaattili-human/runbookops/actions/runs/40706446872), passed the two-slot HTTP check but exposed that Uvicorn auto-lifespan handling did not exit after middleware-construction validation failed. Configuration is now validated while importing the stock app, before lifespan detection. The startup-exit assertion is retained. Correction `739e7125698b82c559f5ba72b2489c33aae5a453` then passed all five jobs in
+[run 40707066142](https://github.com/harshaattili-human/runbookops/actions/runs/40707066142).
+Verification `122881933127` passed 248 Python cases plus 11 subtests (17 added
+configuration/process executions), seven component cases and the frontend build.
+Spring client `122881932995` passed 18 cases plus the live JAR walkthrough. Browser
+`122881932384` passed 36 live and 18 recorded executions; these existing browser
+checks use the default capacity. Container `122881932960` passed the new two-slot
+rehearsal and existing default/mounted-release checks and HTTP characterization.
+Dependencies `122881932978` passed its configured gate.
+
+The new container receipt records image
+`sha256:15dff1ff65ddc9b3c9ab93ae8b9251d47e1cf1edc0b65518d9110ff70696c96c`,
+Docker 28.0.4 and both two-slot cycles across restart. Its
+[artifact](https://github.com/harshaattili-human/runbookops/actions/runs/40707066142/artifacts/12824273383)
+is retained 30 days; the committed script reproduces the check afterward. The same
+image audit inventoried 24 Python package names, 164 advisory finding entries and
+zero fixable high/critical entries. This is dated advisory evidence, not a
+vulnerability-free image. Hosted Python was 3.12.15 on Ubuntu 24.04. Local Python
+compilation, documentation links and whitespace checks passed; application
+dependencies and Docker are unavailable locally. No holdout was rescored and the
+model, corpus, ranking and answerability policies are unchanged.
 
 Optional interview exercise: why can lowering admission improve successful-request
 latency while increasing rejections, and why do four workers not share one budget?
