@@ -104,3 +104,24 @@ because the local environment denies AF_UNIX and lacks application test dependen
 
 Interview exercise: why is a lost reply different from a rejected precondition,
 and why would an automatic rollback risk overwriting another operator's work?
+
+## Hosted evidence — October 28, 2026
+
+Implementation `9af7c15657eddbf65411aa740bb28f294052dd72` passed all five jobs in
+[run 40696433740](https://github.com/harshaattili-human/runbookops/actions/runs/40696433740):
+verify 122844330067, container 122844329605, browser 122844330049, Spring client
+122844330245 and dependencies 122844330200. The Python suite passed 228 cases plus
+11 subtests, including six new rollout executions (conflict/lost reply are two
+parameterized executions). The three-worker Uvicorn/CLI recovery case passed on
+hosted Linux. It uses three authored one-document release generations and scores
+no holdout queries.
+
+The existing seven component tests/build, 18 Java executions plus live walkthrough,
+36 live plus 18 recorded browser executions, validation and both container rehearsals
+passed. The new multi-process rehearsal runs in Python tests; the existing container
+rehearsal does not run the coordinator. Hosted Python 3.12.15, Node 24.22.1, Java
+17.0.21 and Ubuntu 24.04 were used. The runtime audit reported 164 finding entries
+and zero fixable high/critical entries across 24 inventoried Python package names;
+Java inventoried 26 libraries with zero entries. Dated audit success is not absence
+of vulnerabilities. Local compilation/whitespace passed; process execution remained
+hosted under the documented local socket/dependency limitations.
