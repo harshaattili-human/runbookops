@@ -111,3 +111,39 @@ def test_inflight_answer_keeps_old_search_and_threshold(data, monkeypatch):
     assert result['answerability']['threshold'] == original.minimum_document_coverage
     assert result['sources'][0]['document_hash'] == original.document_hashes['database']
     assert service.triage(QUERY)['mode'] == 'abstained'
+
+
+def test_guard_compares_after_waiting_for_a_trusted_refresh(data, tmp_path, monkeypatch):
+    from runbookops.corpus_release import create_release, verify_release
+    from runbookops.corpus_snapshot import CorpusConflict
+    service = TriageService(data)
+    observed = service.snapshot.identity()
+    candidate = create_release(data / 'runbooks', tmp_path / 'releases', 'candidate')
+    pin = verify_release(candidate).manifest_hash
+    entered, proceed, waiting = Event(), Event(), Event()
+    factory = service_module.Retriever
+    calls = []
+    def held(*args, **kwargs):
+        calls.append(1)
+        entered.set()
+        assert proceed.wait(5)
+        return factory(*args, **kwargs)
+    monkeypatch.setattr(service_module, 'Retriever', held)
+    (data / 'runbooks' / 'database.md').write_text(DOCUMENT.replace('Review', 'Compare'))
+    def guarded():
+        waiting.set()
+        return service.refresh_runbooks_release(candidate, expected_manifest_hash=pin, expected_corpus=observed)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        trusted = pool.submit(service.refresh_runbooks)
+        try:
+            assert entered.wait(3)
+            stale = pool.submit(guarded)
+            assert waiting.wait(3)
+        finally:
+            proceed.set()
+        trusted.result(timeout=5)
+        with pytest.raises(CorpusConflict):
+            stale.result(timeout=5)
+    assert len(calls) == 1
+    assert service.snapshot.identity() != observed
+    assert service.snapshot.identity()['source'] == 'directory'

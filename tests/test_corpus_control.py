@@ -287,3 +287,78 @@ def test_real_api_and_cli_refresh_without_restart(data, tmp_path):
             assert _http(base, '/api/overview')['corpus'] == identity
             _http(base, '/api/runbooks/database?expected_hash=' + old['content_hash'], expected=409)
         assert not path.exists()
+
+
+def test_guarded_refresh_rejects_stale_identity_before_reading_release(data, tmp_path, monkeypatch):
+    service = TriageService(data)
+    old = service.snapshot.identity()
+    release = create_release(data / 'runbooks', tmp_path / 'releases', 'same-content')
+    pin = verify_release(release).manifest_hash
+
+    async def scenario(path):
+        async with control.serve_control(service, path):
+            accepted = await asyncio.to_thread(control.refresh, path, release, pin, expected_corpus=old)
+            current = service.snapshot.identity()
+            assert accepted == {'status': 'ok', 'corpus': current}
+            # Same documents, different release metadata must still conflict.
+            assert current['documents_sha256'] == old['documents_sha256']
+            def forbidden(*args, **kwargs):
+                pytest.fail('Stale request read the candidate release')
+            monkeypatch.setattr(service_module, 'verify_release', forbidden)
+            rejected = await asyncio.to_thread(control.refresh, path, '/missing', pin, expected_corpus=old)
+            assert rejected == {'status': 'conflict'}
+            assert service.snapshot.identity() == current
+
+    with socket_path() as path:
+        asyncio.run(scenario(path))
+
+
+def test_guard_schema_rejects_null_partial_and_inconsistent_identities():
+    identity = {'schema_version': 1, 'source': 'directory', 'corpus_id': None,
+                'manifest_sha256': None, 'documents_sha256': 'a' * 64}
+    malformed = [None, {}, {**identity, 'schema_version': True},
+                 {**identity, 'schema_version': 1.0}, {**identity, 'source': 'unknown'},
+                 {**identity, 'manifest_sha256': 'b' * 64},
+                 {**identity, 'documents_sha256': 'A' * 64},
+                 {**identity, 'source': 'release'}, {**identity, 'extra': 1}]
+    for expected in malformed:
+        raw = json.dumps({'release': '/synthetic', 'manifest_sha256': 'a' * 64,
+                          'expected_corpus': expected}).encode() + b'\n'
+        with pytest.raises(ValueError):
+            control._request(raw)
+    raw = json.dumps({'release': '/synthetic', 'manifest_sha256': 'a' * 64,
+                      'expected_corpus': identity}).encode() + b'\n'
+    assert control._request(raw)[2] == identity
+
+
+def test_guarded_cli_conflict_and_explicit_recovery(data, tmp_path):
+    first = create_release(data / 'runbooks', tmp_path / 'releases', 'first')
+    second = create_release(data / 'runbooks', tmp_path / 'releases', 'second')
+    a, b = verify_release(first), verify_release(second)
+    saved = tmp_path / 'observed.json'
+    env = {**os.environ, 'RUNBOOKOPS_ROOT': str(data.parent),
+           'RUNBOOKOPS_CORPUS_RELEASE': str(first), 'RUNBOOKOPS_CORPUS_SHA256': a.manifest_hash,
+           'PYTHONPATH': str(Path(__file__).resolve().parents[1] / 'backend')}
+    # This fixture's data directory need not be named data.
+    root = tmp_path / 'app'
+    (root / 'data').mkdir(parents=True)
+    (root / 'data' / 'incidents.json').write_bytes((data / 'incidents.json').read_bytes())
+    env['RUNBOOKOPS_ROOT'] = str(root)
+    with socket_path() as path:
+        env['RUNBOOKOPS_CONTROL_SOCKET'] = str(path)
+        def cli():
+            return subprocess.run([sys.executable, '-m', 'runbookops.corpus_control', '--socket', str(path),
+                '--release', str(second), '--sha256', b.manifest_hash, '--expected-corpus', str(saved)],
+                env=env, capture_output=True, text=True, timeout=10)
+        with _server(env) as base:
+            old = _http(base, '/healthz')['corpus']
+            saved.write_text(json.dumps(old))
+            first_result = cli()
+            assert first_result.returncode == 0, first_result.stderr
+            current = json.loads(first_result.stdout)['corpus']
+            assert current['corpus_id'] == 'second'
+            stale = cli()
+            assert stale.returncode == 1 and json.loads(stale.stdout) == {'status': 'conflict'}
+            assert _http(base, '/healthz')['corpus'] == current
+            saved.write_text(json.dumps(current))
+            assert cli().returncode == 0

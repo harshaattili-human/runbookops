@@ -26,8 +26,9 @@ for independently managed processes. The operator must run as the application UI
 boundary; this does not defend against root, compromised same-UID code or hostile
 filesystem changes. Keep the directory and release storage operator-managed.
 
-Each connection accepts one newline-terminated JSON object with exactly `release`
-(an absolute path) and `manifest_sha256` (64 lowercase hex characters). Duplicate
+Each connection accepts one newline-terminated JSON object with required `release`
+(an absolute path) and `manifest_sha256` (64 lowercase hex characters), plus optional `expected_corpus` for a
+[guarded refresh](guarded-refresh.md). Duplicate
 fields, malformed UTF-8/JSON, extra fields and requests exceeding 4096 bytes including
 the newline are rejected. Reading has one five-second cooperative deadline. One
 operator lease covers upload, index construction and reply cleanup; another caller
@@ -39,7 +40,7 @@ The existing release verifier checks the exact manifest pin, inventory and sourc
 hashes before building an index. Building runs in a worker thread while API requests
 continue using their captured snapshot. Only successful construction replaces the
 snapshot. The reply contains `ok` plus the identity of that publication, or a fixed
-`invalid_request`, `busy` or `refresh_failed` status without local paths/exception
+`invalid_request`, `busy`, `conflict` or `refresh_failed` status without local paths/exception
 text. A detached identity is included in the in-process refresh receipt so it cannot
 accidentally describe a later trusted publication.
 

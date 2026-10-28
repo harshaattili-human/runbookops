@@ -10,6 +10,8 @@ import re
 import socket
 import stat
 
+from .corpus_snapshot import CorpusConflict, validate_identity
+
 MAX_REQUEST_BYTES = 4096  # Includes the terminating newline, not transport buffers.
 READ_SECONDS = 5.0
 WRITE_SECONDS = 1.0
@@ -28,14 +30,16 @@ def _request(raw):
     if len(raw) > MAX_REQUEST_BYTES or not raw.endswith(b'\n'):
         raise ValueError('Invalid request framing')
     value = json.loads(raw, object_pairs_hook=_unique)
-    if not isinstance(value, dict) or set(value) != {'release', 'manifest_sha256'}:
+    if not isinstance(value, dict) or set(value) not in (
+            {'release', 'manifest_sha256'}, {'release', 'manifest_sha256', 'expected_corpus'}):
         raise ValueError('Expected release and manifest_sha256')
     release, digest = value['release'], value['manifest_sha256']
     if not isinstance(release, str) or '\x00' in release or not Path(release).is_absolute():
         raise ValueError('Release must be an absolute path')
     if not isinstance(digest, str) or re.fullmatch(r'[0-9a-f]{64}', digest) is None:
         raise ValueError('Expected a lowercase SHA-256 pin')
-    return Path(release), digest
+    expected = validate_identity(value['expected_corpus']) if 'expected_corpus' in value else None
+    return Path(release), digest, expected
 
 
 def _socket_path(value):
@@ -98,14 +102,17 @@ class CorpusControl:
             try:
                 async with asyncio.timeout(READ_SECONDS):
                     raw = await reader.readuntil(b'\n')
-                release, digest = _request(raw)
+                release, digest, expected = _request(raw)
             except (ValueError, UnicodeError, RecursionError, TimeoutError,
                     asyncio.IncompleteReadError, asyncio.LimitOverrunError):
                 await self.respond(writer, {'status': 'invalid_request'})
                 return
             try:
                 receipt = await _joined_worker(self.service.refresh_runbooks_release, release,
-                                               expected_manifest_hash=digest)
+                                               expected_manifest_hash=digest, expected_corpus=expected)
+            except CorpusConflict:
+                await self.respond(writer, {'status': 'conflict'})
+                return
             except Exception:
                 # Do not send filesystem paths or exception text to the socket.
                 await self.respond(writer, {'status': 'refresh_failed'})
@@ -162,9 +169,12 @@ async def serve_control(service, value):
                 pass
 
 
-def refresh(socket_path, release, digest, *, timeout=30.0):
+def refresh(socket_path, release, digest, *, expected_corpus=None, timeout=30.0):
     """One request, no retry. A timeout/lost reply leaves the result ambiguous."""
-    raw = json.dumps({'release': str(release), 'manifest_sha256': digest}).encode() + b'\n'
+    command = {'release': str(release), 'manifest_sha256': digest}
+    if expected_corpus is not None:
+        command['expected_corpus'] = validate_identity(expected_corpus)
+    raw = json.dumps(command).encode() + b'\n'
     _request(raw)
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
         client.settimeout(timeout)
@@ -175,7 +185,7 @@ def refresh(socket_path, release, digest, *, timeout=30.0):
     if len(reply) > MAX_REQUEST_BYTES or not reply.endswith(b'\n'):
         raise ValueError('Invalid control response')
     value = json.loads(reply, object_pairs_hook=_unique)
-    if not isinstance(value, dict) or value.get('status') not in {'ok', 'busy', 'invalid_request', 'refresh_failed'}:
+    if not isinstance(value, dict) or value.get('status') not in {'ok', 'busy', 'invalid_request', 'refresh_failed', 'conflict'}:
         raise ValueError('Invalid control response')
     return value
 
@@ -185,9 +195,13 @@ def main():
     parser.add_argument('--socket', required=True, type=Path)
     parser.add_argument('--release', required=True, type=Path)
     parser.add_argument('--sha256', required=True)
+    parser.add_argument('--expected-corpus', type=Path,
+                        help='JSON file containing the previously observed complete corpus identity')
     args = parser.parse_args()
     try:
-        result = refresh(args.socket, args.release, args.sha256)
+        expected = (validate_identity(json.loads(args.expected_corpus.read_bytes(), object_pairs_hook=_unique))
+                    if args.expected_corpus is not None else None)
+        result = refresh(args.socket, args.release, args.sha256, expected_corpus=expected)
     except (OSError, ValueError):
         parser.exit(2, 'Control request failed; inspect served corpus identity before retrying.\n')
     print(json.dumps(result, sort_keys=True))

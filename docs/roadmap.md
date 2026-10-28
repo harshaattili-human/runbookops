@@ -17,7 +17,7 @@ new dependency or framework without a measured need.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
 5. Add multi-process rollout coordination beyond the optional
    [local operator refresh channel](operator-refresh.md). The trusted
-   service supports [atomic in-process index refresh](index-refresh.md), and a
+   service now rejects [stale guarded refreshes](guarded-refresh.md) and supports [atomic in-process index refresh](index-refresh.md), and a
    manifest-pinned release workflow now prevents a refresh from mixing source-file
    generations. The stock HTTP app can select an explicit release and expected
    manifest hash at startup; invalid selections fail startup. [Served corpus identity](corpus-identity.md)
