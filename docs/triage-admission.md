@@ -12,7 +12,7 @@ The default eight slots are an illustrative safety bound, not measured capacity.
 Operators can set `RUNBOOKOPS_TRIAGE_CAPACITY` at process startup to an integer
 from 1 through 1000. Unset selects eight; empty, whitespace, signed, fractional,
 non-ASCII, leading-zero and out-of-range values prevent startup. The value is
-read once when middleware is constructed; changing an environment or config file
+read once when the stock application module is loaded; changing an environment or config file
 does not resize a running process. Restart with the new setting. Trusted embedders
 can pass `capacity=1..1000` to `TriageAdmission`, which takes precedence over the
 environment. There is no request-controlled override. It has no per-caller map. Health,
@@ -116,7 +116,7 @@ recovery, then verifies invalid configuration prevents a new process from starti
 The container rehearsal repeats the same HTTP contract with the actual non-root,
 read-only image before and after a container restart. It records the immutable
 image ID and Docker version. These are lifecycle fixtures, not throughput tests.
-Existing default-eight coverage remains. Full hosted execution is pending; local
+Existing default-eight coverage remains. The first hosted run, [40706446872](https://github.com/harshaattili-human/runbookops/actions/runs/40706446872), passed the two-slot HTTP check but exposed that Uvicorn auto-lifespan handling did not exit after middleware-construction validation failed. Configuration is now validated while importing the stock app, before lifespan detection. The startup-exit assertion is retained. Revised hosted execution is pending; local
 Python compilation and whitespace checks passed, but application dependencies and
 Docker are unavailable in this execution environment.
 
