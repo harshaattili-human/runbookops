@@ -30,6 +30,8 @@ def _request(raw):
     if len(raw) > MAX_REQUEST_BYTES or not raw.endswith(b'\n'):
         raise ValueError('Invalid request framing')
     value = json.loads(raw, object_pairs_hook=_unique)
+    if value == {'operation': 'inspect'}:
+        return None, None, None
     if not isinstance(value, dict) or set(value) not in (
             {'release', 'manifest_sha256'}, {'release', 'manifest_sha256', 'expected_corpus'}):
         raise ValueError('Expected release and manifest_sha256')
@@ -107,6 +109,9 @@ class CorpusControl:
                     asyncio.IncompleteReadError, asyncio.LimitOverrunError):
                 await self.respond(writer, {'status': 'invalid_request'})
                 return
+            if release is None:
+                await self.respond(writer, {'status': 'ok', 'corpus': self.service.snapshot.identity()})
+                return
             try:
                 receipt = await _joined_worker(self.service.refresh_runbooks_release, release,
                                                expected_manifest_hash=digest, expected_corpus=expected)
@@ -176,6 +181,15 @@ def refresh(socket_path, release, digest, *, expected_corpus=None, timeout=30.0)
         command['expected_corpus'] = validate_identity(expected_corpus)
     raw = json.dumps(command).encode() + b'\n'
     _request(raw)
+    return _exchange(socket_path, raw, timeout)
+
+
+def inspect_corpus(socket_path, *, timeout=30.0):
+    """Observe this exact local process, without an HTTP/load-balancer hop."""
+    return _exchange(socket_path, b'{"operation":"inspect"}\n', timeout)
+
+
+def _exchange(socket_path, raw, timeout):
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
         client.settimeout(timeout)
         client.connect(str(socket_path))
@@ -185,7 +199,11 @@ def refresh(socket_path, release, digest, *, expected_corpus=None, timeout=30.0)
     if len(reply) > MAX_REQUEST_BYTES or not reply.endswith(b'\n'):
         raise ValueError('Invalid control response')
     value = json.loads(reply, object_pairs_hook=_unique)
-    if not isinstance(value, dict) or value.get('status') not in {'ok', 'busy', 'invalid_request', 'refresh_failed', 'conflict'}:
+    if not isinstance(value, dict) or not isinstance(value.get('status'), str):
+        raise ValueError('Invalid control response')
+    if value['status'] == 'ok' and set(value) == {'status', 'corpus'}:
+        value['corpus'] = validate_identity(value['corpus'])
+    elif value['status'] not in {'busy', 'invalid_request', 'refresh_failed', 'conflict'} or set(value) != {'status'}:
         raise ValueError('Invalid control response')
     return value
 
@@ -193,15 +211,21 @@ def refresh(socket_path, release, digest, *, expected_corpus=None, timeout=30.0)
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--socket', required=True, type=Path)
-    parser.add_argument('--release', required=True, type=Path)
-    parser.add_argument('--sha256', required=True)
+    parser.add_argument('--release', type=Path)
+    parser.add_argument('--sha256')
+    parser.add_argument('--inspect', action='store_true', help='Read this process corpus identity without refreshing')
     parser.add_argument('--expected-corpus', type=Path,
                         help='JSON file containing the previously observed complete corpus identity')
     args = parser.parse_args()
+    if args.inspect and any((args.release, args.sha256, args.expected_corpus)):
+        parser.error('--inspect cannot be combined with refresh arguments')
+    if not args.inspect and (args.release is None or args.sha256 is None):
+        parser.error('refresh requires --release and --sha256')
     try:
         expected = (validate_identity(json.loads(args.expected_corpus.read_bytes(), object_pairs_hook=_unique))
                     if args.expected_corpus is not None else None)
-        result = refresh(args.socket, args.release, args.sha256, expected_corpus=expected)
+        result = (inspect_corpus(args.socket) if args.inspect else
+                  refresh(args.socket, args.release, args.sha256, expected_corpus=expected))
     except (OSError, ValueError):
         parser.exit(2, 'Control request failed; inspect served corpus identity before retrying.\n')
     print(json.dumps(result, sort_keys=True))

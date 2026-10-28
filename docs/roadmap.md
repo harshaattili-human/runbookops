@@ -15,7 +15,10 @@ new dependency or framework without a measured need.
 3. Compare sparse retrieval against an optional local sentence embedding baseline;
    measure quality and runtime on a separately authored holdout.
 4. Separate API reliability from access-control incidents and document taxonomy changes.
-5. Add multi-process rollout coordination beyond the optional
+5. Extend the [local sequential rollout tool](local-rollout.md) with traffic draining
+   and durable recovery only when a deployment needs them. It now uses explicit
+   worker preconditions, stops on partial failures and verifies each exact socket;
+   it does not provide atomic multi-worker publication. The optional
    [local operator refresh channel](operator-refresh.md). The trusted
    service now rejects [stale guarded refreshes](guarded-refresh.md) and supports [atomic in-process index refresh](index-refresh.md), and a
    manifest-pinned release workflow now prevents a refresh from mixing source-file
@@ -25,7 +28,7 @@ new dependency or framework without a measured need.
    coordinated restarts or explicit refreshes through their separate private sockets. The
    [container rehearsal](container-checks.md#mounted-corpus-release-rehearsal) exercises
    explicit selection/rollback and shows coexisting generations; it is not a rollout
-   coordinator.
+   coordinator; the separate local tool now covers explicit process lists.
 6. Extend the [Spring Boot client example](spring-client.md) when a concrete caller
    needs total deadlines, admission limits or tracing propagation. It now uses
    explicit connect/read timeouts, retains response request IDs and checks source
