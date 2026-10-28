@@ -80,6 +80,15 @@ jobs:
         run: python scripts/container_smoke.py
       - name: Rehearse mounted corpus selection and rollback
         run: python scripts/corpus_container_smoke.py
+      - name: Characterize closed-loop HTTP concurrency
+        run: python scripts/http_characterization.py
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: http-characterization
+          path: artifacts/http-characterization.json
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/upload-artifact@v7
         with:
           name: corpus-container-receipt

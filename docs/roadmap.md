@@ -49,6 +49,10 @@ No paid services, production data, employer source code, or automated infrastruc
 actions are required. Research and partially implemented experiments belong on a
 branch; the default branch should remain runnable.
 
+The [HTTP characterization](http-characterization.md) now defines an equal-work,
+counterbalanced closed-loop container protocol with separate success/rejection
+latencies and raw samples. It is not an open-arrival capacity or SLO test.
+
 The triage HTTP boundary now rejects bodies above 32 KiB before parsing, including
 chunked uploads. [Request-bound checks](request-bounds.md) cover framing and
 disconnects. A single 30-second upload deadline now rejects stalled/trickling bodies;
