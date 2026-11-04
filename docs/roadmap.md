@@ -57,7 +57,9 @@ The triage HTTP boundary now rejects bodies above 32 KiB before parsing, includi
 chunked uploads. [Request-bound checks](request-bounds.md) cover framing and
 disconnects. A single 30-second upload deadline now rejects stalled/trickling bodies;
 [aggregate triage admission](triage-admission.md) now retains slots through response
-completion and cancellation cleanup. Rate limits and fairness remain open.
+completion and cancellation cleanup. An optional [process token bucket](rate-limits.md)
+now bounds bursts before body reads and admission. Caller fairness, distributed
+limits and edge controls remain open.
 
 Completed October 4: a same-fold dummy classifier comparison, fixed-gate ranking
 ablations, separate synthetic validation/holdout suites, and per-case failure reports.

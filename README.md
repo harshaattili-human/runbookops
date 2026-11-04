@@ -174,6 +174,9 @@ The triage API [limits request bodies](docs/request-bounds.md) to 32 KiB before
 JSON parsing; the existing 2,000-character query validation still applies.
 A [configurable admission cap](docs/triage-admission.md), defaulting to eight requests, bounds concurrent triage
 lifetimes through upload, analysis and response sending; excess work receives 503.
+An independent [opt-in process request budget](docs/rate-limits.md) rejects bursts
+with 429 before body reading or concurrency admission. It is disabled by default
+and is neither caller fairness nor a distributed quota.
 
 Generation requires citation IDs from the retrieved evidence and a completed
 provider response. The [adapter boundary](docs/ollama-boundary.md) caps the JSON

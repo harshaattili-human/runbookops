@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from .service import ROOT, TriageService
 from .request_bounds import TriageBodyLimit
 from .admission import TriageAdmission, capacity_from_environment
+from .rate_limit import TriageRateLimit, configuration_from_environment
 from .corpus_control import serve_control
 
 
@@ -56,6 +57,9 @@ app.add_middleware(TriageBodyLimit)
 # Validate while importing the stock application. A middleware-construction
 # failure can be treated as unsupported lifespan by servers using auto detection.
 app.add_middleware(TriageAdmission, capacity=capacity_from_environment())
+# Optional rate limiting is outermost: rejected work spends no admission slot and
+# neither limiter reads the request body before rejecting it.
+app.add_middleware(TriageRateLimit, configuration=configuration_from_environment())
 
 
 @app.get('/healthz')

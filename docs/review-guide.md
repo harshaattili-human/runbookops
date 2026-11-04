@@ -178,6 +178,9 @@ to the invoking source card.
 [Triage admission](triage-admission.md) bounds concurrent HTTP lifetimes and joins
 cancelled synchronous workers before returning their capacity. It is separate from
 provider admission, phase deadlines and any future measured throughput claim.
+The independent [optional request budget](rate-limits.md) rejects bursts before
+body reading or admission. It is one process-wide bucket, not caller fairness or a
+distributed quota.
 
 [Image/dependency audits](dependency-audits.md) preserve installed inventories,
 unfiltered advisories, scanner/database versions and the local image ID. The
