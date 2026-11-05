@@ -66,3 +66,30 @@ environment; compilation, whitespace and documentation-link checks also passed.
 The current workspace lacks HTTPX2 and Docker for the complete local suite, so the
 full evidence is hosted. No corpus, model, ranking, threshold or holdout score
 changed.
+
+## Packaged boundary rehearsal
+
+`python scripts/rate_limit_smoke.py` uses the built `runbookops:smoke` image
+(or `--image`), resolved to its image ID. It starts an owned loopback-only container
+with UID 10001, a read-only root, dropped capabilities and no new privileges.
+Only synthetic requests are sent; no model is called.
+
+The fixture sets burst capacity two, one token per 60 seconds, and one concurrent
+triage slot. A held fixed-length upload receives 100 Continue; a competing chunked
+upload spends the second rate token and receives 503 from admission. Further fixed
+and chunked uploads receive 429 before 100 Continue, including the trailing-slash
+route. Health and overview remain readable. Completing the first request releases
+concurrency but does not refund its rate token. The runner waits the returned
+Retry-After and verifies a successful chunked request after real-clock refill.
+Stopping and starting the same container restores exactly two successful requests,
+then 429 again. This demonstrates the reset limitation, not durable quota storage.
+
+CI retains `artifacts/rate-limit-container.json` for 30 days with the image ID,
+Docker version, settings and completed checks. A stale receipt is removed before
+running; only success writes a new one. The rehearsal adds roughly one minute for
+real refill. It is a single-process contract check, not load, fairness, deployment,
+provider-compute or capacity evidence. Unit checks remain responsible for exact
+fractional-clock arithmetic and invalid environment values.
+
+Exercise: why does a request rejected with 503 still spend a rate token, while
+completing a successful request releases concurrency but does not refund that token?

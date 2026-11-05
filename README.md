@@ -203,7 +203,8 @@ The image builds the frontend and runs the API as a non-root user. The separate
 read-only operation, health checks and restart behavior.
 [Dependency audits](docs/dependency-audits.md) check the installed image and npm
 lockfile; passing CI does not mean zero known vulnerabilities. Keep this demo local:
-authentication, rate limiting, and multi-tenant isolation are not implemented.
+authentication and multi-tenant isolation are not implemented. The optional process
+request budget does not provide caller fairness or a distributed quota.
 
 ## Project notes
 
