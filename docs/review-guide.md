@@ -206,3 +206,7 @@ partial conflict, journals and explicit recovery without claiming atomic deploym
 The [packaged rate-budget rehearsal](rate-limits.md#packaged-boundary-rehearsal)
 checks enabled middleware ordering over real HTTP, refill and restart against the
 built image. Its receipt is contract evidence, not a throughput benchmark.
+
+The optional provider now rejects [ambiguous JSON and invalid Unicode](ollama-boundary.md#unambiguous-provider-json)
+before publishing generated output. This preserves fallback on protocol errors;
+it does not establish citation entailment or generated-answer quality.

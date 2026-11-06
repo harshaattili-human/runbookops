@@ -219,3 +219,44 @@ def test_api_returns_fallback_after_provider_rejection(service, provider):
     assert result['warning'] and result['mode'] == 'extractive'
     for field in ('answer', 'citations', 'sources', 'answerability', 'routing'):
         assert result[field] == original[field]
+
+
+@pytest.mark.parametrize('layer', ['envelope', 'generated'])
+@pytest.mark.parametrize('fault', ['duplicate', 'escaped-duplicate', 'nan', 'overflow', 'surrogate'])
+def test_strict_json_rejection_preserves_evidence_and_recovers(service, provider, layer, fault):
+    outer = json.loads(envelope(service))
+    original = json.loads(outer['message']['content'])
+    value = outer if layer == 'envelope' else original
+    raw = json.dumps(value)
+    if fault == 'duplicate':
+        prefix = '"done":false,' if layer == 'envelope' else '"answer":"discarded",'
+    elif fault == 'escaped-duplicate':
+        prefix = '"\\u0064one":false,' if layer == 'envelope' else '"\\u0061nswer":"discarded",'
+    else:
+        prefix = {'nan': '"metadata":NaN,', 'overflow': '"metadata":1e999,',
+                  'surrogate': '"metadata":"\\ud800",'}[fault]
+    raw = '{' + prefix + raw[1:]
+    if layer == 'generated':
+        outer['message']['content'] = raw
+        raw = json.dumps(outer)
+    provider[0].append((raw.encode(), 'chunked', 200, {}))
+    assert_fallback(service)
+    # A failed decode must not leak admission or corrupt the service snapshot.
+    provider[0].append((envelope(service), 'fixed', 200, {}))
+    recovered = service.triage(QUERY, use_llm=True)
+    assert recovered['mode'] == 'local-llm' and recovered['warning'] is None
+    assert len(provider[1]) == 2
+
+
+def test_api_falls_back_before_serializing_lone_surrogate_answer(service, provider):
+    source = service.triage(QUERY)['sources'][0]['id']
+    content = json.dumps({'answer': '\ud800', 'citations': [source]})
+    provider[0].append((envelope(service, message={'content': content}), 'fixed', 200, {}))
+    with TestClient(app) as client:
+        expected = client.post('/api/triage', json={'query': QUERY}).json()
+        response = client.post('/api/triage', json={'query': QUERY, 'use_llm': True})
+    assert response.status_code == 200
+    actual = response.json()
+    for field in ('answer', 'citations', 'sources', 'routing', 'answerability', 'mode'):
+        assert actual[field] == expected[field]
+    assert actual['warning']
