@@ -202,3 +202,7 @@ before publication, including commands queued behind other trusted refresh paths
 
 The [local rollout rehearsal](local-rollout.md) exercises three real processes,
 partial conflict, journals and explicit recovery without claiming atomic deployment.
+
+The [packaged rate-budget rehearsal](rate-limits.md#packaged-boundary-rehearsal)
+checks enabled middleware ordering over real HTTP, refill and restart against the
+built image. Its receipt is contract evidence, not a throughput benchmark.

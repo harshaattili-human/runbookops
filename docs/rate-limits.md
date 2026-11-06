@@ -66,3 +66,62 @@ environment; compilation, whitespace and documentation-link checks also passed.
 The current workspace lacks HTTPX2 and Docker for the complete local suite, so the
 full evidence is hosted. No corpus, model, ranking, threshold or holdout score
 changed.
+
+## Packaged boundary rehearsal
+
+`python scripts/rate_limit_smoke.py` uses the built `runbookops:smoke` image
+(or `--image`), resolved to its image ID. It starts an owned loopback-only container
+with UID 10001, a read-only root, dropped capabilities and no new privileges.
+Only synthetic requests are sent; no model is called.
+
+The fixture sets burst capacity two, one token per 60 seconds, and one concurrent
+triage slot. A held fixed-length upload receives 100 Continue; a competing chunked
+upload spends the second rate token and receives 503 from admission. Further fixed
+and chunked uploads receive 429 before 100 Continue, including the trailing-slash
+route. Health and overview remain readable. Completing the first request releases
+concurrency but does not refund its rate token. The runner waits the returned
+Retry-After and verifies a successful chunked request after real-clock refill.
+Stopping and starting the same container restores exactly two successful requests,
+then 429 again. This demonstrates the reset limitation, not durable quota storage.
+
+CI retains `artifacts/rate-limit-container.json` for 30 days with the image ID,
+Docker version, settings and completed checks. A stale receipt is removed before
+running; only success writes a new one. The rehearsal adds roughly one minute for
+real refill. It is a single-process contract check, not load, fairness, deployment,
+provider-compute or capacity evidence. Unit checks remain responsible for exact
+fractional-clock arithmetic and invalid environment values.
+
+Exercise: why does a request rejected with 503 still spend a rate token, while
+completing a successful request releases concurrency but does not refund that token?
+
+## Packaged verification — November 5, 2026
+
+The new container rehearsal passed in
+[run 42048449910](https://github.com/harshaattili-human/runbookops/actions/runs/42048449910)
+at implementation `b050b5f91d6ceafe741843ce5b82864aa2a4b85a`. Its receipt records
+image `sha256:dbe35c81309855c92da68beff35cc971057c5731c5ca18ad300d6e0b6130fc52`.
+The run passed Python, browser, container and npm jobs, but the existing Spring
+response-size fixture failed with a read timeout while using a shared 200 ms test
+setting. Commit `9c8ee032b72c726b8e58b5728e774f72da2d6db1` gives ordinary contract
+checks a two-second read timeout and keeps 200 ms explicit in the stalled-response
+test. Runtime timeouts and boundary assertions are unchanged.
+
+Local Python compilation, CLI loading, documentation links and whitespace checks
+passed. Docker is absent locally; the real container result is hosted evidence.
+No dataset, corpus, ranking, threshold or holdout result changed.
+
+The corrected head passed all five jobs in
+[run 42049384542](https://github.com/harshaattili-human/runbookops/actions/runs/42049384542).
+Verification passed 277 Python cases plus 11 subtests, seven component cases,
+validation-only evaluation/integrity commands and the frontend build. Spring passed
+18 Java cases, the executable walkthrough and its packaged-library audit. Browser
+checks passed 36 live and 18 recorded executions across three engines. Container
+checks passed the new budget rehearsal and existing packaged, mounted-corpus,
+admission, restart and HTTP characterization workflows. The new rehearsal adds a
+packaged workflow, not Python or Java test cases.
+
+The image audit inventoried 24 Python package names and 186 finding entries, with
+zero fixable high/critical entries. The Spring audit inventoried 26 libraries with zero advisory entries in its dated
+snapshot; npm also reported zero vulnerabilities. Those snapshots and the configured
+image gate are not a vulnerability-free claim. Hosted Python was 3.12.16 and Java
+17.0.21; this is distinct from earlier verification environments.

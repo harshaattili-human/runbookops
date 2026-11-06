@@ -60,7 +60,7 @@ class RunbookClientTest {
             finally { exchange.close(); }
         });
         server.start();
-        client = new RunbookClient(origin(), 500, 200);
+        client = new RunbookClient(origin(), 500, 2_000);
     }
 
     @AfterEach void stop() throws InterruptedException {
@@ -142,6 +142,7 @@ class RunbookClientTest {
     }
 
     @Test void readTimeoutCoversStalledHeadersAndStalledBodyWithoutRetry() throws Exception {
+        client = new RunbookClient(origin(), 500, 200);
         for (boolean sendHeaders : new boolean[]{false, true}) {
             var entered = new CountDownLatch(1);
             var release = new CountDownLatch(1);

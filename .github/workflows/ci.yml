@@ -88,6 +88,14 @@ jobs:
           path: artifacts/admission-container.json
           if-no-files-found: error
           retention-days: 30
+      - name: Verify enabled request budget and restart in the packaged image
+        run: python scripts/rate_limit_smoke.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: rate-limit-container-receipt
+          path: artifacts/rate-limit-container.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Characterize closed-loop HTTP concurrency
         run: python scripts/http_characterization.py
       - uses: actions/upload-artifact@v7
