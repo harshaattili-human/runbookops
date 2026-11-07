@@ -6,6 +6,12 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.12-slim
+# Apply the distro security fix even while the upstream image tag lags its archive.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends --only-upgrade zlib1g \
+    && dpkg-query -W zlib1g \
+    && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' zlib1g)" ge '1:1.3.dfsg+really1.3.1-1+deb13u1' \
+    && rm -rf /var/lib/apt/lists/*
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 RUNBOOKOPS_ROOT=/app
 WORKDIR /app
 COPY pyproject.toml ./

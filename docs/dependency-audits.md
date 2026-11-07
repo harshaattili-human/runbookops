@@ -194,3 +194,24 @@ all direct runtime dependencies among 24 Python package names. The scan retained
 finding entries and found zero fixable high/critical entries under the unchanged
 policy. The npm audit reported zero entries. These observations are tied to that run's
 image and advisory databases; they are not a vulnerability-free or reachability claim.
+
+## zlib security update — November 7, 2026
+
+The image audit in [run 42380463788](https://github.com/harshaattili-human/runbookops/actions/runs/42380463788)
+blocked two fixable high-severity entries against `zlib1g` version
+`1:1.3.dfsg+really1.3.1-1+b1`: CVE-2026-76844 and CVE-2026-85091. It inventoried
+24 Python package names and retained 186 total finding entries. All preceding
+container HTTP, mounted-corpus, admission, rate-budget and characterization steps
+passed; the job as a whole failed. The same run's Spring job separately failed
+before compilation because Maven Central returned HTTP 403 for the unchanged
+Boot parent. Neither failure is hidden by weakening checks.
+
+Debian's [CVE-2026-85091 record](https://security-tracker.debian.org/tracker/CVE-2026-85091)
+lists the trixie security fix as `1:1.3.dfsg+really1.3.1-1+deb13u1`.
+The runtime Docker stage now updates only the installed `zlib1g` package from its
+configured distribution repositories, prints the resulting version and rejects
+versions below that fix. Package lists are removed in the same layer. The base tag
+and archive resolution remain mutable; this is not a reproducible-image pin or a
+claim that every base package is patched. The scanner and all blocking policies
+remain unchanged. The rebuilt image must pass the same HTTP and runtime checks
+and the full installed-package scan; results are recorded in PR 41.

@@ -118,5 +118,11 @@ invalid payloads: lone/malformed surrogates, a short surrogate query, an invalid
 unknown key, non-finite invalid fields and an object instead of query text. Each
 requires the fixed 422, no service call and a subsequent successful request. Existing
 valid Unicode and body-bound cases remain in the same suite. Run
-`python -m pytest -q tests/test_request_bounds.py` to reproduce. These new API cases
-are pending hosted execution; local compilation and whitespace checks passed.
+`python -m pytest -q tests/test_request_bounds.py` to reproduce. The expanded API suite passed 318 Python cases plus 11 subtests in
+[run 42380463788](https://github.com/harshaattili-human/runbookops/actions/runs/42380463788),
+including these 16 executions. Local compilation and whitespace checks passed.
+That run's Spring job initially failed before compilation on a Maven Central 403;
+its image audit independently blocked two newly fixable zlib findings. The
+[dependency audit record](dependency-audits.md#zlib-security-update--november-7-2026)
+tracks the image correction; final checks are linked from
+[PR 41](https://github.com/harshaattili-human/runbookops/pull/41).
