@@ -11,6 +11,7 @@ from uuid import uuid4
 import httpx2
 from fastapi.concurrency import run_in_threadpool
 
+from .provider_json import decode_provider_json
 from .classifier import IncidentClassifier
 from .corpus_release import verify_release
 from .corpus_snapshot import CorpusConflict, CorpusSnapshot, validate_identity
@@ -233,11 +234,11 @@ class TriageService:
         async with httpx2.AsyncClient(timeout=30, follow_redirects=False) as client:
             async with client.stream('POST', base + '/api/chat',
                                headers={'Accept-Encoding': 'identity'}, json=payload) as response:
-                envelope = json.loads(await _read_provider_body(response))
+                envelope = decode_provider_json(await _read_provider_body(response))
         # A token-limited response may contain valid JSON but still be incomplete.
         if envelope['done'] is not True or envelope['done_reason'] != 'stop':
             raise ValueError('Incomplete provider generation')
-        parsed = json.loads(envelope['message']['content'])
+        parsed = decode_provider_json(envelope['message']['content'])
         answer, citations = parsed['answer'], parsed['citations']
         valid_ids = {s['id'] for s in sources}
         if not isinstance(answer, str) or not 1 <= len(answer.strip()) <= 6000:

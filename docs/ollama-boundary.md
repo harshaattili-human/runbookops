@@ -133,3 +133,49 @@ service source hash; exposed holdouts were not rescored.
 Optional interview exercise: why does immediate fallback avoid a generation queue,
 yet still leave a slow provider occupying capacity? What happens to this limit when
 the API is started with four worker processes?
+
+## Unambiguous provider JSON
+
+Both the outer envelope and the generated JSON string now reject duplicate object
+fields, including escaped spellings of the same name and nested duplicates.
+Previously Python's decoder kept the last field, so `done:false,done:true` could
+silently become a completed response. Repeated citation array values remain legal
+and retain the existing deduplication behavior.
+
+The envelope bytes must be UTF-8. Non-finite literals (`NaN`, `Infinity`) and
+numeric overflow such as `1e999` are rejected at either layer, including metadata.
+All decoded strings and object keys must encode as UTF-8: escaped lone surrogates
+are rejected before an answer reaches HTTP serialization. Valid Unicode, including
+escaped supplementary-character pairs, remains supported. The existing byte cap,
+deadline, completion checks and citation-ID validation remain unchanged.
+
+Any rejection keeps the original extract, citations, sources and routing with the
+existing warning; it adds no provider retry. Strictness can reject a nonconforming
+proxy response whose main answer was otherwise usable. This is a protocol policy,
+not evidence of entailment, truthfulness or live-model quality.
+
+Run `python -m pytest -q tests/test_provider_json.py tests/test_ollama_boundary.py`.
+The decoder fixtures cover duplicate/escaped names, non-finite/overflow numbers,
+invalid UTF-8, UTF-16/32 and lone surrogates, plus valid Unicode/array repetition.
+Loopback provider cases exercise both layers and verify fallback followed by a
+successful request. An API case verifies that a lone-surrogate generated answer
+falls back before response serialization. All payloads are synthetic; no model runs.
+
+A local Python 3.12.14 standard-library probe found that the previous decoder
+accepted 12 of 13 intentionally invalid protocol fixtures; the strict decoder
+rejected all 13 and preserved the valid Unicode/array probe. This is a parser
+contract check, not an answer-quality metric. Local pytest/application dependencies
+are unavailable; full application validation is recorded in the pull request.
+
+Exercise: why can a syntactically decoded string still fail UTF-8 response
+serialization, and why is last-value-wins parsing unsuitable for completion flags?
+
+The provider-only implementation `c66aa010ed9c07d4b45826b60645687b5944735f`
+passed all five jobs in [run 42238469846](https://github.com/harshaattili-human/runbookops/actions/runs/42238469846):
+302 Python cases plus 11 subtests, seven component cases, 18 Java cases plus the live
+JAR walkthrough, 36 live and 18 recorded browser executions, container rehearsals
+and configured audits. The dated runtime scan inventoried 24 Python package names
+with 186 finding entries and zero fixable high/critical entries; the Java scan
+inventoried 26 libraries with zero entries. These are advisory snapshots, not
+vulnerability-freedom claims. No holdout was rescored. The subsequent request-input
+validation extension is documented in [request bounds](request-bounds.md).

@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request, Response
-from fastapi.responses import FileResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -26,6 +27,11 @@ class TriageRequest(BaseModel):
     @field_validator('query')
     @classmethod
     def useful_text(cls, value: str) -> str:
+        # JSON escapes can decode to isolated surrogates that cannot cross UTF-8.
+        try:
+            value.encode('utf-8')
+        except UnicodeError as exc:
+            raise ValueError('Query must contain Unicode scalar values') from exc
         if len(value.strip()) < 8:
             raise ValueError('Provide at least eight non-padding characters')
         return value.strip()
@@ -60,6 +66,15 @@ app.add_middleware(TriageAdmission, capacity=capacity_from_environment())
 # Optional rate limiting is outermost: rejected work spends no admission slot and
 # neither limiter reads the request body before rejecting it.
 app.add_middleware(TriageRateLimit, configuration=configuration_from_environment())
+
+
+@app.exception_handler(RequestValidationError)
+async def invalid_request(request: Request, exception: RequestValidationError):
+    # Do not serialize exception input/locations: unknown keys and invalid values
+    # can themselves contain lone surrogates, non-finite numbers or sensitive text.
+    return JSONResponse(status_code=422, headers={'Cache-Control': 'no-store'}, content={
+        'detail': [{'loc': ['body'], 'type': 'request_validation',
+                    'msg': 'Invalid request. Check JSON fields, types, query length and Unicode text.'}]})
 
 
 @app.get('/healthz')
