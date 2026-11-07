@@ -95,3 +95,28 @@ checks passed. Docker and browser execution were hosted. The existing
 Starlette/httpx deprecation and Lucide build warnings remain. Validation reports
 changed only in code hashes; exposed holdouts were not rescored. These checks
 establish the stated HTTP behavior, not a measured memory ceiling or load capacity.
+
+## Unicode and validation responses
+
+Triage query text must encode as UTF-8 after JSON decoding. Isolated surrogate
+escapes are rejected before analysis; valid supplementary-character pairs remain
+accepted, including the existing 2,000-character escaped/unescaped HTTP fixtures.
+This does not normalize text or change the model, corpus or answerability policy.
+
+Request-validation failures now return a fixed 422 `detail` array with a generic
+body location, `request_validation` type and guidance to check fields, types,
+length and Unicode. Responses carry `Cache-Control: no-store`. They omit submitted
+input, unknown field names, exception context and parser messages. This intentionally
+reduces field-specific diagnostics so malformed values cannot break error-response
+serialization or be reflected. Non-validation HTTP errors retain their contracts;
+trusted direct Python callers are outside this API validation boundary.
+
+The implementation uses FastAPI's documented
+[RequestValidationError override](https://fastapi.tiangolo.com/tutorial/handling-errors/#override-request-validation-exceptions).
+Sixteen additional real-Uvicorn executions cross fixed/chunked framing with eight
+invalid payloads: lone/malformed surrogates, a short surrogate query, an invalid
+unknown key, non-finite invalid fields and an object instead of query text. Each
+requires the fixed 422, no service call and a subsequent successful request. Existing
+valid Unicode and body-bound cases remain in the same suite. Run
+`python -m pytest -q tests/test_request_bounds.py` to reproduce. These new API cases
+are pending hosted execution; local compilation and whitespace checks passed.

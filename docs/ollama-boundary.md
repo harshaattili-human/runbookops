@@ -169,3 +169,13 @@ are unavailable; full application validation is recorded in the pull request.
 
 Exercise: why can a syntactically decoded string still fail UTF-8 response
 serialization, and why is last-value-wins parsing unsuitable for completion flags?
+
+The provider-only implementation `c66aa010ed9c07d4b45826b60645687b5944735f`
+passed all five jobs in [run 42238469846](https://github.com/harshaattili-human/runbookops/actions/runs/42238469846):
+302 Python cases plus 11 subtests, seven component cases, 18 Java cases plus the live
+JAR walkthrough, 36 live and 18 recorded browser executions, container rehearsals
+and configured audits. The dated runtime scan inventoried 24 Python package names
+with 186 finding entries and zero fixable high/critical entries; the Java scan
+inventoried 26 libraries with zero entries. These are advisory snapshots, not
+vulnerability-freedom claims. No holdout was rescored. The subsequent request-input
+validation extension is documented in [request bounds](request-bounds.md).

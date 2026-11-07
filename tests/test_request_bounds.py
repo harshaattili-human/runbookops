@@ -194,6 +194,26 @@ def test_bounded_invalid_json_and_fields_keep_validation(api_server, calls, payl
     assert calls == []
 
 
+@pytest.mark.parametrize('chunked', [False, True])
+@pytest.mark.parametrize('payload', [
+    b'{"query":"Synthetic incident \\ud800"}',
+    b'{"query":"Synthetic incident \\udfff"}',
+    b'{"query":"Synthetic incident \\ud800x"}',
+    b'{"query":"\\ud800"}',  # Length validation fails before the custom validator.
+    b'{"query":"Valid incident text", "synthetic-\\ud800":1}',
+    b'{"query":"Valid incident text", "use_llm":NaN}',
+    b'{"query":"Valid incident text", "extra":Infinity}',
+    b'{"query":{"synthetic-marker":"private fixture"}}',
+])
+def test_invalid_values_have_safe_422_without_analysis(api_server, calls, chunked, payload):
+    status, result = request(api_server, payload, chunked)
+    assert status == 422
+    assert result == {'detail': [{'loc': ['body'], 'type': 'request_validation',
+        'msg': 'Invalid request. Check JSON fields, types, query length and Unicode text.'}]}
+    assert calls == []
+    assert request(api_server, json.dumps({'query': QUERY}).encode())[0] == 200
+
+
 def test_encoded_body_is_rejected_without_analysis(api_server, calls):
     body = gzip.compress(json.dumps({'query': QUERY}).encode())
     assert request(api_server, body, **{'Content-Encoding': 'gzip'})[0] == 415
