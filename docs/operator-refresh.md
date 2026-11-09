@@ -153,3 +153,8 @@ fixtures are not latency measurements or production traffic.
 
 Exercise: why does closing the client's timed-out socket fail to establish that a
 server-side publication was cancelled?
+
+A fourth case uses the real control handler and release publication, deliberately
+holds its success reply, observes client timeout with the new snapshot already
+published, then releases the handler and inspects the exact socket. It checks
+ambiguity and lease recovery rather than assuming timeout rolled back a refresh.
