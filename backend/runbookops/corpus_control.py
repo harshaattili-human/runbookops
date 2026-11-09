@@ -4,11 +4,13 @@ import argparse
 import asyncio
 from contextlib import asynccontextmanager
 import json
+import math
 import os
 from pathlib import Path
 import re
 import socket
 import stat
+from time import monotonic
 
 from .corpus_snapshot import CorpusConflict, validate_identity
 
@@ -190,12 +192,32 @@ def inspect_corpus(socket_path, *, timeout=30.0):
 
 
 def _exchange(socket_path, raw, timeout):
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError('Control timeout must be finite and positive')
+    deadline = monotonic() + timeout
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-        client.settimeout(timeout)
+        def remaining():
+            budget = deadline - monotonic()
+            if budget <= 0:
+                raise TimeoutError('Control exchange deadline exceeded')
+            client.settimeout(budget)
+
+        remaining()
         client.connect(str(socket_path))
+        remaining()
         client.sendall(raw)
-        with client.makefile('rb') as stream:
-            reply = stream.readline(MAX_REQUEST_BYTES + 1)
+        reply = bytearray()
+        while len(reply) <= MAX_REQUEST_BYTES:
+            remaining()
+            chunk = client.recv(MAX_REQUEST_BYTES + 1 - len(reply))
+            if not chunk:
+                break
+            newline = chunk.find(b'\n')
+            reply.extend(chunk if newline < 0 else chunk[:newline + 1])
+            if newline >= 0:
+                break
+        # Reject completion observed after the budget, even if recv returned data.
+        remaining()
     if len(reply) > MAX_REQUEST_BYTES or not reply.endswith(b'\n'):
         raise ValueError('Invalid control response')
     value = json.loads(reply, object_pairs_hook=_unique)

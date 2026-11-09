@@ -44,7 +44,7 @@ snapshot. The reply contains `ok` plus the identity of that publication, or a fi
 text. A detached identity is included in the in-process refresh receipt so it cannot
 accidentally describe a later trusted publication.
 
-The CLI sends once and does not retry. A lost reply or its 30-second socket timeout
+The CLI sends once and does not retry. A lost reply or its 30-second elapsed socket-I/O budget
 is **ambiguous**: an accepted refresh can still publish. Inspect `/healthz`'s corpus
 identity before deciding what to do next. Disconnect does not roll back a refresh.
 Shutdown cancels connection handlers but joins any index-building thread, including
@@ -126,3 +126,35 @@ The channel also accepts exactly `{"operation":"inspect"}` (CLI `--inspect`) to
 read this process identity. It uses the same non-queued operator lease and may
 return `busy` during a refresh. The [local rollout tool](local-rollout.md) composes
 guarded updates and exact-socket observations across an explicit process list.
+
+## Client elapsed I/O budget
+
+The operator client now shares one monotonic budget across connect, command send
+and all reply reads (30 seconds by default). Each receive gets only the remaining
+budget; trickling bytes cannot reset it. A final check rejects a reply observed
+after the deadline. The bounded accumulator reads at most 4,097 bytes to detect
+the existing 4,096-byte response limit, preserving newline framing and schema
+validation. Non-positive, non-finite and nonnumeric timeout arguments are rejected
+before connecting.
+
+This is a synchronous socket-I/O budget, not a hard wall-clock SLA: scheduling,
+path conversion, JSON validation and cleanup are not preempted. A timed-out refresh
+can still publish remotely. The client closes its socket and never retries; rollout
+continues to record an ambiguous apply result and stop. Inspect each worker before
+choosing the next action. Server index-building and shutdown semantics are unchanged.
+
+Three synthetic client cases cover invalid budgets, a Unix peer sending a reply
+one byte every 40 ms against a 200 ms test budget followed by connection recovery,
+and fragmented exact/oversized/incomplete/invalid-status replies. Run
+`PYTHONPATH=backend python -m unittest discover -s tests -p test_control_client_deadline.py -v`.
+Local budget validation passed; Unix socket cases could not execute because socket
+creation returned EPERM. Hosted results belong to the change's pull request; these
+fixtures are not latency measurements or production traffic.
+
+Exercise: why does closing the client's timed-out socket fail to establish that a
+server-side publication was cancelled?
+
+A fourth case uses the real control handler and release publication, deliberately
+holds its success reply, observes client timeout with the new snapshot already
+published, then releases the handler and inspects the exact socket. It checks
+ambiguity and lease recovery rather than assuming timeout rolled back a refresh.

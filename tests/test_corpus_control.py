@@ -362,3 +362,44 @@ def test_guarded_cli_conflict_and_explicit_recovery(data, tmp_path):
             assert _http(base, '/healthz')['corpus'] == current
             saved.write_text(json.dumps(current))
             assert cli().returncode == 0
+
+
+def test_client_deadline_after_publication_requires_inspection(data, tmp_path, monkeypatch):
+    service = TriageService(data)
+    release = create_release(data / 'runbooks', tmp_path / 'releases', 'committed-before-reply')
+    pin = verify_release(release).manifest_hash
+
+    async def scenario(path):
+        published = asyncio.Event()
+        allow_reply = asyncio.Event()
+        original = control.CorpusControl.respond
+        held = False
+
+        async def delayed_reply(self, writer, value):
+            nonlocal held
+            if value['status'] == 'ok' and not held:
+                held = True
+                published.set()  # refresh completed, but no reply has reached the client
+                await allow_reply.wait()
+            await original(self, writer, value)
+
+        monkeypatch.setattr(control.CorpusControl, 'respond', delayed_reply)
+        async with control.serve_control(service, path) as server:
+            request = asyncio.create_task(asyncio.to_thread(control.refresh, path, release, pin, timeout=1))
+            try:
+                await asyncio.wait_for(published.wait(), 5)
+                with pytest.raises(TimeoutError):
+                    await request
+                assert service.snapshot.identity()['corpus_id'] == 'committed-before-reply'
+            finally:
+                allow_reply.set()
+            for _ in range(200):
+                if not server.active:
+                    break
+                await asyncio.sleep(.01)
+            assert not server.active
+            observed = await asyncio.to_thread(control.inspect_corpus, path)
+            assert observed == {'status': 'ok', 'corpus': service.snapshot.identity()}
+
+    with socket_path() as path:
+        asyncio.run(scenario(path))
