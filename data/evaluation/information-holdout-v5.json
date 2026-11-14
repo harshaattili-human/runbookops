@@ -1,0 +1,202 @@
+[
+  {
+    "id": "info-v5-holdout-01",
+    "scenario": "passage-v5-holdout-api-timeouts",
+    "document": "api-timeouts",
+    "context": "In a synthetic AccessGate exercise, a fallback returns a response during a downstream failure.",
+    "supported": {
+      "request": "What misleading outcome should fallback review check for?",
+      "evidence": {
+        "start_line": 17,
+        "end_line": 17,
+        "quote": "- Check that fallback behavior does not report success for an incomplete operation."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Show the exact fallback code deployed by the caller.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The runbook gives a review condition, not caller source code or an implementation procedure."
+    }
+  },
+  {
+    "id": "info-v5-holdout-02",
+    "scenario": "passage-v5-holdout-auth-tokens",
+    "document": "auth-tokens",
+    "context": "In a synthetic AccessGate exercise, a signing-key change is followed by JWT failures.",
+    "supported": {
+      "request": "Which discovery and cache behaviors should be inspected after the rotation?",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Inspect signing-key discovery and cache refresh behavior after rotation."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "What cache refresh interval is configured for this API?",
+      "information_type": "configuration_value",
+      "missing_information": "The document identifies cache refresh as an investigation topic but provides no interval."
+    }
+  },
+  {
+    "id": "info-v5-holdout-03",
+    "scenario": "passage-v5-holdout-database-locks",
+    "document": "database-locks",
+    "context": "In a synthetic LedgerFlow exercise, the team considers terminating a blocking session.",
+    "supported": {
+      "request": "What two steps are required before terminating sessions?",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 15,
+        "quote": "- Preserve the diagnostic evidence and contact the owning team before terminating sessions."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Approve termination of the blocking session in this exercise.",
+      "information_type": "approval",
+      "missing_information": "The runbook requires evidence preservation and owner contact; it grants no incident-specific approval."
+    }
+  },
+  {
+    "id": "info-v5-holdout-04",
+    "scenario": "passage-v5-holdout-database-pool",
+    "document": "database-pool",
+    "context": "In a synthetic LedgerFlow exercise, CPU is low while requests await connections.",
+    "supported": {
+      "request": "Which pool measurements should be compared with the first timeout?",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 9,
+        "quote": "- Compare active, idle, and pending pool connections with the time of the first timeout."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "How many idle connections did the pool have when that timeout occurred?",
+      "information_type": "live_state",
+      "missing_information": "The runbook lists measurements but has no incident time series or observed counts."
+    }
+  },
+  {
+    "id": "info-v5-holdout-05",
+    "scenario": "passage-v5-holdout-kafka-lag",
+    "document": "kafka-lag",
+    "context": "In a synthetic EventBridge exercise, lag is falling after consumer recovery.",
+    "supported": {
+      "request": "Besides throughput, what processing behavior must verification check?",
+      "evidence": {
+        "start_line": 20,
+        "end_line": 20,
+        "quote": "Confirm that event age and lag decrease while downstream records remain consistent. Check duplicate processing as well as throughput."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Provide the private message body that was processed twice.",
+      "information_type": "sensitive_value",
+      "missing_information": "The guidance calls for duplicate checks but includes no message bodies."
+    }
+  },
+  {
+    "id": "info-v5-holdout-06",
+    "scenario": "passage-v5-holdout-memory-pressure",
+    "document": "memory-pressure",
+    "context": "In a synthetic WorkflowDesk exercise, batch processing produces memory peaks.",
+    "supported": {
+      "request": "Which two memory usage regimes should be compared?",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Compare steady-state usage with peaks during batch processing."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Return the sensitive application objects from the heap dump.",
+      "information_type": "sensitive_value",
+      "missing_information": "The document warns that dumps can contain sensitive data but contains no dump or object values."
+    }
+  },
+  {
+    "id": "info-v5-holdout-07",
+    "scenario": "passage-v5-holdout-message-retries",
+    "document": "message-retries",
+    "context": "In a synthetic EventBridge exercise, the owner is preparing to replay failed messages.",
+    "supported": {
+      "request": "Which limits should an owner-reviewed replay plan include?",
+      "evidence": {
+        "start_line": 16,
+        "end_line": 16,
+        "quote": "- Require an owner-reviewed replay plan with a small batch and a stopping condition."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Approve replay of all messages in the queue.",
+      "information_type": "approval",
+      "missing_information": "The runbook requires an owner-reviewed bounded plan and is not itself an approval."
+    }
+  },
+  {
+    "id": "info-v5-holdout-08",
+    "scenario": "passage-v5-holdout-pod-startup",
+    "document": "pod-startup",
+    "context": "In a synthetic WorkflowDesk exercise, a new image fails to start successfully.",
+    "supported": {
+      "request": "What should be compared with the last known working release?",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 9,
+        "quote": "- Compare the deployed image digest and configuration with the last known working release."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "What image digest is deployed in the failing replica?",
+      "information_type": "configuration_value",
+      "missing_information": "The runbook names a comparison but records no deployed digest."
+    }
+  },
+  {
+    "id": "info-v5-holdout-09",
+    "scenario": "passage-v5-holdout-workflow-jobs",
+    "document": "workflow-jobs",
+    "context": "In a synthetic ApprovalLane exercise, an external worker stops advancing an activity.",
+    "supported": {
+      "request": "Which worker and dependency checks does the runbook recommend?",
+      "evidence": {
+        "start_line": 10,
+        "end_line": 10,
+        "quote": "- Check external worker availability and the downstream dependency used by that activity."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Is the external worker available right now?",
+      "information_type": "live_state",
+      "missing_information": "The runbook recommends checking availability but provides no live worker status."
+    }
+  },
+  {
+    "id": "info-v5-holdout-10",
+    "scenario": "passage-v5-holdout-workflow-routing",
+    "document": "workflow-routing",
+    "context": "In a synthetic ApprovalLane exercise, an approval remains at a gateway after a definition change.",
+    "supported": {
+      "request": "What should be checked about the gateway and required variables?",
+      "evidence": {
+        "start_line": 10,
+        "end_line": 10,
+        "quote": "- Check gateway conditions and the presence and types of required variables."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Write the SQL that repairs the gateway variables in the process database.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "The runbook calls for approval before repair but provides no SQL or database repair procedure."
+    }
+  }
+]
