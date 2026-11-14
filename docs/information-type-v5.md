@@ -38,7 +38,7 @@ they must not be substituted for the current runtime to inflate a new gain.
 
 ```sh
 PYTHONPATH=backend python -m runbookops.information_dataset --version v5
-PYTHONPATH=backend python -m unittest tests.test_information_dataset_v5 -v
+PYTHONPATH=backend python -m unittest tests.test_information_dataset_v5 tests.test_evidence_metrics -v
 ```
 
 The default integrity command now includes v5. It reads public labels to check
@@ -50,6 +50,23 @@ This guard prevents accidental loading, not access to the public JSON files.
 A matching quote proves alignment, not that an annotation is semantically correct.
 Record disputed labels before scoring; if discovered after the holdout score,
 preserve the original result and report the dispute rather than silently editing it.
+
+## Metric implementation
+
+`runbookops.evidence_metrics.evidence_supported_and_answered` implements the
+mechanical span criterion for a retained extractive service response. It resolves
+citation IDs against returned sources, considers only the annotated document and
+merges sorted inclusive line intervals without bridging gaps. Uncited retrieval
+hits do not count. Duplicate citations cannot add coverage; duplicate source IDs,
+unknown citations and invalid line intervals fail explicitly. Abstention and blank
+answers fail the criterion. Local-model responses are outside this protocol.
+
+Twelve hand-constructed unit cases cover exact/full, partial, wrong-passage,
+wrong-document, uncited, disjoint/adjacent/overlapping and invalid evidence paths.
+These fixtures do not load or score either v5 split. The helper trusts coordinates
+from the retained response; the future evaluator must verify corpus/code hashes
+and retain text. It does not prove that generated prose is faithful to those spans.
+The full paired evaluator and candidate remain planned.
 
 ## Preregistered comparison
 
