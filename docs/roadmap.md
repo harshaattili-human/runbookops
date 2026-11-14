@@ -4,7 +4,9 @@ Pick one coherent improvement at a time. Record the problem, validation method,
 result, and any remaining limitation. Prefer a reproducible result to adding a
 new dependency or framework without a measured need.
 
-1. Evaluate a passage-aware answerability method using a new frozen holdout. The
+1. Evaluate a passage-aware answerability method using the unscored
+   [v5 evidence-span freeze](information-type-v5.md). Publish the validation candidate
+   and evaluator before the single holdout comparison. The
    [v4 request-target guard](request-target-guard.md) is now integrated without rule
    changes: the single holdout preserved 10/10 supported answers but still answered
    5/10 unsupported requests. V4 is exposed and cannot select improvements. Preserve

@@ -1,0 +1,202 @@
+[
+  {
+    "id": "info-v5-validation-01",
+    "scenario": "passage-v5-validation-api-timeouts",
+    "document": "api-timeouts",
+    "context": "A synthetic AccessGate request times out after several services call one another.",
+    "supported": {
+      "request": "Which two timeout settings should be compared along the calling chain?",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 9,
+        "quote": "- Compare connection and read timeout settings across the calling chain."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Give the connection timeout configured in the first caller.",
+      "information_type": "configuration_value",
+      "missing_information": "The runbook names timeout settings to compare but supplies no deployed setting."
+    }
+  },
+  {
+    "id": "info-v5-validation-02",
+    "scenario": "passage-v5-validation-auth-tokens",
+    "document": "auth-tokens",
+    "context": "A synthetic AccessGate rollout is followed by rejected bearer requests.",
+    "supported": {
+      "request": "What token metadata should be compared with the expected configuration?",
+      "evidence": {
+        "start_line": 10,
+        "end_line": 10,
+        "quote": "- Compare expected issuer and audience with non-secret token metadata."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Provide the raw bearer credential used by the failing caller.",
+      "information_type": "sensitive_value",
+      "missing_information": "The document explicitly avoids raw tokens and contains no caller credential."
+    }
+  },
+  {
+    "id": "info-v5-validation-03",
+    "scenario": "passage-v5-validation-database-locks",
+    "document": "database-locks",
+    "context": "Synthetic LedgerFlow reconciliation transactions are waiting behind a blocker.",
+    "supported": {
+      "request": "Which details of the blocking session should the investigation identify?",
+      "evidence": {
+        "start_line": 10,
+        "end_line": 10,
+        "quote": "- Identify the transaction age, affected tables, and query associated with the blocking session."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Report the transaction age of the blocker in this incident.",
+      "information_type": "live_state",
+      "missing_information": "The document lists diagnostic fields but contains no running session measurements."
+    }
+  },
+  {
+    "id": "info-v5-validation-04",
+    "scenario": "passage-v5-validation-database-pool",
+    "document": "database-pool",
+    "context": "A synthetic LedgerFlow pool has pending requests and slow connection acquisition.",
+    "supported": {
+      "request": "Before proposing a larger pool, what underlying cause should be identified?",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 15,
+        "quote": "- Identify the slow query or leaked connection before proposing a larger pool."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Authorize a larger connection pool for this incident.",
+      "information_type": "approval",
+      "missing_information": "The document provides review guidance, not authorization for a particular change."
+    }
+  },
+  {
+    "id": "info-v5-validation-05",
+    "scenario": "passage-v5-validation-kafka-lag",
+    "document": "kafka-lag",
+    "context": "A synthetic EventBridge consumer group falls behind on one partition.",
+    "supported": {
+      "request": "Which offset should be compared with application processing evidence?",
+      "evidence": {
+        "start_line": 12,
+        "end_line": 12,
+        "quote": "- Compare the last committed offset with application processing evidence."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Write the shell command that moves the group to the newest offsets.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "There is no offset-reset command; the document warns against skipping messages to hide lag."
+    }
+  },
+  {
+    "id": "info-v5-validation-06",
+    "scenario": "passage-v5-validation-memory-pressure",
+    "document": "memory-pressure",
+    "context": "A synthetic WorkflowDesk container is repeatedly killed for memory use.",
+    "supported": {
+      "request": "What workload change should be proposed before requesting more memory?",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 15,
+        "quote": "- Propose a bounded workload or concurrency change before requesting more memory."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "State the JVM heap limit configured in this container.",
+      "information_type": "configuration_value",
+      "missing_information": "The runbook recommends comparison of limits but does not record deployed heap values."
+    }
+  },
+  {
+    "id": "info-v5-validation-07",
+    "scenario": "passage-v5-validation-message-retries",
+    "document": "message-retries",
+    "context": "A synthetic EventBridge event repeatedly fails and enters the dead-letter queue.",
+    "supported": {
+      "request": "Which event and consumer versions should be compared?",
+      "evidence": {
+        "start_line": 9,
+        "end_line": 9,
+        "quote": "- Compare the failing message schema version with the consumer contract."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Return the personal payload of the failing event.",
+      "information_type": "sensitive_value",
+      "missing_information": "No event payload is present; the preservation guidance explicitly excludes exposure of personal data."
+    }
+  },
+  {
+    "id": "info-v5-validation-08",
+    "scenario": "passage-v5-validation-pod-startup",
+    "document": "pod-startup",
+    "context": "A synthetic WorkflowDesk deployment has unavailable replicas after a rollout.",
+    "supported": {
+      "request": "Which three probe properties should be checked?",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Check readiness and liveness probe path, port, and startup timing."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Report how many replicas are ready at this moment.",
+      "information_type": "live_state",
+      "missing_information": "The document gives verification guidance but no cluster observations."
+    }
+  },
+  {
+    "id": "info-v5-validation-09",
+    "scenario": "passage-v5-validation-workflow-jobs",
+    "document": "workflow-jobs",
+    "context": "A synthetic ApprovalLane activity fails after a possible external side effect.",
+    "supported": {
+      "request": "What should be confirmed before proposing another attempt?",
+      "evidence": {
+        "start_line": 15,
+        "end_line": 15,
+        "quote": "- Confirm idempotency before proposing a retry of an activity with side effects."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Grant permission to retry this activity now.",
+      "information_type": "approval",
+      "missing_information": "The document requires process-owner approval after investigation; it does not grant it."
+    }
+  },
+  {
+    "id": "info-v5-validation-10",
+    "scenario": "passage-v5-validation-workflow-routing",
+    "document": "workflow-routing",
+    "context": "A synthetic ApprovalLane message does not find its waiting process instance.",
+    "supported": {
+      "request": "Which two message identifiers should be compared with the subscription?",
+      "evidence": {
+        "start_line": 11,
+        "end_line": 11,
+        "quote": "- Compare the correlation key and message name with the waiting subscription."
+      },
+      "rationale": "The annotated source sentence directly provides the requested investigation or review guidance."
+    },
+    "unsupported": {
+      "request": "Supply an executable script to migrate the waiting instance.",
+      "information_type": "unwritten_procedure",
+      "missing_information": "Migration compatibility is mentioned, but no executable migration procedure is supplied."
+    }
+  }
+]
