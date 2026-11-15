@@ -22,6 +22,12 @@ DATASETS = {
         'history': HISTORY + tuple(SPLITS.values()),
     },
 }
+DATASETS['v5'] = {
+    'manifest': 'data/evaluation/information-manifest-v5.json',
+    'splits': {split: f'data/evaluation/information-{split}-v5.json'
+               for split in ('validation', 'holdout')},
+    'history': DATASETS['v4']['history'] + tuple(DATASETS['v4']['splits'].values()),
+}
 INFORMATION_TYPES = {'configuration_value', 'live_state', 'approval',
                      'sensitive_value', 'unwritten_procedure'}
 
@@ -55,7 +61,7 @@ def _text(value, label: str) -> None:
 
 def validate_dataset(root: Path = ROOT, *, version: str = 'v3') -> tuple[dict, dict]:
     """Read labels for integrity checks only; no model or retriever is imported."""
-    require(version in DATASETS, 'Select v3 or v4')
+    require(version in DATASETS, 'Select a registered dataset version')
     dataset = DATASETS[version]
     manifest_name, splits, history = dataset['manifest'], dataset['splits'], dataset['history']
     manifest = _read_json(root / manifest_name)
@@ -137,7 +143,7 @@ def validate_dataset(root: Path = ROOT, *, version: str = 'v3') -> tuple[dict, d
 def load_cases(root: Path = ROOT, split: str = 'validation', *, allow_holdout: bool = False,
                version: str = 'v3') -> list[dict]:
     """Default development input is validation; holdout access requires an explicit opt-in."""
-    require(version in DATASETS, 'Select v3 or v4')
+    require(version in DATASETS, 'Select a registered dataset version')
     require(split in DATASETS[version]['splits'], 'Select validation or holdout')
     require(split != 'holdout' or allow_holdout, 'Holdout requires explicit opt-in after candidate freeze')
     _, suites = validate_dataset(root, version=version)
@@ -156,9 +162,9 @@ def load_cases(root: Path = ROOT, split: str = 'validation', *, allow_holdout: b
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
-    parser.add_argument('--version', choices=('v3', 'v4', 'all'), default='all')
+    parser.add_argument('--version', choices=(*DATASETS, 'all'), default='all')
     args = parser.parse_args()
-    versions = ('v3', 'v4') if args.version == 'all' else (args.version,)
+    versions = tuple(DATASETS) if args.version == 'all' else (args.version,)
     checked = {}
     for version in versions:
         _, suites = validate_dataset(args.root, version=version)

@@ -210,3 +210,7 @@ built image. Its receipt is contract evidence, not a throughput benchmark.
 The optional provider now rejects [ambiguous JSON and invalid Unicode](ollama-boundary.md#unambiguous-provider-json)
 before publishing generated output. This preserves fallback on protocol errors;
 it does not establish citation entailment or generated-answer quality.
+
+The [v5 evidence-span freeze](information-type-v5.md) adds unscored paired data and
+a preregistered passage-level comparison against the current runtime. Integrity
+checks are implemented; no v5 inference or improvement result is claimed.
