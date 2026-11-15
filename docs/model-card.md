@@ -86,6 +86,17 @@ the JSON envelope before parsing; it does not evaluate generated-answer quality.
 
 ## Known gaps
 
+The [v5 passage-evidence protocol](information-type-v5.md) freezes ten synthetic
+supported/unsupported pairs per split (20 validation queries and 20 holdout queries,
+20 paired contexts total). Both splits remain unscored. Each supported request has
+an exact source-span annotation. The implemented metric counts only cited intervals
+covering that complete span; correct-document ranking alone is insufficient. Its
+hand-constructed tests establish metric behavior, not answer quality or entailment.
+Future comparisons must use the current runtime, including the v4 guard, as baseline,
+publish candidate and validation evidence before the single holdout comparison, and
+preserve supported evidence coverage while reducing unsupported answers. Same-author,
+visible annotations and reused topic families limit independence and generalization.
+
 The [v4 contrastive dataset](information-type-v4.md) freezes another 20 validation
 and 20 holdout queries and covers fragmentary and statement-form requests after the
 v3 runtime regression. A request-target candidate was developed on validation only.
