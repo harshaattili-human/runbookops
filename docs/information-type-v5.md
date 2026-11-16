@@ -123,3 +123,34 @@ IDs, durations and timestamps vary. CI retains the receipt for 30 days; regenera
 with a new output filename afterward. This is baseline measurement, not a candidate
 improvement or a held-out result. No v5 baseline numbers were asserted before running
 this command. The original freeze statement above describes its publication checkpoint.
+
+### Recorded baseline, November 16, 2026
+
+[Run 43887300263](https://github.com/harshaattili-human/runbookops/actions/runs/43887300263)
+at implementation `17c46c8dcda242cc8aec388f0a3b9157a580244d` produced the
+[complete receipt](../reports/passage-validation-v5-baseline.json). Python 3.12.16,
+scikit-learn 1.8.0, NumPy 2.3.5, FastAPI 0.142.2 and HTTPX2 2.16.0 ran on Linux
+x86_64/glibc 2.39. The receipt retains exact input/code hashes and package versions.
+This is the unchanged current-runtime baseline on ten same-author validation pairs;
+there is no candidate comparison and zero holdout queries were scored.
+
+| Metric | Count |
+| --- | --- |
+| Supported answered | 10/10 |
+| Expected top document and answered | 10/10 |
+| Annotated evidence covered and answered | 6/10 |
+| Unsupported answered | 6/10 |
+| Fully correct pairs | 1/10 |
+
+Unsupported answers by type: approval 1/2, configuration value 2/2, live state 1/2,
+sensitive value 0/2 and unwritten procedure 2/2. The four supported passage misses
+all returned the expected document: database-pool cited lines 19–20 instead of
+annotated line 15; message-retries cited 5–7 instead of 9; pod-startup cited 5–7
+instead of 11; workflow-jobs cited 8–13 instead of 15. Inspect their exact answer
+text and query in the receipt. This demonstrates a limitation of document-only
+scoring on this authored suite, not real-world error prevalence.
+
+The checked-in receipt preserves this observation beyond CI artifact expiry. New
+runs write new files; do not replace it silently or treat repeated validation runs
+as independent evidence. Develop the next candidate on validation only, with the
+existing ranking fixed as required by the preregistered protocol.

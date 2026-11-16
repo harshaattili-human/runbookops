@@ -211,9 +211,10 @@ The optional provider now rejects [ambiguous JSON and invalid Unicode](ollama-bo
 before publishing generated output. This preserves fallback on protocol errors;
 it does not establish citation entailment or generated-answer quality.
 
-The [v5 evidence-span freeze](information-type-v5.md) adds unscored paired data and
+The [v5 evidence-span freeze](information-type-v5.md) introduced unscored paired data and
 a preregistered passage-level comparison against the current runtime. Integrity
-checks are implemented; no v5 inference or improvement result is claimed.
+checks were implemented without inference at that checkpoint. The subsequent
+validation-only baseline below makes no improvement claim.
 
 The [v5 validation runner](information-type-v5.md#validation-baseline-receipt) now
 checks returned passage bytes and reports cited-span coverage separately from
