@@ -66,7 +66,8 @@ wrong-document, uncited, disjoint/adjacent/overlapping and invalid evidence path
 These fixtures do not load or score either v5 split. The helper trusts coordinates
 from the retained response; the future evaluator must verify corpus/code hashes
 and retain text. It does not prove that generated prose is faithful to those spans.
-The full paired evaluator and candidate remain planned.
+The validation-only baseline runner is implemented; candidate comparison and
+holdout inference remain planned.
 
 ## Preregistered comparison
 
@@ -103,3 +104,22 @@ annotation, deployment or new runtime behavior is claimed by this freeze.
 Optional exercise: construct an answer that cites the correct document but the wrong
 section. Why would document-level scoring accept it while evidence-span scoring fails,
 and why can even complete span coverage still fail to prove entailment?
+
+## Validation baseline receipt
+
+Run `python -m runbookops.passage_validation --output passage-validation-v5.json`
+from an installed checkout. The command refuses to overwrite a receipt and has no
+holdout option. It verifies pinned baseline code and training data from the protocol
+checkpoint, checks the frozen datasets/corpus, then invokes the actual service with
+`use_llm=False`. Returned source hashes, line bounds, passage text, citation IDs and
+extractive answer text are checked before scoring. Integrity checks may read public
+holdout labels; inference receives only validation queries.
+
+The JSON retains all 20 validation responses, annotations, per-case decisions,
+explicit metric denominators, code/input hashes and package/platform versions.
+Fully correct pairs require supported cited-span coverage and negative abstention.
+Missing or duplicate pair members fail rather than reducing a denominator. Response
+IDs, durations and timestamps vary. CI retains the receipt for 30 days; regenerate
+with a new output filename afterward. This is baseline measurement, not a candidate
+improvement or a held-out result. No v5 baseline numbers were asserted before running
+this command. The original freeze statement above describes its publication checkpoint.

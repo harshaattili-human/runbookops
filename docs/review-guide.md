@@ -214,3 +214,7 @@ it does not establish citation entailment or generated-answer quality.
 The [v5 evidence-span freeze](information-type-v5.md) adds unscored paired data and
 a preregistered passage-level comparison against the current runtime. Integrity
 checks are implemented; no v5 inference or improvement result is claimed.
+
+The [v5 validation runner](information-type-v5.md#validation-baseline-receipt) now
+checks returned passage bytes and reports cited-span coverage separately from
+correct-document answers. It does not implement a candidate or score holdout.

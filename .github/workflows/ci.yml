@@ -52,6 +52,14 @@ jobs:
       - run: python -m pytest -q
       - name: Check frozen information datasets without scoring
         run: python -m runbookops.information_dataset
+      - name: Record v5 validation baseline without holdout inference
+        run: python -m runbookops.passage_validation --output passage-validation-v5.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: passage-validation-v5
+          path: passage-validation-v5.json
+          retention-days: 30
+          if-no-files-found: error
       - name: Reproduce the v3 validation candidate
         run: python -m runbookops.information_answerability --split validation
       - name: Evaluate the v4 validation candidate without holdout access

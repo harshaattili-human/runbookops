@@ -88,7 +88,9 @@ the JSON envelope before parsing; it does not evaluate generated-answer quality.
 
 The [v5 passage-evidence protocol](information-type-v5.md) freezes ten synthetic
 supported/unsupported pairs per split (20 validation queries and 20 holdout queries,
-20 paired contexts total). Both splits remain unscored. Each supported request has
+20 paired contexts total). At the freeze checkpoint both splits were unscored. A validation-only baseline
+runner now records actual service responses; holdout inference remains unavailable
+in that runner. Each supported request has
 an exact source-span annotation. The implemented metric counts only cited intervals
 covering that complete span; correct-document ranking alone is insufficient. Its
 hand-constructed tests establish metric behavior, not answer quality or entailment.
