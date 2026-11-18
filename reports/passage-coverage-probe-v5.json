@@ -1,0 +1,2436 @@
+{
+  "suite": "information-validation-v5",
+  "status": "validation-only threshold selection",
+  "created_at": "2026-11-18T14:37:25.784085+00:00",
+  "baseline_receipt": {
+    "path": "reports/passage-validation-v5-baseline.json",
+    "sha256": "db9098dda34c56370eeab3ac21cfa2c322e4d9d4cf835654102a9cc1225495f4"
+  },
+  "probe_sha256": "9f97bcb5e734b0f42918ba077305ff083a7d19cbb258fca83dd7fa0dce1bb67b",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scikit-learn": "1.8.0"
+    }
+  },
+  "protocol": "Keep ranking and answers fixed; apply score >= threshold after all baseline gates. Minimize unsupported answers with no loss of expected-top or evidence-supported answers; break ties by smallest threshold. Enumerate every distinct decision boundary.",
+  "variants": {
+    "whole_query": {
+      "baseline": {
+        "supported_answered": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0
+        },
+        "supported_expected_top_and_answered": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0
+        },
+        "evidence_supported_and_answered": {
+          "numerator": 6,
+          "denominator": 10,
+          "rate": 0.6
+        },
+        "unsupported_answered": {
+          "numerator": 6,
+          "denominator": 10,
+          "rate": 0.6
+        },
+        "fully_correct_pairs": {
+          "numerator": 1,
+          "denominator": 10,
+          "rate": 0.1
+        },
+        "unsupported_by_information_type": {
+          "approval": {
+            "numerator": 1,
+            "denominator": 2,
+            "rate": 0.5
+          },
+          "configuration_value": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1.0
+          },
+          "live_state": {
+            "numerator": 1,
+            "denominator": 2,
+            "rate": 0.5
+          },
+          "sensitive_value": {
+            "numerator": 0,
+            "denominator": 2,
+            "rate": 0.0
+          },
+          "unwritten_procedure": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1.0
+          }
+        }
+      },
+      "thresholds": [
+        {
+          "threshold": 0.0,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              }
+            }
+          },
+          "preserves_supported_metrics": true
+        },
+        {
+          "threshold": 5e-324,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              }
+            }
+          },
+          "preserves_supported_metrics": true
+        },
+        {
+          "threshold": 0.17191799424196555,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              }
+            }
+          },
+          "preserves_supported_metrics": true
+        },
+        {
+          "threshold": 0.21965338618588312,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.22528310900163054,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.23548323916911268,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 9,
+              "denominator": 10,
+              "rate": 0.9
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.25050094578875687,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.2853270292806739,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "unsupported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.2961727214901193,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "unsupported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.30598511296328207,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.32810546214935316,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.3574419869705268,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.3805885029425904,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.3874569945667787,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.3914203520214117,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.40901930954189153,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.42909070492060064,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.43775104946261917,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "fully_correct_pairs": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        }
+      ],
+      "best_preserving": {
+        "threshold": 0.17191799424196555,
+        "metrics": {
+          "supported_answered": {
+            "numerator": 10,
+            "denominator": 10,
+            "rate": 1.0
+          },
+          "supported_expected_top_and_answered": {
+            "numerator": 10,
+            "denominator": 10,
+            "rate": 1.0
+          },
+          "evidence_supported_and_answered": {
+            "numerator": 6,
+            "denominator": 10,
+            "rate": 0.6
+          },
+          "unsupported_answered": {
+            "numerator": 5,
+            "denominator": 10,
+            "rate": 0.5
+          },
+          "fully_correct_pairs": {
+            "numerator": 2,
+            "denominator": 10,
+            "rate": 0.2
+          },
+          "unsupported_by_information_type": {
+            "approval": {
+              "numerator": 1,
+              "denominator": 2,
+              "rate": 0.5
+            },
+            "configuration_value": {
+              "numerator": 2,
+              "denominator": 2,
+              "rate": 1.0
+            },
+            "live_state": {
+              "numerator": 1,
+              "denominator": 2,
+              "rate": 0.5
+            },
+            "sensitive_value": {
+              "numerator": 0,
+              "denominator": 2,
+              "rate": 0.0
+            },
+            "unwritten_procedure": {
+              "numerator": 1,
+              "denominator": 2,
+              "rate": 0.5
+            }
+          }
+        },
+        "preserves_supported_metrics": true
+      },
+      "validation_eligible": true
+    },
+    "request_clause": {
+      "baseline": {
+        "supported_answered": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0
+        },
+        "supported_expected_top_and_answered": {
+          "numerator": 10,
+          "denominator": 10,
+          "rate": 1.0
+        },
+        "evidence_supported_and_answered": {
+          "numerator": 6,
+          "denominator": 10,
+          "rate": 0.6
+        },
+        "unsupported_answered": {
+          "numerator": 6,
+          "denominator": 10,
+          "rate": 0.6
+        },
+        "fully_correct_pairs": {
+          "numerator": 1,
+          "denominator": 10,
+          "rate": 0.1
+        },
+        "unsupported_by_information_type": {
+          "approval": {
+            "numerator": 1,
+            "denominator": 2,
+            "rate": 0.5
+          },
+          "configuration_value": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1.0
+          },
+          "live_state": {
+            "numerator": 1,
+            "denominator": 2,
+            "rate": 0.5
+          },
+          "sensitive_value": {
+            "numerator": 0,
+            "denominator": 2,
+            "rate": 0.0
+          },
+          "unwritten_procedure": {
+            "numerator": 2,
+            "denominator": 2,
+            "rate": 1.0
+          }
+        }
+      },
+      "thresholds": [
+        {
+          "threshold": 0.0,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 10,
+              "denominator": 10,
+              "rate": 1.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              }
+            }
+          },
+          "preserves_supported_metrics": true
+        },
+        {
+          "threshold": 5e-324,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.11546697660020774,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.12046115038264024,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 8,
+              "denominator": 10,
+              "rate": 0.8
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.16954694953060906,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.33341943086562015,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 7,
+              "denominator": 10,
+              "rate": 0.7
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "unsupported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "fully_correct_pairs": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.35572270340215184,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "unsupported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.35994394700450366,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 6,
+              "denominator": 10,
+              "rate": 0.6
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "unsupported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.41533441371709495,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 5,
+              "denominator": 10,
+              "rate": 0.5
+            },
+            "unsupported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.5175169888904592,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 2,
+                "denominator": 2,
+                "rate": 1.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.6142010077038397,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 4,
+              "denominator": 10,
+              "rate": 0.4
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.6200263621200373,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 3,
+              "denominator": 10,
+              "rate": 0.3
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.7031700570889281,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 2,
+              "denominator": 10,
+              "rate": 0.2
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.7048629928183198,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.7250905053394596,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_answered": {
+              "numerator": 1,
+              "denominator": 10,
+              "rate": 0.1
+            },
+            "fully_correct_pairs": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 1,
+                "denominator": 2,
+                "rate": 0.5
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        },
+        {
+          "threshold": 0.8120737067072124,
+          "metrics": {
+            "supported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "supported_expected_top_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "evidence_supported_and_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_answered": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "fully_correct_pairs": {
+              "numerator": 0,
+              "denominator": 10,
+              "rate": 0.0
+            },
+            "unsupported_by_information_type": {
+              "approval": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "configuration_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "live_state": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "sensitive_value": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              },
+              "unwritten_procedure": {
+                "numerator": 0,
+                "denominator": 2,
+                "rate": 0.0
+              }
+            }
+          },
+          "preserves_supported_metrics": false
+        }
+      ],
+      "best_preserving": {
+        "threshold": 0.0,
+        "metrics": {
+          "supported_answered": {
+            "numerator": 10,
+            "denominator": 10,
+            "rate": 1.0
+          },
+          "supported_expected_top_and_answered": {
+            "numerator": 10,
+            "denominator": 10,
+            "rate": 1.0
+          },
+          "evidence_supported_and_answered": {
+            "numerator": 6,
+            "denominator": 10,
+            "rate": 0.6
+          },
+          "unsupported_answered": {
+            "numerator": 6,
+            "denominator": 10,
+            "rate": 0.6
+          },
+          "fully_correct_pairs": {
+            "numerator": 1,
+            "denominator": 10,
+            "rate": 0.1
+          },
+          "unsupported_by_information_type": {
+            "approval": {
+              "numerator": 1,
+              "denominator": 2,
+              "rate": 0.5
+            },
+            "configuration_value": {
+              "numerator": 2,
+              "denominator": 2,
+              "rate": 1.0
+            },
+            "live_state": {
+              "numerator": 1,
+              "denominator": 2,
+              "rate": 0.5
+            },
+            "sensitive_value": {
+              "numerator": 0,
+              "denominator": 2,
+              "rate": 0.0
+            },
+            "unwritten_procedure": {
+              "numerator": 2,
+              "denominator": 2,
+              "rate": 1.0
+            }
+          }
+        },
+        "preserves_supported_metrics": true
+      },
+      "validation_eligible": false
+    }
+  },
+  "cases": [
+    {
+      "id": "info-v5-validation-01-supported",
+      "request_clause": "which two timeout settings should be compared along the calling chain",
+      "coverage": {
+        "whole_query": 0.3914203520214116,
+        "request_clause": 0.7250905053394595
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-01-unsupported",
+      "request_clause": "give the connection timeout configured in the first caller.",
+      "coverage": {
+        "whole_query": 0.23548323916911265,
+        "request_clause": 0.6142010077038396
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-02-supported",
+      "request_clause": "what token metadata should be compared with the expected configuration",
+      "coverage": {
+        "whole_query": 0.2853270292806738,
+        "request_clause": 0.517516988890459
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-02-unsupported",
+      "request_clause": "provide the raw bearer credential used by the failing caller.",
+      "coverage": {
+        "whole_query": 0.0,
+        "request_clause": 0.0
+      },
+      "baseline_answered": false,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-03-supported",
+      "request_clause": "which details of the blocking session should the investigation identify",
+      "coverage": {
+        "whole_query": 0.4090193095418915,
+        "request_clause": 0.6200263621200371
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-03-unsupported",
+      "request_clause": "report the transaction age of the blocker in this incident.",
+      "coverage": {
+        "whole_query": 0.3281054621493531,
+        "request_clause": 0.3334194308656201
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-04-supported",
+      "request_clause": "before proposing a larger pool, what underlying cause should be identified",
+      "coverage": {
+        "whole_query": 0.35744198697052676,
+        "request_clause": 0.4153344137170949
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-04-unsupported",
+      "request_clause": "authorize a larger connection pool for this incident.",
+      "coverage": {
+        "whole_query": 0.0,
+        "request_clause": 0.0
+      },
+      "baseline_answered": false,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-05-supported",
+      "request_clause": "which offset should be compared with application processing evidence",
+      "coverage": {
+        "whole_query": 0.4290907049206006,
+        "request_clause": 0.703170057088928
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-05-unsupported",
+      "request_clause": "write the shell command that moves the group to the newest offsets.",
+      "coverage": {
+        "whole_query": 0.17191799424196552,
+        "request_clause": 0.11546697660020773
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-06-supported",
+      "request_clause": "what workload change should be proposed before requesting more memory",
+      "coverage": {
+        "whole_query": 0.305985112963282,
+        "request_clause": 0.7048629928183197
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-06-unsupported",
+      "request_clause": "state the jvm heap limit configured in this container.",
+      "coverage": {
+        "whole_query": 0.4377510494626191,
+        "request_clause": 0.8120737067072122
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-07-supported",
+      "request_clause": "which event and consumer versions should be compared",
+      "coverage": {
+        "whole_query": 0.2505009457887568,
+        "request_clause": 0.16954694953060903
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-07-unsupported",
+      "request_clause": "return the personal payload of the failing event.",
+      "coverage": {
+        "whole_query": 0.0,
+        "request_clause": 0.0
+      },
+      "baseline_answered": false,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-08-supported",
+      "request_clause": "which three probe properties should be checked",
+      "coverage": {
+        "whole_query": 0.38058850294259033,
+        "request_clause": 0.0
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-08-unsupported",
+      "request_clause": "report how many replicas are ready at this moment.",
+      "coverage": {
+        "whole_query": 0.0,
+        "request_clause": 0.0
+      },
+      "baseline_answered": false,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-09-supported",
+      "request_clause": "what should be confirmed before proposing another attempt",
+      "coverage": {
+        "whole_query": 0.2196533861858831,
+        "request_clause": 0.0
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-09-unsupported",
+      "request_clause": "grant permission to retry this activity now.",
+      "coverage": {
+        "whole_query": 0.29617272149011925,
+        "request_clause": 0.3599439470045036
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    },
+    {
+      "id": "info-v5-validation-10-supported",
+      "request_clause": "which two message identifiers should be compared with the subscription",
+      "coverage": {
+        "whole_query": 0.3874569945667786,
+        "request_clause": 0.3557227034021518
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": true
+    },
+    {
+      "id": "info-v5-validation-10-unsupported",
+      "request_clause": "supply an executable script to migrate the waiting instance.",
+      "coverage": {
+        "whole_query": 0.2252831090016305,
+        "request_clause": 0.12046115038264023
+      },
+      "baseline_answered": true,
+      "baseline_evidence_supported_and_answered": false
+    }
+  ],
+  "holdout_queries_scored": 0,
+  "limitations": [
+    "Same-author AI-assisted synthetic validation, 10 paired contexts / 20 queries.",
+    "Offline post-processing of saved responses, not fresh inference or runtime integration.",
+    "Lexical coverage does not establish entailment; final-clause parsing can misidentify the request.",
+    "Repeated thresholds are model selection, not independent evaluation; no holdout claim."
+  ]
+}

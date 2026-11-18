@@ -146,3 +146,8 @@ information-type model; see [the protocol and per-case reports](information-type
   inspection. Physical-device and assistive-technology verification remain pending.
 - The coverage gate can suppress useful evidence when a query contains irrelevant
   terms, and can pass absent values or secrets when topical overlap is strong.
+
+The [v5 offline passage-coverage probe](passage-coverage-v5.md) preserves all threshold
+results: final-clause coverage fails the validation retention criterion, while
+whole-query selection leaves five of ten unsupported answers. Neither variant is
+integrated or scored on holdout.
