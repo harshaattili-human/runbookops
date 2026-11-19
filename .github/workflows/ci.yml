@@ -60,6 +60,14 @@ jobs:
           path: passage-validation-v5.json
           retention-days: 30
           if-no-files-found: error
+      - name: Reproduce the validation-only passage coverage probe
+        run: python -m runbookops.passage_probe --output passage-coverage-probe-v5.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: passage-coverage-probe-v5
+          path: passage-coverage-probe-v5.json
+          retention-days: 30
+          if-no-files-found: error
       - name: Reproduce the v3 validation candidate
         run: python -m runbookops.information_answerability --split validation
       - name: Evaluate the v4 validation candidate without holdout access

@@ -219,3 +219,7 @@ validation-only baseline below makes no improvement claim.
 The [v5 validation runner](information-type-v5.md#validation-baseline-receipt) now
 checks returned passage bytes and reports cited-span coverage separately from
 correct-document answers. It does not implement a candidate or score holdout.
+
+The [v5 coverage probe](passage-coverage-v5.md) separates offline threshold selection
+from runtime and held-out evaluation. Inspect the full threshold sweep and the
+zero-overlap supported requests before interpreting its modest whole-query gain.

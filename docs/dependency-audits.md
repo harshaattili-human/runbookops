@@ -215,3 +215,25 @@ and archive resolution remain mutable; this is not a reproducible-image pin or a
 claim that every base package is patched. The scanner and all blocking policies
 remain unchanged. The rebuilt image must pass the same HTTP and runtime checks
 and the full installed-package scan; results are recorded in PR 41.
+
+## Unpatched picomatch advisory — November 18, 2026
+
+The dependency job in [run 44326845988](https://github.com/harshaattili-human/runbookops/actions/runs/44326845988)
+failed the unchanged high/critical npm gate. The [full audit](../reports/npm-audit-2026-11-18.json)
+retains five high-severity package entries through picomatch, fdir, tinyglobby,
+Vite and Vitest; these are not five distinct advisories. Its underlying advisory is
+[GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf), a repeated-extglob
+regular-expression denial of service, updated November 17. The advisory lists
+picomatch through 4.0.7 as affected and no patched version on November 18.
+`npm view picomatch version` returned 4.0.7; a package-lock-only update resolved no
+new version and changed no tracked files. No security exception, audit suppression,
+forced downgrade or dependency override was added.
+
+The audit's suggested Vite 6.2.7/Vitest 3.1.4 downgrades are not accepted as a safe
+remediation: a resolver suggestion alone does not establish compatibility or clear
+other advisories. The experiment remains on its review branch until the gate can
+pass with a reviewed dependency fix. This is build/test dependency evidence, not a
+claim that the packaged Python API is remotely exploitable through picomatch.
+The artifact archive SHA-256 was
+`648920fb28af07bc3a3f1844666e2853bc5e99733e1f3e69338ed56b54969c4f`;
+its JSON is preserved unchanged beyond artifact expiry.
