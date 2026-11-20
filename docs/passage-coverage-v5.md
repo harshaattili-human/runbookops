@@ -71,3 +71,27 @@ receipts remain unchanged.
 
 Optional exercise: why can a threshold reduce false answers yet remain unable to
 repair a correct-document/wrong-passage answer? Which metric would hide that loss?
+
+## Deterministic offline reduction — November 20, 2026
+
+The original probe delegated coverage to the pinned runtime method, which sums
+weights in set iteration order. Four fresh processes with `PYTHONHASHSEED` 1–4
+reproduced different last-bit score values: compared with seed 1, seeds 2, 3 and 4
+changed 11, 10 and 11 of the 20 case score objects respectively. Their selected
+thresholds and metric counts agreed in this run. This is numerical variation,
+not four independent quality experiments.
+
+The offline probe now sorts unique query terms and uses `math.fsum` for numerator
+and denominator. It preserves the pinned runtime tokenization and IDF formula,
+without changing runtime retrieval, ranking, the baseline receipt or corpus. It
+neither rounds scores nor merges nearby thresholds. The report identifies this
+reduction explicitly. The historical November 18 receipt above remains unchanged;
+regenerated receipts use the new probe hash and may differ in last bits.
+
+Eight focused unit methods passed locally on Python 3.12.14 / NumPy 2.3.5 /
+scikit-learn 1.8.0. The new subprocess regression compares all case scores and
+complete threshold sweeps exactly across four hash seeds; timestamps and environment
+metadata are excluded from equality. A separate check covers empty, full, absent
+and partial overlap, repeated terms and reordered query terms. This guarantees
+neither cross-platform/libm equality nor byte-identical timestamped receipts.
+No holdout inference or candidate promotion was performed.

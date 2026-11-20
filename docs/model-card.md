@@ -151,3 +151,8 @@ The [v5 offline passage-coverage probe](passage-coverage-v5.md) preserves all th
 results: final-clause coverage fails the validation retention criterion, while
 whole-query selection leaves five of ten unsupported answers. Neither variant is
 integrated or scored on holdout.
+
+The offline v5 coverage probe now uses sorted terms and compensated summation to
+make its exact threshold sweep independent of Python hash seed in the checked
+four-process environment. This is a [numerical reproducibility repair](passage-coverage-v5.md#deterministic-offline-reduction--november-20-2026),
+not a runtime or answer-quality change; historical receipts remain unchanged.

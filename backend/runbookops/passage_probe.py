@@ -16,6 +16,25 @@ RECEIPT = 'reports/passage-validation-v5-baseline.json'
 RECEIPT_SHA256 = 'db9098dda34c56370eeab3ac21cfa2c322e4d9d4cf835654102a9cc1225495f4'
 
 
+def stable_coverage(retriever, query, evidence):
+    """Pinned runtime tokenization/IDF formula with deterministic offline reduction.
+
+    Do not alter the runtime retriever or historical baseline to repair probe
+    reproducibility. Sorted terms remove hash-seed order; fsum limits accumulated
+    rounding error without rounding scores or merging decision boundaries.
+    """
+    import numpy as np
+    from .retrieval import tokens
+    terms = sorted(set(tokens(query)))
+    if not terms:
+        return 0.0
+    evidence_terms = set(tokens(evidence))
+    weights = [(term, float(np.log(1 + (len(retriever.chunks) - retriever.df.get(term, 0) + .5)
+                                  / (retriever.df.get(term, 0) + .5)))) for term in terms]
+    return math.fsum(weight for term, weight in weights if term in evidence_terms) / math.fsum(
+        weight for _, weight in weights)
+
+
 def gated_rows(rows, scores, threshold):
     """Apply an additional gate, never promoting a baseline abstention."""
     if len(rows) != len(scores) or not math.isfinite(threshold):
@@ -79,8 +98,8 @@ def evaluate_probe(root=ROOT, *, split='validation'):
         verify_response(response, retriever.documents)
         body = response['answer'] if row['answered'] else ''
         clause = request_clause(row['query'])
-        values = {'whole_query': retriever.weighted_coverage(row['query'], body),
-                  'request_clause': retriever.weighted_coverage(clause, body)}
+        values = {'whole_query': stable_coverage(retriever, row['query'], body),
+                  'request_clause': stable_coverage(retriever, clause, body)}
         for name, value in values.items():
             scores[name].append(value)
         decisions.append({'id': row['id'], 'request_clause': clause, 'coverage': values,
@@ -92,6 +111,7 @@ def evaluate_probe(root=ROOT, *, split='validation'):
             'probe_sha256': digest(root / 'backend/runbookops/passage_probe.py'),
             'environment': {'python': platform.python_version(), 'platform': platform.platform(),
                 'packages': {name: importlib.metadata.version(name) for name in ['numpy', 'scikit-learn']}},
+            'coverage_reduction': 'Sorted unique terms, float IDF weights, math.fsum numerator and denominator.',
             'protocol': 'Keep ranking and answers fixed; apply score >= threshold after all baseline gates. '
                         'Minimize unsupported answers with no loss of expected-top or evidence-supported answers; '
                         'break ties by smallest threshold. Enumerate every distinct decision boundary.',
