@@ -70,6 +70,33 @@ def sweep(rows, scores):
             'validation_eligible': useful}
 
 
+def pair_sensitivity(rows, scores):
+    """Leave both members out together; diagnostic reuse of validation, not holdout."""
+    summarize(rows)  # Reject incomplete/duplicate pairs before selecting anything.
+    gated_rows(rows, scores, 0.0)  # Validate the complete score vector first.
+    pairs = sorted({row['pair_id'] for row in rows})
+    if len(pairs) < 2:
+        raise ValueError('Sensitivity requires at least two complete pairs')
+    folds = []
+    omitted_predictions = []
+    for pair in pairs:
+        training = [i for i, row in enumerate(rows) if row['pair_id'] != pair]
+        omitted = [i for i, row in enumerate(rows) if row['pair_id'] == pair]
+        selected = sweep([rows[i] for i in training], [scores[i] for i in training])
+        threshold = selected['best_preserving']['threshold']
+        test_rows = [rows[i] for i in omitted]
+        predicted = gated_rows(test_rows, [scores[i] for i in omitted], threshold)
+        omitted_predictions.extend(predicted)
+        folds.append({'omitted_pair': pair, 'selection_pair_count': len(pairs) - 1,
+                      'threshold': threshold,
+                      'selection_metrics': selected['best_preserving']['metrics'],
+                      'omitted_baseline': summarize(test_rows),
+                      'omitted_selected': summarize(predicted)})
+    return {'status': 'validation pair sensitivity; not independent evaluation',
+            'folds': folds, 'baseline': summarize(rows),
+            'omitted_pair_aggregate': summarize(omitted_predictions)}
+
+
 def evaluate_probe(root=ROOT, *, split='validation'):
     if split != 'validation':
         raise ValueError('This probe supports validation only')
@@ -116,6 +143,7 @@ def evaluate_probe(root=ROOT, *, split='validation'):
                         'Minimize unsupported answers with no loss of expected-top or evidence-supported answers; '
                         'break ties by smallest threshold. Enumerate every distinct decision boundary.',
             'variants': {name: sweep(rows, values) for name, values in scores.items()},
+            'pair_sensitivity': {name: pair_sensitivity(rows, values) for name, values in scores.items()},
             'cases': decisions, 'holdout_queries_scored': 0,
             'limitations': ['Same-author AI-assisted synthetic validation, 10 paired contexts / 20 queries.',
                 'Offline post-processing of saved responses, not fresh inference or runtime integration.',

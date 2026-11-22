@@ -156,3 +156,9 @@ The offline v5 coverage probe now uses sorted terms and compensated summation to
 make its exact threshold sweep independent of Python hash seed in the checked
 four-process environment. This is a [numerical reproducibility repair](passage-coverage-v5.md#deterministic-offline-reduction--november-20-2026),
 not a runtime or answer-quality change; historical receipts remain unchanged.
+
+A [validation pair-omission diagnostic](passage-coverage-v5.md#pair-omission-sensitivity--november-22-2026)
+finds the whole-query threshold gain does not persist when each pair is omitted
+from selection: 9/10 expected-document answers remain and 6/10 unsupported requests
+are answered. This is reused validation sensitivity, not independent quality evidence;
+no candidate is promoted and the v5 holdout remains unscored.

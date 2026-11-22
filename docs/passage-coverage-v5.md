@@ -95,3 +95,29 @@ metadata are excluded from equality. A separate check covers empty, full, absent
 and partial overlap, repeated terms and reordered query terms. This guarantees
 neither cross-platform/libm equality nor byte-identical timestamped receipts.
 No holdout inference or candidate promotion was performed.
+
+## Pair omission sensitivity — November 22, 2026
+
+The probe now selects the same threshold policy on nine validation pairs and applies
+it to the omitted complete pair, repeating once per pair. Both members stay together;
+the omitted scores and labels cannot enter that fold's threshold sweep. Each fold
+retains its selected threshold, selection metrics and omitted baseline/candidate
+metrics in the [receipt](../reports/passage-pair-sensitivity-v5.json). Aggregation
+counts each of the original ten pairs once, not 100 independent observations.
+This is sensitivity analysis on already inspected validation data, not an unbiased
+cross-validation estimate, new training set, fresh holdout or confidence interval.
+
+Whole-query selection chooses the original threshold in eight folds, zero when
+pair 05 is omitted, and approximately 0.235483 when pair 09 is omitted. Applied to
+the omitted pairs, it retains 9/10 expected-document answers and 6/10 evidence-span
+answers, while answering 6/10 unsupported requests and getting 1/10 pairs fully
+correct. Thus the full-validation gain does not persist in this diagnostic, and
+one supported answer is lost. Clause selection chooses zero in every fold and
+retains the baseline counts. Neither variant is promoted; v5 holdout remains unscored.
+
+Reproduce with the existing probe command and a new output path. The receipt pins
+the baseline and probe hashes and records Python 3.12.14, NumPy 2.3.5 and
+scikit-learn 1.8.0. Ten focused unit methods passed locally, including constructed
+pairs that expose omitted-pair leakage, supported-answer loss, input permutation,
+nonmutation and invalid/incomplete pair rejection. Hosted full-suite results are
+recorded in the pull request. Runtime, corpus, ranking and frozen labels are unchanged.
