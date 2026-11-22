@@ -9,7 +9,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from runbookops.passage_probe import evaluate_probe, gated_rows, sweep, stable_coverage
+from runbookops.passage_probe import evaluate_probe, gated_rows, sweep, stable_coverage, pair_sensitivity
 
 
 class PassageProbeTest(unittest.TestCase):
@@ -83,6 +83,29 @@ class PassageProbeTest(unittest.TestCase):
             gated_rows(self.rows(), [0.5], .5)
         with self.assertRaises(ValueError):
             gated_rows(self.rows(), [.5] * 4, float('nan'))
+
+    def test_pair_sensitivity_selects_without_either_omitted_member(self):
+        rows = self.rows()
+        original = copy.deepcopy(rows)
+        result = pair_sensitivity(rows, [.6, .5, .4, 0.0])
+        first, second = result['folds']
+        self.assertEqual(first['omitted_pair'], 'one')
+        self.assertEqual(first['threshold'], 0.0)
+        self.assertEqual(second['threshold'], math.nextafter(.5, math.inf))
+        # Selection on pair one removes the supported member of omitted pair two.
+        self.assertEqual(second['omitted_selected']['supported_answered']['numerator'], 0)
+        self.assertEqual(result['omitted_pair_aggregate']['supported_answered']['denominator'], 2)
+        self.assertEqual(result['omitted_pair_aggregate']['supported_answered']['numerator'], 1)
+        self.assertEqual(rows, original)
+        self.assertEqual(result, pair_sensitivity(list(reversed(rows)), [0.0, .4, .5, .6]))
+
+    def test_pair_sensitivity_rejects_incomplete_or_single_pair_and_bad_scores(self):
+        for rows, scores in [(self.rows()[:2], [.5, .5]),
+                             (self.rows()[:3], [.5] * 3),
+                             (self.rows(), [.5]),
+                             (self.rows(), [float('nan')] * 4)]:
+            with self.subTest(rows=len(rows), scores=scores), self.assertRaises(ValueError):
+                pair_sensitivity(rows, scores)
 
     def test_holdout_rejected_before_any_read(self):
         with patch.object(Path, 'read_bytes') as read:
