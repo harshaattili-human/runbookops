@@ -61,7 +61,11 @@ Before showing guidance, the service also requires the top document to contain a
 least 0.33 of the query's IDF-weighted terms. Below that threshold it returns no
 source passage and does not call the optional LLM. The threshold was selected on
 the v1 validation set; it is a lexical heuristic, not calibrated confidence or
-entailment. A later request-shape guard was evaluated but rejected before adoption.
+entailment. The v3 request-shape candidate was rejected. The later fixed
+[v4 request-target guard](request-target-guard.md) is integrated: a matched external
+information signal also withholds sources and bypasses extraction/generation, even
+when document coverage passes. The service reuses the published candidate unchanged;
+its lexical decisions do not establish passage support.
 
 On the separately frozen v2 synthetic holdout, the original retrieval gate answered
 11/14 unsupported requests and all 12 supported requests. The coverage policy answered
@@ -138,7 +142,8 @@ information-type model; see [the protocol and per-case reports](information-type
 - No public or real operational validation, calibration study, or drift monitoring.
 - No live LLM quality evaluation; adapter behavior is covered with controlled HTTP
   responses and instrumented streams.
-- No production authentication, rate limiting, or tenant isolation.
+- No authentication or tenant isolation. The optional [process request budget](rate-limits.md)
+  limits bursts locally; it is not caller fairness, a distributed quota or deployment evidence.
 - This demo should run locally. Public deployment needs a separate security review.
 - Component interaction tests cover source-dialog focus containment, Escape, focus
   restoration, fetch errors, keyboard navigation and the empty state.

@@ -96,7 +96,8 @@ then scored once on the frozen v3 holdout. It retained 8/10 expected-top support
 answers and changed unsupported answers from 6/10 to 1/10, meeting the preregistered
 numeric rule. Runtime integration was rejected after the existing generation-admission
 suite exposed a false signal on a descriptive “maximum connections” sentence. The
-service remains unchanged; v3 is exposed and cannot be used to repair the rule.
+service was unchanged at that checkpoint; v3 was not integrated and is exposed.
+The later v4 integration described above does not repair or adopt the rejected v3 rule.
 
 Completed October 10: integrated source-snapshot hashes and version-checked citation
 inspection. A changed or removed runbook prompts a fresh analysis instead of opening
