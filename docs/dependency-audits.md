@@ -237,3 +237,24 @@ claim that the packaged Python API is remotely exploitable through picomatch.
 The artifact archive SHA-256 was
 `648920fb28af07bc3a3f1844666e2853bc5e99733e1f3e69338ed56b54969c4f`;
 its JSON is preserved unchanged beyond artifact expiry.
+
+
+## libzstd security update — November 25, 2026
+
+[Run 45637389611](https://github.com/harshaattili-human/runbookops/actions/runs/45637389611)
+passed application, browser, Spring and npm checks, but the container job failed
+its unchanged image audit after all runtime/characterization steps passed. Trivy
+inventoried 24 Python package names and 225 finding entries, including one fixable
+HIGH entry: CVE-2026-124851 against Debian 13.8 `libzstd1` `1.5.7+dfsg-1`.
+The [failed audit artifact](https://github.com/harshaattili-human/runbookops/actions/runs/45637389611/artifacts/15034831301)
+retains the unfiltered inventory, scanner/database metadata and exact image ID for
+30 days. This is an installed-package advisory match, not an exploitability finding.
+
+Debian's [DSA-6657-1](https://lists.debian.org/debian-security-announce/2026/msg00579.html)
+identifies `1.5.7+dfsg-1+deb13u1` as the trixie security fix. The existing targeted
+runtime-package upgrade now includes `libzstd1` alongside `zlib1g`, prints both
+installed versions and fails the build if either is below its documented minimum.
+It uses configured distribution repositories and removes package lists in the same
+layer. It does not upgrade every OS package or pin a reproducible image. No scanner,
+ignore list or blocking policy changed. Rebuilt-image verification is recorded in
+PR 48; the earlier failed run is preserved above.

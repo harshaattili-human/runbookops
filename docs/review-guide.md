@@ -12,7 +12,7 @@ is a local prototype. It has not been used to resolve production incidents.
 | Runbook retrieval | [Retriever](../backend/runbookops/retrieval.py): Markdown sections, BM25/cosine ranking, line references | [Source-line and unrelated-query checks](../tests/test_triage.py); only a small lexical corpus is evaluated |
 | Source identity | SHA-256 of indexed document text; optional expected-hash check; [served corpus identity](corpus-identity.md) | [Snapshot and version-mismatch tests](../tests/test_source_versions.py); workbench refuses changed or removed versions; automatic refresh remains pending |
 | HTTP boundary | [API](../backend/runbookops/api.py): length validation, rejected extra fields, known-runbook lookup | Invalid inputs and unknown runbooks are tested; authentication and tenant isolation are absent |
-| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage and fixed request-target gates, exact source extraction, optional Ollama synthesis over HTTPX2, citation-ID validation | [v3 contrastive comparison](information-type-v3.md) records a positive paired result and the runtime regression that prevented adoption; the [transport migration](httpx2-migration.md) preserves the provider boundary |
+| Answerability and construction | [Service](../backend/runbookops/service.py): document-coverage and fixed request-target gates, exact source extraction, optional Ollama synthesis over HTTPX2, citation-ID validation | [v4 runtime guard](request-target-guard.md) is integrated; v3 was rejected and v5 passage probes remain offline; the [transport migration](httpx2-migration.md) preserves the provider boundary |
 | Investigation interface | [React workbench](../frontend/src/main.tsx): sample inputs, routing signals, source inspection, evaluation view | [Component interactions](../frontend/src/main.test.tsx) plus [live browser checks](browser-checks.md) cover source focus/scrolling, version checks, navigation and narrow layouts; assistive-technology and physical-device verification remain pending |
 | Repeatability | [CI workflow](../.github/workflows/ci.yml), dependency manifests, [evaluation report](../reports/evaluation.json) | Separate [container checks](container-checks.md) exercise the packaged UI/API, non-root read-only operation, health and restart; the separate mounted-release rehearsal checks selection, version conflicts and explicit rollback; no deployment or load claim |
 | Java integration | [Spring Boot client](spring-client.md): typed extractive/abstained results, response request IDs and versioned source inspection | Loopback failure fixtures and live FastAPI contract checks; synchronous calls with connect/read inactivity timeouts, no whole-request deadline |
@@ -77,7 +77,8 @@ preserved the baseline expected-top-and-answered supported count (9/10 validatio
 checks showed that “Active connections are at the maximum” triggered the value rule
 even though it described the incident rather than asking a question. Inspect that
 runtime regression alongside the pool-size failure, two coverage-withheld positives,
-ordered expressions and final-sentence assumption. The service remains unchanged.
+ordered expressions and final-sentence assumption. V3 was not adopted; the
+subsequent v4 guard below is the current runtime policy.
 
 The follow-up [v4 experiment](information-type-v4.md) separates its integrity-only
 freeze from a later validation-only candidate. The request-target guard retained 9/10
@@ -119,8 +120,10 @@ The service first checks IDF-weighted query-term coverage across its document. T
 fixed v2 holdout reduced unsupported answers from 11/14 to 3/14 but withheld one of
 12 supported answers. Strong topical overlap still passes some requests for absent
 credentials, numerical guarantees, and business decisions. A later request-shape
-guard improved a small paired holdout but also misread an existing descriptive incident,
-so it remains experimental rather than part of the service.
+guard (v3) improved a small paired holdout but also misread an existing descriptive
+incident and was rejected. The separately frozen v4 request-target guard is now
+applied unchanged before extraction or generation. It adds lexical refusals, not
+passage entailment; its five unsupported holdout answers remain documented.
 
 ## What the measurements establish
 
@@ -147,9 +150,13 @@ The [model card](model-card.md) describes thresholds and limitations.
 
 ## What needs evidence next
 
-1. Test an information-type or entailment-oriented answerability method that can
-   distinguish investigation guidance from absent credentials, values and business
-   decisions. Do not tune on v2; freeze a new holdout before an improvement claim.
+1. Develop a passage-aware candidate on [v5 validation](information-type-v5.md),
+   comparing with the current runtime including v4. V1–v4 holdouts are exposed;
+   v5 holdout remains unscored. Publish the fixed candidate, evaluator and full
+   validation evidence before the protocol’s single joint holdout comparison.
+   The [pair-omission diagnostic](passage-coverage-v5.md#pair-omission-sensitivity--november-22-2026)
+   did not preserve the whole-query probe’s validation gain; neither coverage
+   variant is promoted. Correct-document ranking alone is not passage support.
 2. Touch/physical-device and manual assistive-technology checks.
    [Browser workflows](browser-checks.md) run on Chromium, Firefox and WebKit at
    three viewport sizes and include screenshots for review.
