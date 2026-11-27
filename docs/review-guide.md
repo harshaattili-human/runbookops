@@ -230,3 +230,8 @@ correct-document answers. It does not implement a candidate or score holdout.
 The [v5 coverage probe](passage-coverage-v5.md) separates offline threshold selection
 from runtime and held-out evaluation. Inspect the full threshold sweep and the
 zero-overlap supported requests before interpreting its modest whole-query gain.
+
+The [sentence-local v5 follow-up](sentence-coverage-v5.md) finds no threshold that
+reduces unsupported validation answers while preserving both supported metrics.
+It retains per-unit evidence and all selection boundaries; no runtime candidate
+is adopted and the v5 holdout remains unscored.

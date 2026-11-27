@@ -167,3 +167,8 @@ finds the whole-query threshold gain does not persist when each pair is omitted
 from selection: 9/10 expected-document answers remain and 6/10 unsupported requests
 are answered. This is reused validation sensitivity, not independent quality evidence;
 no candidate is promoted and the v5 holdout remains unscored.
+
+The [sentence-local v5 follow-up](sentence-coverage-v5.md) finds no threshold that
+reduces unsupported validation answers while preserving both supported metrics.
+It retains per-unit evidence and all selection boundaries; no runtime candidate
+is adopted and the v5 holdout remains unscored.
